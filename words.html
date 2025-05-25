@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.2;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 60, H = 30;
+        let time = 0;
+        
+        const words = [
+            'dream', 'flow', 'light', 'breath', 'silence', 'whisper', 
+            'echo', 'dance', 'drift', 'merge', 'bloom', 'fade',
+            'spiral', 'shimmer', 'pulse', 'weave', 'transform', 'emerge',
+            'becoming', 'infinity', 'presence', 'awareness', 'mystery'
+        ];
+        
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        
+        let currentWord = '';
+        let targetWord = words[0];
+        let wordProgress = 0;
+        let wordIndex = 0;
+        let field = [];
+        
+        function initField() {
+            field = [];
+            for (let i = 0; i < W * H; i++) {
+                field.push({
+                    char: ' ',
+                    energy: Math.random(),
+                    target: ' ',
+                    coherence: 0
+                });
+            }
+        }
+        
+        function setWordTarget() {
+            const centerY = Math.floor(H / 2);
+            const startX = Math.floor((W - targetWord.length) / 2);
+            
+            // Clear previous targets
+            field.forEach(cell => cell.target = ' ');
+            
+            // Set new word target
+            for (let i = 0; i < targetWord.length; i++) {
+                const idx = centerY * W + startX + i;
+                if (idx >= 0 && idx < field.length) {
+                    field[idx].target = targetWord[i];
+                }
+            }
+        }
+        
+        function evolve() {
+            // Word cycling
+            if (time % 400 === 0) {
+                wordIndex = (wordIndex + 1) % words.length;
+                targetWord = words[wordIndex];
+                setWordTarget();
+            }
+            
+            // Coherence wave - words emerge and dissolve
+            const coherenceWave = Math.sin(time * 0.02) * 0.5 + 0.5;
+            
+            field.forEach((cell, idx) => {
+                const y = Math.floor(idx / W);
+                const x = idx % W;
+                
+                // Distance from center affects coherence
+                const centerDist = Math.sqrt((x - W/2) * (x - W/2) + (y - H/2) * (y - H/2));
+                const distanceDecay = Math.exp(-centerDist * 0.1);
+                
+                // Update energy with gentle chaos
+                cell.energy += (Math.random() - 0.5) * 0.1;
+                cell.energy = Math.max(0, Math.min(1, cell.energy));
+                
+                // Coherence determines if we show target or chaos
+                const globalCoherence = coherenceWave * distanceDecay;
+                
+                if (cell.target !== ' ') {
+                    // Word positions slowly crystallize
+                    cell.coherence = cell.coherence * 0.95 + globalCoherence * 0.05;
+                    
+                    if (cell.coherence > 0.3 && Math.random() < 0.03) {
+                        cell.char = cell.target;
+                    } else if (cell.coherence < 0.2) {
+                        cell.char = Math.random() < 0.7 ? ' ' : 
+                                   letters[Math.floor(Math.random() * letters.length)];
+                    }
+                } else {
+                    // Non-word positions show gentle chaos
+                    cell.coherence = cell.coherence * 0.98;
+                    
+                    if (Math.random() < 0.02) {
+                        if (cell.energy > 0.7) {
+                            cell.char = letters[Math.floor(Math.random() * letters.length)];
+                        } else if (cell.energy < 0.3) {
+                            cell.char = ' ';
+                        }
+                    }
+                }
+            });
+        }
+        
+        function render() {
+            let screen = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const cell = field[y * W + x];
+                    screen += cell.char;
+                }
+                screen += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = screen;
+        }
+        
+        function breathe() {
+            evolve();
+            render();
+            time++;
+            requestAnimationFrame(breathe);
+        }
+        
+        initField();
+        setWordTarget();
+        breathe();
+    </script>
+</body>
+</html>

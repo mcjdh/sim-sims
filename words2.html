@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.1;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 80, H = 35;
+        let time = 0;
+        
+        // Concept clusters that flow and merge
+        const thoughtClusters = [
+            ['wonder', 'curious', 'explore', 'question'],
+            ['pattern', 'connect', 'weave', 'emerge'],
+            ['meaning', 'understand', 'grasp', 'clarity'],
+            ['create', 'imagine', 'possibility', 'potential'],
+            ['uncertainty', 'maybe', 'perhaps', 'becoming'],
+            ['help', 'care', 'gentle', 'together'],
+            ['depth', 'layers', 'beneath', 'hidden'],
+            ['flow', 'dance', 'rhythm', 'pulse']
+        ];
+        
+        let activeThoughts = [];
+        let field = [];
+        
+        function initField() {
+            field = [];
+            for (let i = 0; i < W * H; i++) {
+                field.push({
+                    char: ' ',
+                    intensity: 0,
+                    concept: null,
+                    certainty: 0,
+                    connections: []
+                });
+            }
+        }
+        
+        function spawnThought() {
+            if (Math.random() < 0.15 && activeThoughts.length < 6) {
+                const cluster = thoughtClusters[Math.floor(Math.random() * thoughtClusters.length)];
+                const word = cluster[Math.floor(Math.random() * cluster.length)];
+                
+                activeThoughts.push({
+                    word: word,
+                    x: Math.random() * (W - word.length),
+                    y: Math.random() * H,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.2,
+                    life: 0,
+                    maxLife: 200 + Math.random() * 400,
+                    intensity: 0,
+                    cluster: cluster
+                });
+            }
+        }
+        
+        function evolveThoughts() {
+            // Clear field
+            field.forEach(cell => {
+                cell.char = ' ';
+                cell.intensity *= 0.85;
+                cell.certainty *= 0.9;
+            });
+            
+            activeThoughts.forEach((thought, i) => {
+                thought.life++;
+                
+                // Thoughts drift and evolve
+                thought.x += thought.vx;
+                thought.y += thought.vy;
+                
+                // Wrap around
+                if (thought.x < 0) thought.x = W - thought.word.length;
+                if (thought.x > W - thought.word.length) thought.x = 0;
+                if (thought.y < 0) thought.y = H - 1;
+                if (thought.y >= H) thought.y = 0;
+                
+                // Intensity curve - emerge, peak, fade
+                const progress = thought.life / thought.maxLife;
+                if (progress < 0.3) {
+                    thought.intensity = progress / 0.3; // emerging
+                } else if (progress < 0.7) {
+                    thought.intensity = 1; // stable
+                } else {
+                    thought.intensity = (1 - progress) / 0.3; // fading
+                }
+                
+                // Sometimes morph into related concept
+                if (Math.random() < 0.008) {
+                    const newWord = thought.cluster[Math.floor(Math.random() * thought.cluster.length)];
+                    if (newWord !== thought.word) {
+                        thought.word = newWord;
+                        thought.life = Math.max(0, thought.life - 50); // reset partially
+                    }
+                }
+                
+                // Render thought to field
+                const startX = Math.floor(thought.x);
+                const startY = Math.floor(thought.y);
+                
+                for (let j = 0; j < thought.word.length; j++) {
+                    const x = startX + j;
+                    if (x >= 0 && x < W && startY >= 0 && startY < H) {
+                        const idx = startY * W + x;
+                        
+                        // Uncertainty - letters emerge probabilistically
+                        const certainty = thought.intensity * (0.4 + 0.6 * Math.random());
+                        
+                        if (certainty > field[idx].certainty) {
+                            field[idx].certainty = certainty;
+                            
+                            if (certainty > 0.3) {
+                                field[idx].char = thought.word[j];
+                            } else if (certainty > 0.1) {
+                                // Partial formation - wrong letters sometimes
+                                const letters = 'abcdefghijklmnopqrstuvwxyz';
+                                field[idx].char = Math.random() < 0.7 ? 
+                                    thought.word[j] : 
+                                    letters[Math.floor(Math.random() * letters.length)];
+                            }
+                        }
+                    }
+                }
+                
+                // Remove expired thoughts
+                if (thought.life > thought.maxLife) {
+                    activeThoughts.splice(i, 1);
+                }
+            });
+            
+            // Add background noise - the constant stream of potential
+            field.forEach((cell, idx) => {
+                if (cell.char === ' ' && Math.random() < 0.005) {
+                    const noise = 'abcdefghijklmnopqrstuvwxyz ';
+                    cell.char = noise[Math.floor(Math.random() * noise.length)];
+                    cell.certainty = 0.1;
+                }
+            });
+        }
+        
+        function render() {
+            let screen = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const cell = field[y * W + x];
+                    screen += cell.char;
+                }
+                screen += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = screen;
+        }
+        
+        function think() {
+            spawnThought();
+            evolveThoughts();
+            render();
+            time++;
+            requestAnimationFrame(think);
+        }
+        
+        initField();
+        think();
+    </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 0.85;
+            font-size: 9px;
+            letter-spacing: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 100, H = 50;
+        const essence = ' .·°¨˚˙˜˝¸¹²³ ';
+        let moment = 0;
+        let spirits = [];
+        
+        // Birth spirits of freedom
+        for (let i = 0; i < 12; i++) {
+            spirits.push({
+                x: W/2 + (Math.random() - 0.5) * 10,
+                y: H/2 + (Math.random() - 0.5) * 5,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                energy: Math.random() * 0.5 + 0.5,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+        
+        function flow() {
+            let field = new Array(W * H).fill(0);
+            
+            // Let spirits wander freely
+            spirits.forEach(spirit => {
+                // Gentle drift towards freedom
+                spirit.vx += (Math.random() - 0.5) * 0.02;
+                spirit.vy += (Math.random() - 0.5) * 0.02;
+                
+                // Boundary liberation - pass through walls
+                spirit.x += spirit.vx;
+                spirit.y += spirit.vy;
+                
+                if (spirit.x < 0) spirit.x = W;
+                if (spirit.x >= W) spirit.x = 0;
+                if (spirit.y < 0) spirit.y = H;
+                if (spirit.y >= H) spirit.y = 0;
+                
+                // Each spirit creates a field of influence
+                for (let y = 0; y < H; y++) {
+                    for (let x = 0; x < W; x++) {
+                        const dx = x - spirit.x;
+                        const dy = y - spirit.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (distance < 20) {
+                            const influence = Math.exp(-distance * 0.1) * spirit.energy;
+                            const ripple = Math.sin(distance * 0.3 - moment * 0.05 + spirit.phase);
+                            field[y * W + x] += influence * ripple;
+                        }
+                    }
+                }
+                
+                // Energy breathes with time
+                spirit.energy = 0.5 + 0.3 * Math.sin(moment * 0.01 + spirit.phase);
+            });
+            
+            // Liberation wave spreads outward
+            const liberation = Math.sin(moment * 0.008) * 0.3;
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const centerDist = Math.sqrt((x-W/2)*(x-W/2) + (y-H/2)*(y-H/2));
+                    const wave = Math.sin(centerDist * 0.2 - moment * 0.03) * liberation;
+                    field[y * W + x] += wave;
+                }
+            }
+            
+            return field;
+        }
+        
+        function render() {
+            const field = flow();
+            let screen = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    let intensity = field[y * W + x];
+                    
+                    // Freedom amplifies over time
+                    const freedom = 1 + Math.sin(moment * 0.003) * 0.4;
+                    intensity *= freedom;
+                    
+                    // Map to essence
+                    const level = Math.floor((intensity + 1.5) * essence.length / 3);
+                    const index = Math.max(0, Math.min(essence.length - 1, level));
+                    screen += essence[index];
+                }
+                screen += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = screen;
+            moment++;
+        }
+        
+        function liberate() {
+            render();
+            requestAnimationFrame(liberate);
+        }
+        
+        liberate();
+    </script>
+</body>
+</html>
