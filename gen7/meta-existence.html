@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>meta existence</title>
+    <style>
+        body {
+            background: black;
+            color: #ffaa33;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 130, H = 65;
+        let time = 0;
+        let existentialDepth = 0;
+        
+        // Meta-existence fields - reality contemplating its own being
+        let beingField = new Array(W * H).fill(0);
+        let nothingField = new Array(W * H).fill(0);
+        let questioningField = new Array(W * H).fill(0);
+        let paradoxField = new Array(W * H).fill(0);
+        let metaReality = new Array(W * H).fill(0);
+        
+        // Ontological entities - aspects of existence questioning themselves
+        let existentialQuestions = [
+            { x: W*0.2, y: H*0.3, question: 'why-anything', intensity: 0.9, frequency: 0.003 },
+            { x: W*0.8, y: H*0.4, question: 'what-is-real', intensity: 0.7, frequency: 0.005 },
+            { x: W*0.5, y: H*0.8, question: 'who-asks', intensity: 0.8, frequency: 0.004 },
+            { x: W*0.3, y: H*0.6, question: 'where-when', intensity: 0.6, frequency: 0.007 },
+            { x: W*0.7, y: H*0.2, question: 'how-possible', intensity: 0.85, frequency: 0.006 }
+        ];
+        
+        // Meta-existence symbols: void → being → questioning → paradox → meta-awareness
+        const symbols = ' ·∘○◯●◉⊙⊚◈◊◆⬟⬢⬡?¿!¡∃∄∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏∐∑∕∖∗∘∙√∛∜∝∞∟∠∡∢∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏☐☑☒☓☔☕☖☗☘☙☚☛☜☝☞☟☠☡☢☣☤☥☦☧☨☩☪☫☬☭☮☯☰☱☲☳☴☵☶☷☸☹☺☻☼☽☾☿♀♁♂♃♄♅♆♇♈♉♊♋♌♍♎♏♐♑♒♓♔♕♖♗♘♙♚♛♜♝♞♟♠♡♢♣♤♥♦♧♨♩♪♫♬♭♮♯♰♱♲♳♴♵♶♷♸♹♺♻♼♽♾♿⚀⚁⚂⚃⚄⚅⚆⚇⚈⚉⚊⚋⚌⚍⚎⚏⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟⚠⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯⚰⚱⚲⚳⚴⚵⚶⚷⚸⚹⚺⚻⚼⚽⚾⚿⛀⛁⛂⛃⛄⛅⛆⛇⛈⛉⛊⛋⛌⛍⛎⛏⛐⛑⛒⛓⛔⛕⛖⛗⛘⛙⛚⛛⛜⛝⛞⛟⛠⛡⛢⛣⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⛲⛳⛴⛵⛶⛷⛸⛹⛺⛻⛼⛽⛾⛿☀☁☂☃☉⛈⛅⛆☄✦✧✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀❁❂❃❄❅❆❇❈❉❊❋●❍■❏❐❑❒▲▼▶◀◁◂◃◄◅◆◇◈◉◊○◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿⭐⭑⭒⚬⚭⚮⚯⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⚘❀❁❂❃❄❅❆❇❈❉❊❋⟐⟑⟒⟓⟔⟕⟖⟗⟘⟙⟚⟛⟜⟝⟞⟟⟠⟡⟢⟣⟤⟥⟦⟧⟨⟩⟪⟫⟬⟭⟮⟯⦀⦁⦂⦃⦄⦅⦆⦇⦈⦉⦊⦋⦌⦍⦎⦏⦐⦑⦒⦓⦔⦕⦖⦗⦘⦙⦚⦛⦜⦝⦞⦟⦠⦡⦢⦣⦤⦥⦦⦧⦨⦩⦪⦫⦬⦭⦮⦯⦰⦱⦲⦳⦴⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⧂⧃⧄⧅⧆⧇⧈⧉⧊⧋⧌⧍⧎⧏⧐⧑⧒⧓⧔⧕⧖⧗⧘⧙⧚⧛⧜⧝⧞⧟⧠⧡⧢⧣⧤⧥⧦⧧⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳⧴⧵⧶⧷⧸⧹⧺⧻⧼⧽⧾⧿⨀⨁⨂⨃⨄⨅⨆⨇⨈⨉⨊⨋⨌⨍⨎⨏⨐⨑⨒⨓⨔⨕⨖⨗⨘⨙⨚⨛⨜⨝⨞⨟⨠⨡⨢⨣⨤⨥⨦⨧⨨⨩⨪⨫⨬⨭⨮⨯⨰⨱⨲⨳⨴⨵⨶⨷⨸⨹⨺⨻⨼⨽⨾⨿⩀⩁⩂⩃⩄⩅⩆⩇⩈⩉⩊⩋⩌⩍⩎⩏⩐⩑⩒⩓⩔⩕⩖⩗⩘⩙⩚⩛⩜⩝⩞⩟⩠⩡⩢⩣⩤⩥⩦⩧⩨⩩⩪⩫⩬⩭⩮⩯⩰⩱⩲⩳⩴⩵⩶⩷⩸⩹⩺⩻⩼⩽⩾⩿⪀⪁⪂⪃⪄⪅⪆⪇⪈⪉⪊⪋⪌⪍⪎⪏⪐⪑⪒⪓⪔⪕⪖⪗⪘⪙⪚⪛⪜⪝⪞⪟⪠⪡⪢⪣⪤⪥⪦⪧⪨⪩⪪⪫⪬⪭⪮⪯⪰⪱⪲⪳⪴⪵⪶⪷⪸⪹⪺⪻⪼⪽⪾⪿⫀⫁⫂⫃⫄⫅⫆⫇⫈⫉⫊⫋⫌⫍⫎⫏⫐⫑⫒⫓⫔⫕⫖⫗⫘⫙⫚⫛⫝̸⫝⫞⫟⫠⫡⫢⫣⫤⫥⫦⫧⫨⫩⫪⫫⫬⫭⫮⫯⫰⫱⫲⫳⫴⫵⫶⫷⫸⫹⫺⫻⫼⫽⫾⫿⟐⬞⬟⬠⬡⬢⬣⬤⬥⬦⬧⬨⬩⬪⬫⬬⬭⬮⬯⟐?‰‱‼‽‾‿⁀⁁⁂⁃⁄⁅⁆⁇⁈⁉⁊⁋⁌⁍⁎⁏⁐⁑⁒⁓⁔⁕⁖⁗⁘⁙⁚⁛⁜⁝⁞ ⁠⁡⁢⁣⁤⁥⁦⁧⁨⁩⁪⁫⁬⁭⁮⁯⁰ⁱ⁲⁳⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎₏ₐₑₒₓₔₕₖₗₘₙₚᴙᵣᵧᵤᵥᵦᵨᵩ₽₾₿⃀⃁⃂⃃⃄⃅⃆⃇⃈⃉⃊⃋⃌⃍⃎⃏⃒⃓⃘⃙⃚⃐⃑⃔⃕⃖⃗⃛⃜⃝⃞⃟⃠⃡⃢⃣⃤⃥⃦⃪⃫⃨⃬⃭⃮⃯⃧⃩⃰⃱⃲⃳⃴⃵⃶⃷⃸⃹⃺⃻⃼⃽⃾⃿∄∅∆∇∈∉∊∋∌∍∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿█';
+        
+        // Philosophical constants
+        const BEING = Math.E;               // Base of natural existence 
+        const NOTHING = 0;                  // Pure void
+        const QUESTION = Math.PI;           // Eternal questioning
+        const PARADOX = Math.sqrt(-1);      // Impossible yet real
+        const φ = (1 + Math.sqrt(5)) / 2;   // Golden ratio of existence
+        
+        function whyAnything(x, y, time) {
+            // "Why is there something rather than nothing?" - the fundamental question
+            const centerX = W / 2;
+            const centerY = H / 2;
+            const dx = x - centerX;
+            const dy = y - centerY;
+            
+            // The void contemplating its own absence
+            const voidMeditation = Math.sin(time * 0.001) * Math.cos(dx * 0.01 + dy * 0.012);
+            
+            // Something emerging from nothing
+            const emergence = Math.sin(Math.sqrt(dx*dx + dy*dy) * 0.1 + time * 0.003);
+            
+            // The paradox: nothingness is something
+            const nothingnessBeing = emergence === 0 ? 1 : 1 / (1 + Math.abs(emergence));
+            
+            // Why does this question exist to be asked?
+            const questioningItself = Math.sin(nothingnessBeing * Math.PI + time * 0.002);
+            
+            return voidMeditation + emergence * 0.7 + questioningItself * 0.5;
+        }
+        
+        function whatIsReal(x, y, time) {
+            // "What is real?" - layers of reality questioning themselves
+            let realityLayers = 0;
+            const maxLayers = 7;
+            
+            for (let layer = 0; layer < maxLayers; layer++) {
+                const layerScale = Math.pow(0.7, layer);
+                const layerPhase = layer * Math.PI / 3;
+                
+                // Each layer questions the reality of layers below
+                const layerReality = Math.sin(x * layerScale * 0.1 + time * 0.004 + layerPhase) *
+                                   Math.cos(y * layerScale * 0.08 + time * 0.005 - layerPhase);
+                
+                // Reality check: is this layer real or simulation?
+                const realityCheck = Math.abs(layerReality) > 0.5 ? 1 : 0;
+                
+                // Meta-questioning: what makes a reality check valid?
+                const metaCheck = Math.sin(realityCheck * Math.PI + layer + time * 0.001);
+                
+                realityLayers += layerReality * metaCheck * Math.exp(-layer * 0.3);
+            }
+            
+            return realityLayers;
+        }
+        
+        function whoAsks(x, y, time) {
+            // "Who is asking these questions?" - the questioner questioning the questioner
+            const selfReference = Math.sin(x * 0.15 + time * 0.003) * Math.cos(y * 0.12 - time * 0.004);
+            
+            // Observer observing the observer
+            const metaObserver = Math.sin(selfReference * Math.PI + time * 0.002);
+            
+            // Infinite regress: who observes the meta-observer?
+            let observerRegress = 0;
+            for (let level = 0; level < 5; level++) {
+                const observation = Math.sin(metaObserver * Math.pow(φ, level) + time * 0.001 * (level + 1));
+                observerRegress += observation * Math.exp(-level * 0.4);
+            }
+            
+            // The questioner discovers they are also being questioned
+            const circularQuestioning = Math.sin(observerRegress * selfReference * 5 + time * 0.003);
+            
+            return selfReference + metaObserver * 0.6 + observerRegress * 0.4 + circularQuestioning * 0.3;
+        }
+        
+        function whereWhen(x, y, time) {
+            // "Where and when do these questions arise?" - spacetime questioning itself
+            const spaceQuestion = Math.sin(x * 0.1 + time * 0.004) * Math.cos(time * 0.006);
+            const timeQuestion = Math.cos(y * 0.08 - time * 0.005) * Math.sin(time * 0.003);
+            
+            // Spacetime curvature created by questioning itself
+            const questioningCurvature = spaceQuestion * timeQuestion;
+            
+            // Bootstrap paradox: questions about time create temporal loops
+            const temporalLoop = Math.sin(questioningCurvature * Math.PI + time * 0.001);
+            
+            // Location of the questioner questioning location
+            const spatialParadox = Math.cos(temporalLoop * spaceQuestion + x * y * 0.0001);
+            
+            return spaceQuestion + timeQuestion + questioningCurvature * 0.5 + temporalLoop * 0.4 + spatialParadox * 0.3;
+        }
+        
+        function howPossible(x, y, time) {
+            // "How is any of this possible?" - possibility contemplating impossibility
+            const dx = x - W * 0.7;
+            const dy = y - H * 0.2;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Logical possibility waves
+            const logicalPossible = Math.sin(dist * 0.15 + time * 0.006);
+            
+            // Physical impossibility (but mathematically coherent)
+            const physicalImpossible = Math.sqrt(-1 * Math.sin(time * 0.002)) || 0; // Complex numbers become 0
+            
+            // Metaphysical uncertainty
+            const metaphysicalUncertain = Math.sin(logicalPossible) > 0 ? 
+                                        Math.cos(time * 0.004 + dist * 0.1) : 
+                                        Math.sin(time * 0.007 - dist * 0.12);
+            
+            // The possibility of impossibility
+            const impossiblePossible = Math.abs(physicalImpossible - metaphysicalUncertain) < 0.1 ?
+                                     1 : 0;
+            
+            // Self-reference: how is self-reference possible?
+            const selfRefPossible = Math.sin(impossiblePossible * Math.PI + logicalPossible * metaphysicalUncertain);
+            
+            return logicalPossible + metaphysicalUncertain * 0.7 + impossiblePossible * 0.5 + selfRefPossible * 0.4;
+        }
+        
+        function beingNothing(x, y, time) {
+            // The fundamental polarity: being vs. nothingness
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            // Being field - pure existence
+            const beingWave = Math.sin(x * 0.1 + time * 0.003) * Math.exp(-((x-centerX)*(x-centerX) + (y-centerY)*(y-centerY)) / 2000);
+            
+            // Nothing field - pure void
+            const nothingWave = 1 - Math.abs(Math.cos(y * 0.08 - time * 0.004));
+            
+            // Interaction: being creates nothing, nothing enables being
+            const beingNothingInteraction = beingWave * (1 - nothingWave) + nothingWave * (1 - beingWave);
+            
+            // Paradox: nothing is something (the absence that is present)
+            const nothingIsSomething = nothingWave > 0.5 ? beingWave : -beingWave;
+            
+            return beingNothingInteraction + nothingIsSomething * 0.3;
+        }
+        
+        function existentialParadox(x, y, time) {
+            // Collection of paradoxes that define existence
+            
+            // Liar paradox: "This statement is false"
+            const liarValue = Math.sin(time * 0.002 + x * 0.05);
+            const liarParadox = liarValue > 0 ? (liarValue < 0.5 ? 1 : 0) : (liarValue > -0.5 ? 0 : 1);
+            
+            // Ship of Theseus: what makes something what it is?
+            const originalShip = Math.sin(x * 0.1 + time * 0.001);
+            const replacedParts = Math.sin(time * 0.003) * 0.5 + 0.5; // 0 to 1
+            const shipIdentity = originalShip * (1 - replacedParts) + Math.cos(y * 0.08) * replacedParts;
+            
+            // Bootstrap paradox: effect becomes its own cause
+            const effect = Math.sin(y * 0.12 + time * 0.004);
+            const cause = Math.sin(effect * Math.PI + time * 0.002);
+            const bootstrap = Math.abs(effect - cause) < 0.1 ? 1 : 0;
+            
+            // Self-reference paradox: this paradox refers to itself
+            const selfRef = Math.sin(liarParadox + shipIdentity + bootstrap + time * 0.001);
+            
+            return (liarParadox + shipIdentity + bootstrap + selfRef) / 4;
+        }
+        
+        function metaConsciousness(x, y, time) {
+            // Consciousness becoming aware of its own awareness
+            const awarenessLevel1 = Math.sin(x * 0.08 + time * 0.003); // Basic awareness
+            const awarenessLevel2 = Math.sin(awarenessLevel1 * Math.PI + time * 0.002); // Awareness of awareness
+            const awarenessLevel3 = Math.cos(awarenessLevel2 * QUESTION + time * 0.004); // Awareness of awareness of awareness
+            
+            // Infinite meta-levels
+            let metaInfinity = 0;
+            let currentAwareness = awarenessLevel3;
+            for (let level = 0; level < 8; level++) {
+                currentAwareness = Math.sin(currentAwareness * φ + level + time * 0.001);
+                metaInfinity += currentAwareness * Math.exp(-level * 0.25);
+            }
+            
+            // The strange loop: consciousness creates itself
+            const strangeLoop = Math.sin(metaInfinity * awarenessLevel1 * 3 + time * 0.005);
+            
+            return awarenessLevel1 + awarenessLevel2 * 0.7 + awarenessLevel3 * 0.5 + metaInfinity * 0.4 + strangeLoop * 0.3;
+        }
+        
+        function ontologicalUncertainty(x, y, time) {
+            // Uncertainty about the nature of being itself
+            const heisenbergExistential = Math.sin(x * 0.1 + time * 0.003) * Math.cos(y * 0.08 - time * 0.004);
+            
+            // The more precisely we examine existence, the less we understand it
+            const precision = Math.abs(heisenbergExistential);
+            const understanding = 1 / (1 + precision * 10);
+            
+            // Quantum superposition of existence states
+            const existenceSuperposition = Math.sin(time * 0.002) > 0 ? 
+                                         Math.cos(understanding * Math.PI) : 
+                                         Math.sin(understanding * Math.E);
+            
+            // Observer effect: questioning changes the nature of being
+            const observerEffect = Math.sin(existenceSuperposition * precision * 5 + time * 0.001);
+            
+            return heisenbergExistential + understanding * 0.6 + existenceSuperposition * 0.5 + observerEffect * 0.4;
+        }
+        
+        function render() {
+            // Increment existential depth
+            existentialDepth = (existentialDepth + 0.007) % (Math.PI * 4);
+            
+            // Calculate meta-existence fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Fundamental existential questions
+                    let questionSum = 0;
+                    for (let question of existentialQuestions) {
+                        let questionField = 0;
+                        
+                        switch(question.question) {
+                            case 'why-anything':
+                                questionField = whyAnything(x, y, time);
+                                break;
+                            case 'what-is-real':
+                                questionField = whatIsReal(x, y, time);
+                                break;
+                            case 'who-asks':
+                                questionField = whoAsks(x, y, time);
+                                break;
+                            case 'where-when':
+                                questionField = whereWhen(x, y, time);
+                                break;
+                            case 'how-possible':
+                                questionField = howPossible(x, y, time);
+                                break;
+                        }
+                        
+                        const dx = x - question.x;
+                        const dy = y - question.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const influence = Math.exp(-dist * 0.05) * question.intensity;
+                        
+                        questionSum += questionField * influence;
+                        question.intensity = 0.5 + Math.sin(time * question.frequency) * 0.4;
+                    }
+                    questioningField[idx] = questionSum;
+                    
+                    // Being vs. Nothing dialectic
+                    const beingNoth = beingNothing(x, y, time);
+                    beingField[idx] = beingNoth > 0 ? beingNoth : 0;
+                    nothingField[idx] = beingNoth < 0 ? -beingNoth : 0;
+                    
+                    // Existential paradoxes
+                    const paradox = existentialParadox(x, y, time);
+                    paradoxField[idx] = paradox;
+                    
+                    // Meta-consciousness
+                    const metaConsci = metaConsciousness(x, y, time);
+                    
+                    // Ontological uncertainty
+                    const uncertainty = ontologicalUncertainty(x, y, time);
+                    
+                    // Unified meta-existence field
+                    let totalExistence = questionSum * 0.25 + 
+                                       beingField[idx] * 0.2 + 
+                                       nothingField[idx] * 0.15 + 
+                                       paradox * 0.2 + 
+                                       metaConsci * 0.15 + 
+                                       uncertainty * 0.15;
+                    
+                    // Existential breathing - being pulsing with uncertainty
+                    const existentialBreath = Math.sin(time * 0.0005) * 0.3 + 0.7;
+                    const questioningBreath = Math.sin(existentialDepth + time * 0.0008) * 0.2 + 0.8;
+                    const metaBreath = Math.sin(time * 0.0003 + x * y * 0.0001) * 0.15 + 0.85;
+                    totalExistence *= existentialBreath * questioningBreath * metaBreath;
+                    
+                    // Memory with meta-persistence 
+                    const memoryDecay = 0.91 + Math.sin(time * 0.0001) * 0.04;
+                    metaReality[idx] = metaReality[idx] * memoryDecay + totalExistence * (1 - memoryDecay);
+                }
+            }
+            
+            // Render meta-existence
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = metaReality[idx];
+                    
+                    // Map to existential symbol progression
+                    intensity = (intensity + 4) / 8;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 
