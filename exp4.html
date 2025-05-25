@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 0.9;
+            font-size: 10px;
+            letter-spacing: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 90, H = 45;
+        const chars = ' .-:+*%@#';
+        let t = 0;
+        
+        function wave(x, y) {
+            // Simple interference of three wave sources
+            const cx = W / 2, cy = H / 2;
+            
+            // Center source - steady pulse
+            const d1 = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+            const w1 = Math.sin(d1 * 0.5 - t * 0.1);
+            
+            // Moving sources create interference
+            const x2 = cx + 15 * Math.sin(t * 0.02);
+            const y2 = cy + 10 * Math.cos(t * 0.03);
+            const d2 = Math.sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
+            const w2 = Math.sin(d2 * 0.4 - t * 0.08);
+            
+            const x3 = cx + 12 * Math.cos(t * 0.025);
+            const y3 = cy + 8 * Math.sin(t * 0.02);
+            const d3 = Math.sqrt((x - x3) * (x - x3) + (y - y3) * (y - y3));
+            const w3 = Math.sin(d3 * 0.3 - t * 0.12);
+            
+            return w1 + w2 * 0.7 + w3 * 0.5;
+        }
+        
+        function draw() {
+            let screen = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const amplitude = wave(x, y);
+                    
+                    // Natural breathing
+                    const breath = Math.sin(t * 0.05) * 0.2 + 0.8;
+                    const intensity = amplitude * breath;
+                    
+                    // Map to character
+                    const level = Math.floor((intensity + 2) * chars.length / 4);
+                    const index = Math.max(0, Math.min(chars.length - 1, level));
+                    screen += chars[index];
+                }
+                screen += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = screen;
+            t++;
+        }
+        
+        function live() {
+            draw();
+            requestAnimationFrame(live);
+        }
+        
+        live();
+    </script>
+</body>
+</html>
