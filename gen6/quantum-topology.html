@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>quantum topology</title>
+    <style>
+        body {
+            background: black;
+            color: #aaff88;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 135, H = 62;
+        let time = 0;
+        
+        // Quantum topological fields
+        let manifoldField = new Array(W * H).fill(0);
+        let quantumField = new Array(W * H).fill(0);
+        let topologyField = new Array(W * H).fill(0);
+        let uncertaintyField = new Array(W * H).fill(0);
+        let waveFunction = new Array(W * H).fill(0);
+        
+        // Topological defects - points where topology changes
+        let topologicalDefects = [
+            { x: W*0.3, y: H*0.4, genus: 1, charge: 1, radius: 8, evolution: 0 },
+            { x: W*0.7, y: H*0.6, genus: 2, charge: -1, radius: 12, evolution: Math.PI/2 },
+            { x: W*0.5, y: H*0.2, genus: 0, charge: 2, radius: 6, evolution: Math.PI },
+            { x: W*0.2, y: H*0.8, genus: 3, charge: -2, radius: 15, evolution: 3*Math.PI/2 }
+        ];
+        
+        // Quantum observers - measurement points that collapse wave functions
+        let quantumObservers = [
+            { x: W*0.15, y: H*0.25, uncertainty: 0.5, measurement: 0, range: 10 },
+            { x: W*0.85, y: H*0.75, uncertainty: 0.3, measurement: 0, range: 8 },
+            { x: W*0.6, y: H*0.1, uncertainty: 0.8, measurement: 0, range: 12 },
+            { x: W*0.4, y: H*0.9, uncertainty: 0.6, measurement: 0, range: 9 }
+        ];
+        
+        // Quantum-topological symbols: void → uncertainty → superposition → entanglement → measurement → topology
+        const symbols = ' ·∘○◯●◉⊙⊚◈◊◆⬟⬢⬡⟐⟑⟒⟓⟔⟕⟖⟗⟘⟙⟚⟛⟜⟝⟞⟟⟠⟡⟢⟣⟤⟥⟦⟧⟨⟩⟪⟫⟬⟭⟮⟯⦀⦁⦂⦃⦄⦅⦆⦇⦈⦉⦊⦋⦌⦍⦎⦏⦐⦑⦒⦓⦔⦕⦖⦗⦘⦙⦚⦛⦜⦝⦞⦟⦠⦡⦢⦣⦤⦥⦦⦧⦨⦩⦪⦫⦬⦭⦮⦯⦰⦱⦲⦳⦴⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⧂⧃⧄⧅⧆⧇⧈⧉⧊⧋⧌⧍⧎⧏⧐⧑⧒⧓⧔⧕⧖⧗⧘⧙⧚⧛⧜⧝⧞⧟⧠⧡⧢⧣⧤⧥⧦⧧⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳⧴⧵⧶⧷⧸⧹⧺⧻⧼⧽⧾⧿⌀⌁⌂⌃⌄⌅⌆⌇⌈⌉⌊⌋⌌⌍⌎⌏⌐⌑⌒⌓⌔⌕⌖⌗⌘⌙⌚⌛⌜⌝⌞⌟⌠⌡⌢⌣⌤⌥⌦⌧⌨〈〉⌫⌬⌭⌮⌯⌰⌱⌲⌳⌴⌵⌶⌷⌸⌹⌺⌻⌼⌽⌾⌿⍀⍁⍂⍃⍄⍅⍆⍇⍈⍉⍊⍋⍌⍍⍎⍏⍐⍑⍒⍓⍔⍕⍖⍗⍘⍙⍚⍛⍜⍝⍞⍟⍠⍡⍢⍣⍤⍥⍦⍧⍨⍩⍪⍫⍬⍭⍮⍯⍰⍱⍲⍳⍴⍵⍶⍷⍸⍹⍺⍻⍼⍽⍾⍿⎀⎁⎂⎃⎄⎅⎆⎇⎈⎉⎊⎋⎌⎍⎎⎏⎐⎑⎒⎓⎔⎕⎖⎗⎘⎙⎚⎛⎜⎝⎞⎟⎠⎡⎢⎣⎤⎥⎦⎧⎨⎩⎪⎫⎬⎭⎮⎯⎰⎱⎲⎳⎴⎵⎶⎷⎸⎹⎺⎻⎼⎽⎾⎿⏀⏁⏂⏃⏄⏅⏆⏇⏈⏉⏊⏋⏌⏍⏎⏏⏐⏑⏒⏓⏔⏕⏖⏗⏘⏙⏚⏛⏜⏝⏞⏟⏠⏡⏢⏣⏤⏥⏦⏧⏨⏩⏪⏫⏬⏭⏮⏯⏰⏱⏲⏳⏴⏵⏶⏷⏸⏹⏺⏻⏼⏽⏾⏿␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␠␡␢␣␤␥␦␧␨␩␪␫␬␭␮␯␰␱␲␳␴␵␶␷␸␹␺␻␼␽␾␿⑀⑁⑂⑃⑄⑅⑆⑇⑈⑉⑊⑋⑌⑍⑎⑏⑐⑑⑒⑓⑔⑕⑖⑗⑘⑙⑚⑛⑜⑝⑞⑟⑧⑨⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ';
+        
+        function manifoldDeformation(x, y, time) {
+            // Create a parameterized manifold that deforms over time
+            const u = (x - W/2) / (W/4);  // Parameter u ∈ [-2, 2]
+            const v = (y - H/2) / (H/4);  // Parameter v ∈ [-2, 2]
+            
+            // Time-dependent topology morphing
+            const morphFactor = Math.sin(time * 0.003) * 0.5 + 0.5;
+            
+            // Klein bottle parameters (genus 1)
+            const kleinA = 2 + Math.cos(v/2) * Math.sin(u) - Math.sin(v/2) * Math.sin(2*u);
+            const kleinX = kleinA * Math.cos(v/2);
+            const kleinY = kleinA * Math.sin(v/2);
+            const kleinZ = Math.sin(v/2) * Math.sin(u) + Math.cos(v/2) * Math.sin(2*u);
+            
+            // Torus parameters (genus 1)
+            const R = 1.5, r = 0.8;
+            const torusX = (R + r * Math.cos(v)) * Math.cos(u);
+            const torusY = (R + r * Math.cos(v)) * Math.sin(u);
+            const torusZ = r * Math.sin(v);
+            
+            // Double torus (genus 2) - simplified representation
+            const doubleFactor = Math.sin(u * 2) * Math.cos(v * 2);
+            const doubleX = torusX * (1 + doubleFactor * 0.3);
+            const doubleY = torusY * (1 + doubleFactor * 0.3);
+            const doubleZ = torusZ + doubleFactor * 0.5;
+            
+            // Sphere (genus 0)
+            const sphereX = Math.cos(u) * Math.sin(v);
+            const sphereY = Math.sin(u) * Math.sin(v);
+            const sphereZ = Math.cos(v);
+            
+            // Morphing between topologies based on topological defects
+            let finalX = sphereX, finalY = sphereY, finalZ = sphereZ;
+            
+            for (let defect of topologicalDefects) {
+                const dx = x - defect.x;
+                const dy = y - defect.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < defect.radius) {
+                    const influence = Math.exp(-dist * dist / (defect.radius * defect.radius));
+                    
+                    switch(defect.genus) {
+                        case 0: // Sphere
+                            finalX = finalX * (1 - influence) + sphereX * influence;
+                            finalY = finalY * (1 - influence) + sphereY * influence;
+                            finalZ = finalZ * (1 - influence) + sphereZ * influence;
+                            break;
+                        case 1: // Torus/Klein bottle
+                            const topoChoice = Math.sin(defect.evolution + time * 0.01);
+                            if (topoChoice > 0) {
+                                finalX = finalX * (1 - influence) + torusX * influence;
+                                finalY = finalY * (1 - influence) + torusY * influence;
+                                finalZ = finalZ * (1 - influence) + torusZ * influence;
+                            } else {
+                                finalX = finalX * (1 - influence) + kleinX * influence;
+                                finalY = finalY * (1 - influence) + kleinY * influence;
+                                finalZ = finalZ * (1 - influence) + kleinZ * influence;
+                            }
+                            break;
+                        case 2: // Double torus
+                            finalX = finalX * (1 - influence) + doubleX * influence;
+                            finalY = finalY * (1 - influence) + doubleY * influence;
+                            finalZ = finalZ * (1 - influence) + doubleZ * influence;
+                            break;
+                        case 3: // Triple torus (approximation)
+                            const tripleFactor = Math.sin(u * 3) * Math.cos(v * 3) * Math.sin(time * 0.02);
+                            finalX = finalX * (1 - influence) + doubleX * (1 + tripleFactor * 0.2) * influence;
+                            finalY = finalY * (1 - influence) + doubleY * (1 + tripleFactor * 0.2) * influence;
+                            finalZ = finalZ * (1 - influence) + (doubleZ + tripleFactor * 0.8) * influence;
+                            break;
+                    }
+                }
+            }
+            
+            // Project 3D manifold back to 2D intensity
+            const projection = finalX * Math.cos(time * 0.005) + finalZ * Math.sin(time * 0.005);
+            const timeWarp = Math.sin(finalY * 2 + time * 0.015);
+            
+            return projection + timeWarp * 0.3;
+        }
+        
+        function quantumWaveFunction(x, y, time) {
+            // Multi-dimensional quantum wave function
+            const ψ1_real = Math.sin(x * 0.12 + time * 0.008) * Math.cos(y * 0.10 + time * 0.006);
+            const ψ1_imag = Math.cos(x * 0.15 + time * 0.007) * Math.sin(y * 0.08 + time * 0.009);
+            
+            const ψ2_real = Math.sin((x + y) * 0.09 + time * 0.011) * Math.exp(-((x-W/2)*(x-W/2) + (y-H/2)*(y-H/2)) / 800);
+            const ψ2_imag = Math.cos((x - y) * 0.11 + time * 0.013) * Math.exp(-((x-W/3)*(x-W/3) + (y-H/3)*(y-H/3)) / 600);
+            
+            // Quantum superposition
+            const ψ_real = ψ1_real + ψ2_real * 0.7;
+            const ψ_imag = ψ1_imag + ψ2_imag * 0.7;
+            
+            // Probability density |ψ|²
+            const probabilityDensity = ψ_real * ψ_real + ψ_imag * ψ_imag;
+            
+            // Phase
+            const phase = Math.atan2(ψ_imag, ψ_real);
+            
+            return { probability: probabilityDensity, phase: phase, real: ψ_real, imag: ψ_imag };
+        }
+        
+        function quantumMeasurement(x, y, quantum, time) {
+            // Quantum measurement collapses wave function
+            let collapsed = quantum.probability;
+            
+            for (let observer of quantumObservers) {
+                const dx = x - observer.x;
+                const dy = y - observer.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < observer.range) {
+                    // Measurement probability
+                    const measurementProb = Math.exp(-dist * dist / (observer.range * observer.range));
+                    
+                    // Wave function collapse
+                    if (measurementProb > observer.uncertainty) {
+                        // Sudden collapse to classical state
+                        collapsed = Math.sign(quantum.real) * quantum.probability;
+                        observer.measurement = quantum.probability;
+                    } else {
+                        // Partial decoherence
+                        collapsed *= (1 - measurementProb * observer.uncertainty * 0.5);
+                    }
+                }
+            }
+            
+            return collapsed;
+        }
+        
+        function heisenbergUncertainty(x, y, time) {
+            // Uncertainty principle: ΔxΔp ≥ ℏ/2
+            const position_x = Math.sin(x * 0.1 + time * 0.005);
+            const position_y = Math.cos(y * 0.08 + time * 0.007);
+            
+            const momentum_x = Math.cos(x * 0.15 + time * 0.009);
+            const momentum_y = Math.sin(y * 0.12 + time * 0.006);
+            
+            // Position uncertainty
+            const Δx = Math.abs(position_x - Math.sin((x+1) * 0.1 + time * 0.005));
+            const Δy = Math.abs(position_y - Math.cos((y+1) * 0.08 + time * 0.007));
+            
+            // Momentum uncertainty
+            const Δpx = Math.abs(momentum_x - Math.cos((x+1) * 0.15 + time * 0.009));
+            const Δpy = Math.abs(momentum_y - Math.sin((y+1) * 0.12 + time * 0.006));
+            
+            // Uncertainty relation
+            const uncertainty = (Δx * Δpx + Δy * Δpy) * 0.5;
+            
+            // Ensure ΔxΔp ≥ ℏ/2 (normalized)
+            const hbar = 0.1;
+            const correctedUncertainty = Math.max(uncertainty, hbar / 2);
+            
+            return correctedUncertainty;
+        }
+        
+        function quantumEntanglement(x, y, time) {
+            // Bell state entanglement between separated regions
+            const region1 = { x: W * 0.3, y: H * 0.4, size: 15 };
+            const region2 = { x: W * 0.7, y: H * 0.6, size: 15 };
+            
+            const dist1 = Math.sqrt((x - region1.x) * (x - region1.x) + (y - region1.y) * (y - region1.y));
+            const dist2 = Math.sqrt((x - region2.x) * (x - region2.x) + (y - region2.y) * (y - region2.y));
+            
+            let entanglement = 0;
+            
+            if (dist1 < region1.size || dist2 < region2.size) {
+                // Bell state: |ψ⟩ = (|00⟩ + |11⟩)/√2
+                const bellState = Math.sin(time * 0.02) / Math.sqrt(2);
+                
+                // Non-local correlation
+                const correlation = Math.cos(dist1 * 0.1 + time * 0.01) * 
+                                  Math.cos(dist2 * 0.1 + time * 0.01);
+                
+                // Entanglement strength decreases with measurement
+                let entanglementStrength = 1;
+                for (let observer of quantumObservers) {
+                    const obsInRegion1 = Math.sqrt((observer.x - region1.x) * (observer.x - region1.x) + 
+                                                  (observer.y - region1.y) * (observer.y - region1.y)) < region1.size;
+                    const obsInRegion2 = Math.sqrt((observer.x - region2.x) * (observer.x - region2.x) + 
+                                                  (observer.y - region2.y) * (observer.y - region2.y)) < region2.size;
+                    
+                    if (obsInRegion1 || obsInRegion2) {
+                        entanglementStrength *= (1 - observer.measurement * 0.5);
+                    }
+                }
+                
+                entanglement = bellState * correlation * entanglementStrength;
+            }
+            
+            return entanglement;
+        }
+        
+        function topologicalQuantumField(x, y, time) {
+            // Quantum field theory on curved manifolds
+            const manifold = manifoldDeformation(x, y, time);
+            const quantum = quantumWaveFunction(x, y, time);
+            
+            // Metric tensor effects (simplified)
+            const metricCurvature = Math.sin(manifold * 2 + time * 0.01);
+            const curvedQuantum = quantum.probability * (1 + metricCurvature * 0.3);
+            
+            // Topological charge density
+            let topologicalCharge = 0;
+            for (let defect of topologicalDefects) {
+                const dx = x - defect.x;
+                const dy = y - defect.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < defect.radius) {
+                    const chargeField = defect.charge * Math.exp(-dist * dist / (defect.radius * defect.radius));
+                    topologicalCharge += chargeField;
+                }
+            }
+            
+            // Quantum topology interaction
+            const interaction = curvedQuantum * topologicalCharge * 0.2;
+            
+            return { field: curvedQuantum + interaction, charge: topologicalCharge };
+        }
+        
+        function render() {
+            // Update topological defects
+            for (let defect of topologicalDefects) {
+                defect.evolution += 0.01;
+                defect.radius += Math.sin(defect.evolution) * 0.05;
+                defect.radius = Math.max(5, Math.min(20, defect.radius));
+                
+                // Topological phase transitions
+                if (Math.random() < 0.001) {
+                    defect.genus = (defect.genus + 1) % 4;
+                }
+            }
+            
+            // Update quantum observers
+            for (let observer of quantumObservers) {
+                observer.uncertainty += (Math.random() - 0.5) * 0.02;
+                observer.uncertainty = Math.max(0.1, Math.min(0.9, observer.uncertainty));
+                
+                // Observer movement
+                observer.x += Math.sin(time * 0.003 + observer.x * 0.01) * 0.1;
+                observer.y += Math.cos(time * 0.004 + observer.y * 0.01) * 0.1;
+                
+                // Keep observers in bounds
+                observer.x = Math.max(10, Math.min(W-10, observer.x));
+                observer.y = Math.max(5, Math.min(H-5, observer.y));
+            }
+            
+            // Calculate quantum topological fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Manifold deformation
+                    const manifold = manifoldDeformation(x, y, time);
+                    manifoldField[idx] = manifold;
+                    
+                    // Quantum wave function
+                    const quantum = quantumWaveFunction(x, y, time);
+                    quantumField[idx] = quantum.probability;
+                    
+                    // Quantum measurement effects
+                    const measured = quantumMeasurement(x, y, quantum, time);
+                    
+                    // Heisenberg uncertainty
+                    const uncertainty = heisenbergUncertainty(x, y, time);
+                    uncertaintyField[idx] = uncertainty;
+                    
+                    // Quantum entanglement
+                    const entanglement = quantumEntanglement(x, y, time);
+                    
+                    // Topological quantum field
+                    const topoQuantum = topologicalQuantumField(x, y, time);
+                    topologyField[idx] = topoQuantum.field;
+                    
+                    // Combined quantum topology
+                    let quantumTopology = manifold * 0.25 + measured * 0.3 + 
+                                         uncertainty * 0.2 + entanglement * 0.15 + 
+                                         topoQuantum.charge * 0.1;
+                    
+                    // Quantum breathing - probability amplitude oscillation
+                    const quantumBreath = Math.sin(time * 0.004) * 0.2 + 0.8;
+                    quantumTopology *= quantumBreath;
+                    
+                    // Memory with quantum decoherence
+                    const decoherence = 0.88 + Math.sin(time * 0.002) * 0.05;
+                    waveFunction[idx] = waveFunction[idx] * decoherence + 
+                                       quantumTopology * (1 - decoherence);
+                }
+            }
+            
+            // Render quantum topology
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = waveFunction[idx];
+                    
+                    // Edge smoothing to prevent boundary artifacts
+                    const edgeFactorX = Math.min(x / 4, (W - x - 1) / 4, 1);
+                    const edgeFactorY = Math.min(y / 3, (H - y - 1) / 3, 1);
+                    const edgeFactor = Math.min(edgeFactorX, edgeFactorY);
+                    intensity *= edgeFactor;
+                    
+                    // Normalize quantum intensity
+                    intensity = (intensity + 2) / 4;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

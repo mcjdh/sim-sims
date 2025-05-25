@@ -1,0 +1,263 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Development Workflow for Living Simulations
+
+## 🚀 Step-by-Step Creation Process
+
+### 1. Mathematical Foundation (Start Here)
+
+**Choose 1-2 Core Mathematical Concepts**:
+- Wave interference (like [waves.html](mdc:gen1/waves.html))
+- Fractal/complex dynamics (like [flow.html](mdc:gen1/flow.html))
+- Neural networks (like [attention.html](mdc:gen1/attention.html))
+- Quantum mechanics (like [probability-gardens.html](mdc:gen5/probability-gardens.html))
+- Crystal/symmetry (like [temporal-crystals.html](mdc:gen5/temporal-crystals.html))
+
+**Implement Basic Mathematical Function**:
+```javascript
+function coreFunction(x, y, time) {
+    // Start with ONE clear mathematical concept
+    // Examples:
+    // return Math.sin(dist * 0.5 - time * 0.1);  // Wave
+    // return iteration / maxIterations;          // Fractal
+    // return Math.exp(-dist/focus);              // Neural attention
+}
+```
+
+### 2. Add Time Evolution
+
+**Make Parameters Evolve with Time**:
+```javascript
+function evolvingFunction(x, y, time) {
+    // Moving sources
+    const centerX = W/2 + 15 * Math.sin(time * 0.02);
+    const centerY = H/2 + 10 * Math.cos(time * 0.03);
+    
+    // Evolving parameters
+    const frequency = 0.5 + 0.2 * Math.sin(time * 0.005);
+    const phase = time * 0.1;
+    
+    return coreFunction(x, y, centerX, centerY, frequency, phase);
+}
+```
+
+### 3. Create Interference
+
+**Combine Multiple Systems** (The key to emergence):
+```javascript
+function interferenceField(x, y, time) {
+    // Base layer - primary concept
+    const base = evolvingFunction(x, y, time) * 0.6;
+    
+    // Modulation layer - adds complexity
+    const modulation = secondaryFunction(x, y, time) * 0.3;
+    
+    // Chaos layer - organic unpredictability  
+    const chaos = (Math.random() - 0.5) * 0.1;
+    
+    return base + modulation + chaos;
+}
+```
+
+### 4. Add Memory Persistence
+
+**Implement Organic Memory** (Essential for trails and history):
+```javascript
+let field = new Array(W * H).fill(0);
+let memory = new Array(W * H).fill(0);
+
+function updateWithMemory() {
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const idx = y * W + x;
+            const newIntensity = interferenceField(x, y, time);
+            
+            // Memory creates trails and persistence
+            memory[idx] = memory[idx] * 0.87 + newIntensity * 0.13;
+            field[idx] = memory[idx];
+        }
+    }
+}
+```
+
+### 5. Choose Symbol Set
+
+**Match Symbols to Conceptual Theme**:
+```javascript
+// Physical/Mathematical: geometric progression
+const symbols = ' .·°∘○◯●◉';
+
+// Cognitive/Neural: information flow
+const symbols = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫▬▭▮▯▰▱';
+
+// Quantum/Biological: organic growth
+const symbols = ' ·∘○◯⚬⚭⚮⚯⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⚘❀❁❂❃';
+
+// Crystal/Temporal: geometric structures
+const symbols = ' ·∘○◯⬢⬡⬣⬢⟐⬟⊠⊡◉❋';
+```
+
+### 6. Add Global Breathing
+
+**Apply Universal Life-like Modulation**:
+```javascript
+function addBreathing(intensity, time) {
+    // Primary breathing rhythm
+    const breath1 = Math.sin(time * 0.003) * 0.3 + 0.7;
+    
+    // Secondary subtle variations
+    const breath2 = Math.sin(time * 0.005) * 0.1 + 0.9;
+    
+    // Apply breathing to make everything feel alive
+    return intensity * breath1 * breath2;
+}
+```
+
+### 7. Fine-tune and Polish
+
+**Adjust Parameters for Optimal Feel**:
+```javascript
+// Timing adjustments
+const timeMultiplier = 0.01;  // Slower = more meditative
+const timeMultiplier = 0.05;  // Faster = more energetic
+
+// Memory decay rates
+const fastDecay = 0.85;   // Short trails
+const slowDecay = 0.95;   // Long trails
+
+// Breathing frequencies
+const calm = 0.001;       // Very slow, contemplative
+const alive = 0.005;      // Moderate, life-like
+const energetic = 0.01;   // Fast, dynamic
+```
+
+## 📐 Technical Development Patterns
+
+### Project Structure
+```
+simulation-name.html
+├── <!DOCTYPE html>
+├── <head>
+│   ├── <title>simulation name</title>
+│   └── <style>...</style>
+└── <body>
+    ├── <div id="canvas"></div>
+    └── <script>
+        ├── const W, H, symbols
+        ├── let time, field, memory arrays
+        ├── mathematical functions
+        ├── render() function
+        └── evolve() loop
+    </script>
+```
+
+### Essential CSS Template
+```css
+body {
+    background: black;
+    color: #fff;  /* or themed color */
+    font-family: 'Courier New', monospace;
+    font-size: 8-12px;
+    line-height: 0.9;
+    letter-spacing: 0px;
+    margin: 0;
+    padding: 20px;
+    overflow: hidden;
+}
+#canvas {
+    white-space: pre;
+    font-feature-settings: 'kern' 0;
+}
+```
+
+### Core JavaScript Template
+```javascript
+const W = 120, H = 60;
+const symbols = ' .·°∘○◯●◉';
+let time = 0;
+let field = new Array(W * H).fill(0);
+
+function mathematicalCore(x, y, time) {
+    // Your mathematical concept here
+}
+
+function render() {
+    // Update field
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const idx = y * W + x;
+            let intensity = mathematicalCore(x, y, time);
+            intensity = addBreathing(intensity, time);
+            field[idx] = field[idx] * 0.87 + intensity * 0.13;
+        }
+    }
+    
+    // Render to screen
+    let output = '';
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const idx = y * W + x;
+            const normalized = normalizeIntensity(field[idx]);
+            const symbolIndex = Math.floor(normalized * symbols.length);
+            output += symbols[symbolIndex];
+        }
+        output += '\n';
+    }
+    
+    document.getElementById('canvas').textContent = output;
+    time++;
+}
+
+function evolve() {
+    render();
+    requestAnimationFrame(evolve);
+}
+
+evolve();
+```
+
+## 🔬 Testing and Iteration Guidelines
+
+### Parameter Tuning Process
+1. **Start with obvious values** (frequencies around 0.01, decay around 0.9)
+2. **Adjust one parameter at a time** to see its effect
+3. **Look for the "sweet spot"** where patterns are neither too chaotic nor too ordered
+4. **Test for different time scales** - should look good at t=100 and t=10000
+5. **Ensure breathing is noticeable** but not overwhelming
+
+### Quality Indicators
+- **Patterns should be unpredictable** but not random
+- **Should feel "alive"** with subtle variations over time  
+- **Memory trails** should create organic flow, not geometric artifacts
+- **Symbols should form smooth gradients** without jarring transitions
+- **Should run smoothly** at 60fps in browser
+
+### Common Pitfalls to Avoid
+- **Too many layers** - complexity should emerge from simplicity
+- **Over-parameterization** - fewer parameters with more impact
+- **Static patterns** - everything should evolve with time
+- **No breathing** - global modulation is essential for life-like feel
+- **Poor normalization** - intensity values should map cleanly to symbols
+
+## 🎯 Conceptual Development
+
+### Theme Selection
+Choose themes that resonate with **universal patterns**:
+- **Physical**: waves, fields, particles, flow, resonance
+- **Biological**: growth, evolution, ecosystems, metabolism
+- **Cognitive**: attention, memory, consciousness, learning
+- **Quantum**: probability, uncertainty, interference, measurement
+- **Temporal**: time, crystal formation, causality, emergence
+
+### Mathematical-Conceptual Alignment
+The **mathematics should embody the concept**:
+- Waves → interference patterns → physical resonance
+- Fractals → iteration/recursion → cognitive reflection
+- Probability → quantum uncertainty → life's unpredictability
+- Symmetry → crystal growth → temporal order
+
+Follow the progression: **simple math → complex emergence → conceptual meaning**
+

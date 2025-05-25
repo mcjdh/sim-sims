@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>dimensional cascade</title>
+    <style>
+        body {
+            background: black;
+            color: #88ddff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 140, H = 65;
+        let time = 0;
+        
+        // Multi-dimensional field arrays
+        let dimension8D = new Array(W * H).fill(0);
+        let dimension6D = new Array(W * H).fill(0);
+        let dimension4D = new Array(W * H).fill(0);
+        let dimension3D = new Array(W * H).fill(0);
+        let finalField = new Array(W * H).fill(0);
+        
+        // Dimensional cascade symbols: higher dimensions → projections → final reality
+        const symbols = ' ·∘○◯●◉⊙⊚◈◊◆⬟⬢⬡⬠⬞⬝⬜⬛⟐⟑⟒⟓⟔⟕⟖⟗⟘⟙⟚⟛⟜⟝⟞⟟⟠⟡⟢⟣⟤⟥⟦⟧⟨⟩⟪⟫⟬⟭⟮⟯⦀⦁⦂⦃⦄⦅⦆⦇⦈⦉⦊⦋⦌⦍⦎⦏⦐⦑⦒⦓⦔⦕⦖⦗⦘⦙⦚⦛⦜⦝⦞⦟⦠⦡⦢⦣⦤⦥⦦⦧⦨⦩⦪⦫⦬⦭⦮⦯⦰⦱⦲⦳⦴⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⧂⧃⧄⧅⧆⧇⧈⧉⧊⧋⧌⧍⧎⧏⧐⧑⧒⧓⧔⧕⧖⧗⧘⧙⧚⧛⧜⧝⧞⧟⧠⧡⧢⧣⧤⧥⧦⧧⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳⧴⧵⧶⧷⧸⧹⧺⧻⧼⧽⧾⧿⨀⨁⨂⨃⨄⨅⨆⨇⨈⨉⨊⨋⨌⨍⨎⨏⨐⨑⨒⨓⨔⨕⨖⨗⨘⨙⨚⨛⨜⨝⨞⨟⨠⨡⨢⨣⨤⨥⨦⨧⨨⨩⨪⨫⨬⨭⨮⨯⨰⨱⨲⨳⨴⨵⨶⨷⨸⨹⨺⨻⨼⨽⨾⨿⩀⩁⩂⩃⩄⩅⩆⩇⩈⩉⩊⩋⩌⩍⩎⩏⩐⩑⩒⩓⩔⩕⩖⩗⩘⩙⩚⩛⩜⩝⩞⩟⩠⩡⩢⩣⩤⩥⩦⩧⩨⩩⩪⩫⩬⩭⩮⩯⩰⩱⩲⩳⩴⩵⩶⩷⩸⩹⩺⩻⩼⩽⩾⩿⪀⪁⪂⪃⪄⪅⪆⪇⪈⪉⪊⪋⪌⪍⪎⪏⪐⪑⪒⪓⪔⪕⪖⪗⪘⪙⪚⪛⪜⪝⪞⪟⪠⪡⪢⪣⪤⪥⪦⪧⪨⪩⪪⪫⪬⪭⪮⪯⪰⪱⪲⪳⪴⪵⪶⪷⪸⪹⪺⪻⪼⪽⪾⪿⫀⫁⫂⫃⫄⫅⫆⫇⫈⫉⫊⫋⫌⫍⫎⫏⫐⫑⫒⫓⫔⫕⫖⫗⫘⫙⫚⫛⫝̸⫝⫞⫟⫠⫡⫢⫣⫤⫥⫦⫧⫨⫩⫪⫫⫬⫭⫮⫯⫰⫱⫲⫳⫴⫵⫶⫷⫸⫹⫺⫻⫼⫽⫾⫿⬀⬁⬂⬃⬄⬅⬆⬇⬈⬉⬊⬋⬌⬍⬎⬏⬐⬑⬒⬓⬔⬕⬖⬗⬘⬙⬚⬛⬜⬝⬞⬟⬠⬡⬢⬣⬤⬥⬦⬧⬨⬩⬪⬫⬬⬭⬮⬯⬰⬱⬲⬳⬴⬵⬶⬷⬸⬹⬺⬻⬼⬽⬾⬿⭀⭁⭂⭃⭄⭅⭆⭇⭈⭉⭊⭋⭌⭍⭎⭏⭐⭑⭒⭓⭔⭕⭖⭗⭘⭙⭚⭛⭜⭝⭞⭟⭠⭡⭢⭣⭤⭥⭦⭧⭨⭩⭪⭫⭬⭭⭮⭯⭰⭱⭲⭳⭴⭵⭶⭷⭸⭹⭺⭻⭼⭽⭾⭿⮀⮁⮂⮃⮄⮅⮆⮇⮈⮉⮊⮋⮌⮍⮎⮏⮐⮑⮒⮓⮔⮕⮖⮗⮘⮙⮚⮛⮜⮝⮞⮟⮠⮡⮢⮣⮤⮥⮦⮧⮨⮩⮪⮫⮬⮭⮮⮯⮰⮱⮲⮳⮴⮵⮶⮷⮸⮹⮺⮻⮼⮽⮾⮿⯀⯁⯂⯃⯄⯅⯆⯇⯈⯉⯊⯋⯌⯍⯎⯏⯐⯑⯒⯓⯔⯕⯖⯗⯘⯙⯚⯛⯜⯝⯞⯟⯠⯡⯢⯣⯤⯥⯦⯧⯨⯩⯪⯫⯬⯭⯮⯯⯰⯱⯲⯳⯴⯵⯶⯷⯸⯹⯺⯻⯼⯽⯾⯿ⰀⰁⰂⰃⰄⰅⰆⰇⰈⰉⰊⰋⰌⰍⰎⰏⰐⰑⰒⰓⰔⰕⰖⰗⰘⰙⰚⰛⰜⰝⰞⰟⰠⰡⰢⰣⰤⰥⰦⰧⰨⰩⰪⰫⰬⰭⰮⰯⰰⰱⰲⰳⰴⰵⰶⰷⰸⰹⰺⰻⰼⰽⰾⰿⱀⱁⱂⱃⱄⱅⱆⱇⱈⱉⱊⱋⱌⱍⱎⱏⱐⱑⱒⱓⱔⱕⱖⱗⱘⱙⱚⱛⱜⱝⱞⱟⱠⱡⱢⱣⱤⱥⱦⱧⱨⱩⱪⱫⱬⱭⱮⱯⱰⱱⱲⱳⱴⱵⱶⱷⱸⱹⱺⱻⱼⱽⱾⱿⲀⲁⲂⲃⲄⲅⲆⲇⲈⲉⲊⲋⲌⲍⲎⲏⲐⲑⲒⲓⲔⲕⲖⲗⲘⲙⲚⲛⲜⲝⲞⲟⲠⲡⲢⲣⲤⲥⲦⲧⲨⲩⲪⲫⲬⲭⲮⲯⲰⲱⲲⲳⲴⲵⲶⲷⲸⲹⲺⲻⲼⲽⲾⲿⳀⳁⳂⳃⳄⳅⳆⳇⳈⳉⳊⳋⳌⳍⳎⳏⳐⳑⳒⳓⳔⳕⳖⳗⳘⳙⳚⳛⳜⳝⳞⳟⳠⳡⳢⳣⳤ⳥⳦⳧⳨⳩⳪ⳫⳬⳭⳮ⳯⳰⳱Ⳳⳳ⳴⳵⳶⳷⳸⳹⳺⳻⳼⳽⳾⳿ⴀⴁⴂⴃⴄⴅⴆⴇⴈⴉⴊⴋⴌⴍⴎⴏⴐⴑⴒⴓⴔⴕⴖⴗⴘⴙⴚⴛⴜⴝⴞⴟⴠⴡⴢⴣⴤⴥ⴦ⴧ⴨⴩⴪⴫⴬ⴭ⴮⴯ⴰⴱⴲⴳⴴⴵⴶⴷⴸⴹⴺⴻⴼⴽⴾⴿⵀⵁⵂⵃⵄⵅⵆⵇⵈⵉⵊⵋⵌⵍⵎⵏⵐⵑⵒⵓⵔⵕⵖⵗⵘⵙⵚⵛⵜⵝⵞⵟⵠⵡⵢⵣⵤⵥⵦⵧ⵨⵩⵪⵫⵬⵭⵮ⵯ⵰⵱⵲⵳⵴⵵⵶⵷⵸⵹⵺⵻⵼⵽⵾⵿ⶀⶁⶂⶃⶄⶅⶆⶇⶈⶉⶊⶋⶌⶍⶎⶏⶐⶑⶒⶓⶔⶕⶖ⶗⶘⶙⶚⶛⶜⶝⶞⶟ⶠⶡⶢⶣⶤⶥⶦ⶧ⶨⶩⶪⶫⶬⶭⶮ⶯ⶰⶱⶲⶳⶴⶵⶶ⶷ⶸⶹⶺⶻⶼⶽⶾ⶿ⷀⷁⷂⷃⷄⷅⷆ⷇ⷈⷉⷊⷋⷌⷍⷎ⷏ⷐⷑⷒⷓⷔⷕⷖ⷗ⷘⷙⷚⷛⷜⷝⷞ⷟ⷠⷡⷢⷣⷤⷥⷦⷧⷨⷩⷪⷫⷬⷭⷮⷯⷰⷱⷲⷳⷴⷵⷶⷷⷸⷹⷺⷻⷼⷽⷾⷿ⸀⸁⸂⸃⸄⸅⸆⸇⸈⸉⸊⸋⸌⸍⸎⸏⸐⸑⸒⸓⸔⸕⸖⸗⸘⸙⸚⸛⸜⸝⸞⸟⸠⸡⸢⸣⸤⸥⸦⸧⸨⸩⸪⸫⸬⸭⸮ⸯ⸰⸱⸲⸳⸴⸵⸶⸷⸸⸹⸺⸻⸼⸽⸾⸿⹀⹁⹂⹃⹄⹅⹆⹇⹈⹉⹊⹋⹌⹍⹎⹏⹐⹑⹒⹓⹔⹕⹖⹗⹘⹙⹚⹛⹜⹝⹞⹟⹠⹡⹢⹣⹤⹥⹦⹧⹨⹩⹪⹫⹬⹭⹮⹯⹰⹱⹲⹳⹴⹵⹶⹷⹸⹹⹺⹻⹼⹽⹾⹿⺀⺁⺂⺃⺄⺅⺆⺇⺈⺉⺊⺋⺌⺍⺎⺏⺐⺑⺒⺓⺔⺕⺖⺗⺘⺙⺚⺛⺜⺝⺞⺟⺠⺡⺢⺣⺤⺥⺦⺧⺨⺩⺪⺫⺬⺭⺮⺯⺰⺱⺲⺳⺴⺵⺶⺷⺸⺹⺺⺻⺼⺽⺾⺿⻀⻁⻂⻃⻄⻅⻆⻇⻈⻉⻊⻋⻌⻍⻎⻏⻐⻑⻒⻓⻔⻕⻖⻗⻘⻙⻚⻛⻜⻝⻞⻟⻠⻡⻢⻣⻤⻥⻦⻧⻨⻩⻪⻫⻬⻭⻮⻯⻰⻱⻲⻳⻴⻵⻶⻷⻸⻹⻺⻻⻼⻽⻾⻿⼀⼁⼂⼃⼄⼅⼆⼇⼈⼉⼊⼋⼌⼍⼎⼏⼐⼑⼒⼓⼔⼕⼖⼗⼘⼙⼚⼛⼜⼝⼞⼟⼠⼡⼢⼣⼤⼥⼦⼧⼨⼩⼪⼫⼬⼭⼮⼯⼰⼱⼲⼳⼴⼵⼶⼷⼸⼹⼺⼻⼼⼽⼾⼿⽀⽁⽂⽃⽄⽅⽆⽇⽈⽉⽊⽋⽌⽍⽎⽏⽐⽑⽒⽓⽔⽕⽖⽗⽘⽙⽚⽛⽜⽝⽞⽟⽠⽡⽢⽣⽤⽥⽦⽧⽨⽩⽪⽫⽬⽭⽮⽯⽰⽱⽲⽳⽴⽵⽶⽷⽸⽹⽺⽻⽼⽽⽾⽿⾀⾁⾂⾃⾄⾅⾆⾇⾈⾉⾊⾋⾌⾍⾎⾏⾐⾑⾒⾓⾔⾕⾖⾗⾘⾙⾚⾛⾜⾝⾞⾟⾠⾡⾢⾣⾤⾥⾦⾧⾨⾩⾪⾫⾬⾭⾮⾯⾰⾱⾲⾳⾴⾵⾶⾷⾸⾹⾺⾻⾼⾽⾾⾿⿀⿁⿂⿃⿄⿅⿆⿇⿈⿉⿊⿋⿌⿍⿎⿏⿐⿑⿒⿓⿔⿕⿖⿗⿘⿙⿚⿛⿜⿝⿞⿟⿠⿡⿢⿣⿤⿥⿦⿧⿨⿩⿪⿫⿬⿭⿮⿯⿰⿱⿲⿳⿴⿵⿶⿷⿸⿹⿺⿻⿼⿽⿾⿿￀￁ￂￃￄￅￆￇ￈￉ￊￋￌￍￎￏ￐￑ￒￓￔￕￖￗ￘￙ￚￛￜ￝￞￟￠￡￢￣￤￥￦￧￨￩￪￫￬￭￮￯￰￱￲￳￴￵￶￷￸￹￺￻￼�￾￿█';
+        
+        // Rotation matrices for higher dimensions
+        function rotate8D(coords, time) {
+            // Simplified 8D rotations in multiple planes
+            const t1 = time * 0.003;
+            const t2 = time * 0.005;
+            const t3 = time * 0.007;
+            
+            // XY plane rotation
+            const newX = coords[0] * Math.cos(t1) - coords[1] * Math.sin(t1);
+            const newY = coords[0] * Math.sin(t1) + coords[1] * Math.cos(t1);
+            
+            // ZW plane rotation
+            const newZ = coords[2] * Math.cos(t2) - coords[3] * Math.sin(t2);
+            const newW = coords[2] * Math.sin(t2) + coords[3] * Math.cos(t2);
+            
+            // UV plane rotation
+            const newU = coords[4] * Math.cos(t3) - coords[5] * Math.sin(t3);
+            const newV = coords[4] * Math.sin(t3) + coords[5] * Math.cos(t3);
+            
+            // ST plane rotation
+            const newS = coords[6] * Math.cos(t1 + t2) - coords[7] * Math.sin(t1 + t2);
+            const newT = coords[6] * Math.sin(t1 + t2) + coords[7] * Math.cos(t1 + t2);
+            
+            return [newX, newY, newZ, newW, newU, newV, newS, newT];
+        }
+        
+        function hypersphere8D(x, y, time) {
+            // Create 8D hypersphere coordinates
+            const centerX = W / 2, centerY = H / 2;
+            const radius = Math.min(W, H) / 3;
+            
+            // Clamp coordinates to prevent edge artifacts
+            const normalizedX = Math.max(-2, Math.min(2, (x - centerX) / radius));
+            const normalizedY = Math.max(-2, Math.min(2, (y - centerY) / radius));
+            
+            // 8D coordinates based on screen position and time
+            const coords = [
+                normalizedX,
+                normalizedY,
+                Math.sin(time * 0.01 + x * 0.02),
+                Math.cos(time * 0.008 + y * 0.015),
+                Math.sin(time * 0.012 + (x + y) * 0.01),
+                Math.cos(time * 0.006 + (x - y) * 0.008),
+                Math.sin(time * 0.015 + x * y * 0.0001),
+                Math.cos(time * 0.009 + (x * x + y * y) * 0.00005)
+            ];
+            
+            // Apply 8D rotations
+            const rotated = rotate8D(coords, time);
+            
+            // 8D distance from origin
+            let dist8D = 0;
+            for (let i = 0; i < 8; i++) {
+                dist8D += rotated[i] * rotated[i];
+            }
+            dist8D = Math.sqrt(dist8D);
+            
+            // 8D wave function
+            const wave8D = Math.sin(dist8D * 2 + time * 0.02) * Math.exp(-dist8D * 0.3);
+            
+            return { coords: rotated, wave: wave8D, distance: dist8D };
+        }
+        
+        function project8Dto6D(coords8D) {
+            // Stereographic projection from 8D to 6D
+            const w7 = coords8D[7];
+            const projectionFactor = 1 / (1 + w7 * 0.5);
+            
+            return [
+                coords8D[0] * projectionFactor,
+                coords8D[1] * projectionFactor,
+                coords8D[2] * projectionFactor,
+                coords8D[3] * projectionFactor,
+                coords8D[4] * projectionFactor,
+                coords8D[5] * projectionFactor
+            ];
+        }
+        
+        function project6Dto4D(coords6D) {
+            // Complex projection from 6D to 4D
+            const v5 = coords6D[5];
+            const projectionFactor = 1 / (1 + v5 * v5 * 0.3);
+            
+            return [
+                coords6D[0] * projectionFactor,
+                coords6D[1] * projectionFactor,
+                coords6D[2] * projectionFactor,
+                coords6D[3] * projectionFactor
+            ];
+        }
+        
+        function project4Dto3D(coords4D) {
+            // Standard 4D to 3D stereographic projection
+            const w = coords4D[3];
+            const projectionFactor = 1 / (1 + w * 0.8);
+            
+            return [
+                coords4D[0] * projectionFactor,
+                coords4D[1] * projectionFactor,
+                coords4D[2] * projectionFactor
+            ];
+        }
+        
+        function project3Dto2D(coords3D) {
+            // Final 3D to 2D projection
+            const z = coords3D[2];
+            const perspective = 1 / (1 + z * 0.2);
+            
+            return {
+                x: coords3D[0] * perspective,
+                y: coords3D[1] * perspective,
+                intensity: perspective
+            };
+        }
+        
+        function dimensionalCascade(x, y, time) {
+            // Full cascade from 8D to 2D
+            const hyper8D = hypersphere8D(x, y, time);
+            
+            // Cascade through dimensions
+            const coords6D = project8Dto6D(hyper8D.coords);
+            const coords4D = project6Dto4D(coords6D);
+            const coords3D = project4Dto3D(coords4D);
+            const final2D = project3Dto2D(coords3D);
+            
+            // Calculate distance at each dimensional level
+            const dist6D = Math.sqrt(coords6D.reduce((sum, c) => sum + c*c, 0));
+            const dist4D = Math.sqrt(coords4D.reduce((sum, c) => sum + c*c, 0));
+            const dist3D = Math.sqrt(coords3D.reduce((sum, c) => sum + c*c, 0));
+            
+            // Wave interference at each dimension
+            const wave6D = Math.sin(dist6D * 1.5 + time * 0.018);
+            const wave4D = Math.cos(dist4D * 2.2 + time * 0.015);
+            const wave3D = Math.sin(dist3D * 3.0 + time * 0.012);
+            
+            // Dimensional interference patterns
+            const interference = hyper8D.wave * 0.3 + wave6D * 0.25 + wave4D * 0.25 + wave3D * 0.2;
+            
+            // Information loss through dimensional projection
+            const informationLoss = Math.exp(-(dist6D + dist4D + dist3D) * 0.1);
+            
+            return {
+                intensity: interference * final2D.intensity * informationLoss,
+                dimension8D: hyper8D.wave,
+                dimension6D: wave6D,
+                dimension4D: wave4D,
+                dimension3D: wave3D,
+                projectedCoords: final2D
+            };
+        }
+        
+        function interdimensionalResonance(x, y, time) {
+            // Resonance between dimensional levels
+            const cascade = dimensionalCascade(x, y, time);
+            
+            // Resonant frequencies between dimensions
+            const resonance8_6 = cascade.dimension8D * cascade.dimension6D * 0.3;
+            const resonance6_4 = cascade.dimension6D * cascade.dimension4D * 0.4;
+            const resonance4_3 = cascade.dimension4D * cascade.dimension3D * 0.5;
+            
+            // Total resonance creates emergent patterns
+            const totalResonance = resonance8_6 + resonance6_4 + resonance4_3;
+            
+            return cascade.intensity + totalResonance * 0.2;
+        }
+        
+        function quantumTunneling(x, y, time) {
+            // Quantum effects between dimensional barriers
+            const cascade = dimensionalCascade(x, y, time);
+            
+            // Probability of tunneling between dimensions
+            const barrier8to6 = Math.exp(-Math.abs(cascade.dimension8D - cascade.dimension6D) * 2);
+            const barrier6to4 = Math.exp(-Math.abs(cascade.dimension6D - cascade.dimension4D) * 2);
+            const barrier4to3 = Math.exp(-Math.abs(cascade.dimension4D - cascade.dimension3D) * 2);
+            
+            // Tunneling creates sudden dimensional jumps
+            const tunnelingEffect = (barrier8to6 + barrier6to4 + barrier4to3) / 3;
+            
+            // Random quantum fluctuations
+            const quantumNoise = (Math.random() - 0.5) * 0.1 * Math.exp(-time * 0.0001);
+            
+            return tunnelingEffect + quantumNoise;
+        }
+        
+        function render() {
+            // Calculate dimensional cascade fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Full dimensional cascade
+                    const cascade = dimensionalCascade(x, y, time);
+                    
+                    // Store dimensional levels
+                    dimension8D[idx] = cascade.dimension8D;
+                    dimension6D[idx] = cascade.dimension6D;
+                    dimension4D[idx] = cascade.dimension4D;
+                    dimension3D[idx] = cascade.dimension3D;
+                    
+                    // Interdimensional resonance
+                    const resonance = interdimensionalResonance(x, y, time);
+                    
+                    // Quantum tunneling effects
+                    const tunneling = quantumTunneling(x, y, time);
+                    
+                    // Combined dimensional field
+                    let dimensionalIntensity = cascade.intensity + resonance * 0.3 + tunneling * 0.2;
+                    
+                    // Dimensional breathing - reality pulsing through dimensions
+                    const dimensionalBreath = Math.sin(time * 0.0025) * 0.2 + 0.8;
+                    dimensionalIntensity *= dimensionalBreath;
+                    
+                    // Memory with dimensional decay
+                    const dimensionalDecay = 0.89 + Math.sin(time * 0.0008) * 0.03;
+                    finalField[idx] = finalField[idx] * dimensionalDecay + 
+                                    dimensionalIntensity * (1 - dimensionalDecay);
+                }
+            }
+            
+            // Render dimensional cascade
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = finalField[idx];
+                    
+                    // Edge smoothing to prevent boundary artifacts
+                    const edgeFactorX = Math.min(x / 4, (W - x - 1) / 4, 1);
+                    const edgeFactorY = Math.min(y / 3, (H - y - 1) / 3, 1);
+                    const edgeFactor = Math.min(edgeFactorX, edgeFactorY);
+                    intensity *= edgeFactor;
+                    
+                    // Normalize dimensional intensity
+                    intensity = (intensity + 1.5) / 3;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

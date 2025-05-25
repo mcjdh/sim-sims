@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>neural cosmology</title>
+    <style>
+        body {
+            background: black;
+            color: #ffaa77;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 130, H = 62;
+        let time = 0;
+        
+        // Neural-cosmic field arrays
+        let neuronField = new Array(W * H).fill(0);
+        let synapseField = new Array(W * H).fill(0);
+        let galaxyField = new Array(W * H).fill(0);
+        let darkMatterField = new Array(W * H).fill(0);
+        let cosmicWeb = new Array(W * H).fill(0);
+        
+        // Cosmic neurons - galaxy clusters acting as neurons
+        let cosmicNeurons = [
+            { x: W*0.2, y: H*0.3, activation: 0.5, threshold: 0.7, type: 'spiral', mass: 1e12 },
+            { x: W*0.8, y: H*0.2, activation: 0.3, threshold: 0.6, type: 'elliptical', mass: 2e12 },
+            { x: W*0.6, y: H*0.8, activation: 0.8, threshold: 0.8, type: 'irregular', mass: 5e11 },
+            { x: W*0.1, y: H*0.7, activation: 0.2, threshold: 0.5, type: 'dwarf', mass: 1e10 },
+            { x: W*0.9, y: H*0.6, activation: 0.6, threshold: 0.9, type: 'supergiant', mass: 5e12 },
+            { x: W*0.4, y: H*0.1, activation: 0.4, threshold: 0.65, type: 'spiral', mass: 8e11 },
+            { x: W*0.7, y: H*0.5, activation: 0.7, threshold: 0.75, type: 'ring', mass: 1.5e12 },
+            { x: W*0.3, y: H*0.9, activation: 0.1, threshold: 0.4, type: 'lenticular', mass: 3e11 }
+        ];
+        
+        // Cosmic synapses - dark matter filaments connecting neurons
+        let cosmicSynapses = [];
+        
+        // Neural-cosmic symbols: void → dark matter → filaments → neurons → clusters → consciousness
+        const symbols = ' ·∘○◯●◉⊙⊚◈◊◆⬟⬢⬡⚬⚭⚮⚯∴∵∶∷∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿⌀⌁⌂⌃⌄⌅⌆⌇⌈⌉⌊⌋⌌⌍⌎⌏⌐⌑⌒⌓⌔⌕⌖⌗⌘⌙⌚⌛⌜⌝⌞⌟⌠⌡⌢⌣⌤⌥⌦⌧⌨〈〉⌫⌬⌭⌮⌯⌰⌱⌲⌳⌴⌵⌶⌷⌸⌹⌺⌻⌼⌽⌾⌿⍀⍁⍂⍃⍄⍅⍆⍇⍈⍉⍊⍋⍌⍍⍎⍏⍐⍑⍒⍓⍔⍕⍖⍗⍘⍙⍚⍛⍜⍝⍞⍟⍠⍡⍢⍣⍤⍥⍦⍧⍨⍩⍪⍫⍬⍭⍮⍯⍰⍱⍲⍳⍴⍵⍶⍷⍸⍹⍺⍻⍼⍽⍾⍿⎀⎁⎂⎃⎄⎅⎆⎇⎈⎉⎊⎋⎌⎍⎎⎏⎐⎑⎒⎓⎔⎕⎖⎗⎘⎙⎚⎛⎜⎝⎞⎟⎠⎡⎢⎣⎤⎥⎦⎧⎨⎩⎪⎫⎬⎭⎮⎯⎰⎱⎲⎳⎴⎵⎶⎷⎸⎹⎺⎻⎼⎽⎾⎿⏀⏁⏂⏃⏄⏅⏆⏇⏈⏉⏊⏋⏌⏍⏎⏏⏐⏑⏒⏓⏔⏕⏖⏗⏘⏙⏚⏛⏜⏝⏞⏟⏠⏡⏢⏣⏤⏥⏦⏧⏨⏩⏪⏫⏬⏭⏮⏯⏰⏱⏲⏳⏴⏵⏶⏷⏸⏹⏺⏻⏼⏽⏾⏿␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␠␡␢␣␤␥␦␧␨␩␪␫␬␭␮␯␰␱␲␳␴␵␶␷␸␹␺␻␼␽␾␿⑀⑁⑂⑃⑄⑅⑆⑇⑈⑉⑊⑋⑌⑍⑎⑏⑐⑑⑒⑓⑔⑕⑖⑗⑘⑙⑚⑛⑜⑝⑞⑟①②③④⑤⑥⑦⑧⑨⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽⑾⑿⒀⒁⒂⒃⒄⒅⒆⒇⒈⒉⒊⒋⒌⒍⒎⒏⒐⒑⒒⒓⒔⒕⒖⒗⒘⒙⒚⒛⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ';
+        
+        // Initialize cosmic synapses between neurons
+        function initializeCosmicSynapses() {
+            cosmicSynapses = [];
+            for (let i = 0; i < cosmicNeurons.length; i++) {
+                for (let j = i + 1; j < cosmicNeurons.length; j++) {
+                    const neuron1 = cosmicNeurons[i];
+                    const neuron2 = cosmicNeurons[j];
+                    const distance = Math.sqrt(
+                        (neuron1.x - neuron2.x) * (neuron1.x - neuron2.x) +
+                        (neuron1.y - neuron2.y) * (neuron1.y - neuron2.y)
+                    );
+                    
+                    // Only connect nearby neurons (cosmic scale adjacency)
+                    if (distance < Math.min(W, H) * 0.4) {
+                        cosmicSynapses.push({
+                            from: i,
+                            to: j,
+                            weight: Math.random() * 0.8 + 0.2,
+                            strength: 0,
+                            distance: distance,
+                            darkMatterDensity: Math.random() * 0.5 + 0.3
+                        });
+                    }
+                }
+            }
+        }
+        
+        function cosmicNeuronActivation(x, y, neuron, time) {
+            const dx = x - neuron.x;
+            const dy = y - neuron.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Galaxy activation radius based on mass
+            const activationRadius = Math.log10(neuron.mass / 1e10) * 8;
+            
+            if (dist > activationRadius) return 0;
+            
+                    // Different galaxy types have different activation patterns
+        const angle = Math.atan2(dy, dx);
+        let pattern = 0;
+        switch(neuron.type) {
+            case 'spiral':
+                pattern = Math.sin(angle * 2 + dist * 0.2 + time * 0.01) * 
+                         Math.exp(-dist * 0.08);
+                break;
+                case 'elliptical':
+                    pattern = Math.exp(-dist * dist / (activationRadius * activationRadius)) *
+                             Math.sin(time * 0.008 + dist * 0.1);
+                    break;
+                case 'irregular':
+                    pattern = Math.sin(dist * 0.3 + time * 0.015) * 
+                             Math.cos(angle * 3 + time * 0.012) *
+                             Math.exp(-dist * 0.1);
+                    break;
+                case 'dwarf':
+                    pattern = Math.exp(-dist * 0.2) * Math.sin(time * 0.02 + dist * 0.5);
+                    break;
+                case 'supergiant':
+                    pattern = Math.sin(dist * 0.05 + time * 0.005) *
+                             Math.exp(-dist * 0.03) * 1.5;
+                    break;
+                case 'ring':
+                    const ringRadius = activationRadius * 0.7;
+                    const ringDist = Math.abs(dist - ringRadius);
+                    pattern = Math.exp(-ringDist * ringDist * 0.5) *
+                             Math.sin(time * 0.01 + angle * 4);
+                    break;
+                case 'lenticular':
+                    pattern = Math.exp(-dist * 0.12) *
+                             Math.sin(angle + time * 0.007) *
+                             Math.cos(dist * 0.15 + time * 0.009);
+                    break;
+            }
+            
+            return pattern * neuron.activation;
+        }
+        
+        function darkMatterFilament(x, y, synapse, time) {
+            const neuron1 = cosmicNeurons[synapse.from];
+            const neuron2 = cosmicNeurons[synapse.to];
+            
+            // Parametric line between neurons (dark matter filament)
+            const t_param = ((x - neuron1.x) * (neuron2.x - neuron1.x) + 
+                            (y - neuron1.y) * (neuron2.y - neuron1.y)) / 
+                            (synapse.distance * synapse.distance);
+            
+            if (t_param < 0 || t_param > 1) return 0;
+            
+            // Distance from line (filament thickness)
+            const projX = neuron1.x + t_param * (neuron2.x - neuron1.x);
+            const projY = neuron1.y + t_param * (neuron2.y - neuron1.y);
+            const filamentDist = Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY));
+            
+            // Dark matter density profile
+            const filamentWidth = 3 + synapse.darkMatterDensity * 5;
+            const densityProfile = Math.exp(-filamentDist * filamentDist / (filamentWidth * filamentWidth));
+            
+            // Information flow along filament
+            const flowPattern = Math.sin(t_param * Math.PI * 3 + time * 0.02) *
+                               Math.sin(time * 0.015 + synapse.distance * 0.05);
+            
+            // Synaptic strength modulation
+            const synapticStrength = synapse.weight * synapse.strength;
+            
+            return densityProfile * flowPattern * synapticStrength * synapse.darkMatterDensity;
+        }
+        
+        function cosmicWebStructure(x, y, time) {
+            // Large-scale structure of the universe - cosmic web
+            const webScale1 = Math.sin(x * 0.05 + time * 0.003) * Math.cos(y * 0.04 + time * 0.004);
+            const webScale2 = Math.sin(x * 0.08 + y * 0.06 + time * 0.005) * 0.7;
+            const webScale3 = Math.cos(x * 0.03 + y * 0.07 - time * 0.002) * 0.5;
+            
+            // Void regions (neural resting state)
+            const voidPattern = Math.exp(-((x - W/2) * (x - W/2) + (y - H/2) * (y - H/2)) / 1000) * 0.3;
+            
+            return (webScale1 + webScale2 + webScale3) * (1 - voidPattern);
+        }
+        
+        function neuralPlasticity(time) {
+            // Hebbian learning: "neurons that fire together, wire together"
+            for (let synapse of cosmicSynapses) {
+                const neuron1 = cosmicNeurons[synapse.from];
+                const neuron2 = cosmicNeurons[synapse.to];
+                
+                // Coincident activation strengthens synapses
+                const coincidence = neuron1.activation * neuron2.activation;
+                
+                // Synaptic plasticity with decay
+                synapse.strength = synapse.strength * 0.995 + coincidence * 0.01;
+                synapse.strength = Math.max(0, Math.min(1, synapse.strength));
+                
+                // Weight adaptation based on activity
+                if (coincidence > 0.5) {
+                    synapse.weight = Math.min(1, synapse.weight + 0.001);
+                } else {
+                    synapse.weight = Math.max(0.1, synapse.weight - 0.0005);
+                }
+            }
+        }
+        
+        function cosmicNeuralNetwork(time) {
+            // Update neuron activations based on inputs from connected neurons
+            for (let i = 0; i < cosmicNeurons.length; i++) {
+                const neuron = cosmicNeurons[i];
+                let totalInput = 0;
+                
+                // Collect inputs from all connected synapses
+                for (let synapse of cosmicSynapses) {
+                    if (synapse.to === i) {
+                        const inputNeuron = cosmicNeurons[synapse.from];
+                        totalInput += inputNeuron.activation * synapse.weight * synapse.strength;
+                    }
+                    if (synapse.from === i) {
+                        const inputNeuron = cosmicNeurons[synapse.to];
+                        totalInput += inputNeuron.activation * synapse.weight * synapse.strength;
+                    }
+                }
+                
+                // Add cosmic background radiation as noise
+                const cosmicNoise = (Math.random() - 0.5) * 0.05;
+                totalInput += cosmicNoise;
+                
+                // Activation function (cosmic sigmoid)
+                const newActivation = 1 / (1 + Math.exp(-(totalInput - neuron.threshold) * 5));
+                
+                // Smooth activation change
+                neuron.activation = neuron.activation * 0.9 + newActivation * 0.1;
+                
+                // Spontaneous activity (cosmic fluctuations)
+                if (Math.random() < 0.002) {
+                    neuron.activation += (Math.random() - 0.5) * 0.3;
+                    neuron.activation = Math.max(0, Math.min(1, neuron.activation));
+                }
+            }
+        }
+        
+        function quantumCosmicFluctuations(x, y, time) {
+            // Quantum vacuum fluctuations at cosmic scales
+            const fluctuation1 = Math.sin(x * 0.12 + time * 0.008) * 
+                               Math.cos(y * 0.15 + time * 0.006) * 0.1;
+            const fluctuation2 = Math.sin((x + y) * 0.08 + time * 0.012) * 0.05;
+            
+            // Dark energy effects
+            const darkEnergy = Math.sin(time * 0.001) * 0.02;
+            
+            return fluctuation1 + fluctuation2 + darkEnergy;
+        }
+        
+        function render() {
+            // Update cosmic neural network
+            cosmicNeuralNetwork(time);
+            neuralPlasticity(time);
+            
+            // Calculate all field components
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Cosmic neuron activations
+                    let totalNeuronField = 0;
+                    for (let neuron of cosmicNeurons) {
+                        totalNeuronField += cosmicNeuronActivation(x, y, neuron, time);
+                    }
+                    neuronField[idx] = totalNeuronField;
+                    
+                    // Dark matter filaments (synapses)
+                    let totalSynapseField = 0;
+                    for (let synapse of cosmicSynapses) {
+                        totalSynapseField += darkMatterFilament(x, y, synapse, time);
+                    }
+                    synapseField[idx] = totalSynapseField;
+                    
+                    // Cosmic web structure
+                    const webStructure = cosmicWebStructure(x, y, time);
+                    cosmicWeb[idx] = webStructure;
+                    
+                    // Quantum cosmic fluctuations
+                    const fluctuations = quantumCosmicFluctuations(x, y, time);
+                    
+                    // Combined neural cosmology
+                    let neuralCosmicField = neuronField[idx] * 0.4 + 
+                                          synapseField[idx] * 0.3 + 
+                                          cosmicWeb[idx] * 0.2 + 
+                                          fluctuations * 0.1;
+                    
+                    // Cosmic consciousness breathing - universe becoming self-aware
+                    const cosmicBreath = Math.sin(time * 0.002) * 0.25 + 0.75;
+                    neuralCosmicField *= cosmicBreath;
+                    
+                    // Memory with cosmic expansion
+                    const expansionDecay = 0.91 + Math.sin(time * 0.0005) * 0.03;
+                    galaxyField[idx] = galaxyField[idx] * expansionDecay + 
+                                      neuralCosmicField * (1 - expansionDecay);
+                }
+            }
+            
+            // Render neural cosmology
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = galaxyField[idx];
+                    
+                    // Edge smoothing to prevent boundary artifacts
+                    const edgeFactorX = Math.min(x / 4, (W - x - 1) / 4, 1);
+                    const edgeFactorY = Math.min(y / 3, (H - y - 1) / 3, 1);
+                    const edgeFactor = Math.min(edgeFactorX, edgeFactorY);
+                    intensity *= edgeFactor;
+                    
+                    // Normalize cosmic intensity
+                    intensity = (intensity + 1) / 2;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Initialize the cosmic neural network
+        initializeCosmicSynapses();
+        evolve();
+    </script>
+</body>
+</html> 
