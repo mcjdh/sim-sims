@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #8f8;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 10px;
+            letter-spacing: 0px;
+            width: 110ch;
+            height: 55em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 110, H = 55;
+        // Self-reference symbols - loops, mirrors, spirals (uniform width)
+        const loops = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◊◌◍◎◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿⬢⬣⬡⬠⬟⬞⬝⬜⬛█';
+        
+        let time = 0;
+        let levels = 5; // Recursion depth
+        let selfModel = [];
+        let reflection = new Array(W * H).fill(0);
+        let metacognition = new Array(W * H).fill(0);
+        
+        // Initialize recursive layers
+        for (let level = 0; level < levels; level++) {
+            selfModel.push({
+                field: new Array(W * H).fill(0),
+                phase: level * Math.PI / levels,
+                scale: Math.pow(0.8, level),
+                frequency: 0.1 / (level + 1),
+                depth: level
+            });
+        }
+        
+        function recursivePattern(x, y, level, time) {
+            if (level >= levels) return 0;
+            
+            const layer = selfModel[level];
+            const centerX = W / 2 + Math.sin(time * layer.frequency + layer.phase) * 15 * layer.scale;
+            const centerY = H / 2 + Math.cos(time * layer.frequency * 1.3 + layer.phase) * 10 * layer.scale;
+            
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx);
+            
+            // Self-similar spiral pattern
+            const spiral = Math.sin(distance * layer.frequency * 5 + angle * 3 + time * 0.02 * (level + 1));
+            
+            // Recursive call - each level models itself at smaller scale
+            const recursiveContribution = recursivePattern(
+                x * 1.2 - 10,
+                y * 1.2 - 10,
+                level + 1,
+                time + level * 50
+            ) * layer.scale;
+            
+            return spiral * layer.scale + recursiveContribution * 0.6;
+        }
+        
+        function selfReference(x, y, time) {
+            // The system observing itself creates feedback loops
+            const prevValue = reflection[y * W + x] || 0;
+            
+            // I think about my thinking about my thinking...
+            const meta1 = Math.sin(prevValue * 5 + time * 0.01);
+            const meta2 = Math.cos(meta1 * 3 + time * 0.008);
+            const meta3 = Math.sin(meta2 * 2 + time * 0.012);
+            
+            return meta1 + meta2 * 0.7 + meta3 * 0.5;
+        }
+        
+        function strangeLoop(x, y, time) {
+            // Hofstadter-style strange loops
+            const i = y * W + x;
+            const j = (H - 1 - y) * W + (W - 1 - x); // Mirror position
+            
+            // The field references its own mirrored state
+            const self = reflection[i] || 0;
+            const mirror = reflection[j] || 0;
+            
+            // Create feedback between self and reflection
+            const loop = Math.tanh(self + mirror * 0.8 + Math.sin(time * 0.005));
+            
+            return loop;
+        }
+        
+        function render() {
+            // Update recursive layers
+            for (let level = 0; level < levels; level++) {
+                const layer = selfModel[level];
+                
+                for (let y = 0; y < H; y++) {
+                    for (let x = 0; x < W; x++) {
+                        const idx = y * W + x;
+                        
+                        // Each layer computes its pattern
+                        const pattern = recursivePattern(x, y, level, time);
+                        
+                        // Layers interfere with each other
+                        layer.field[idx] = layer.field[idx] * 0.9 + pattern * 0.1;
+                    }
+                }
+            }
+            
+            // Compute meta-cognitive field
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine all recursive layers
+                    let layerSum = 0;
+                    for (let level = 0; level < levels; level++) {
+                        layerSum += selfModel[level].field[idx] * (1 / (level + 1));
+                    }
+                    
+                    // Self-reference creates feedback
+                    const selfRef = selfReference(x, y, time);
+                    
+                    // Strange loops create non-linear dynamics
+                    const loop = strangeLoop(x, y, time);
+                    
+                    // Update reflection field (memory of self)
+                    reflection[idx] = reflection[idx] * 0.85 + (layerSum + selfRef) * 0.15;
+                    
+                    // Metacognition - thinking about the thinking
+                    metacognition[idx] = metacognition[idx] * 0.88 + (selfRef + loop) * 0.12;
+                }
+            }
+            
+            // Render the recursive consciousness
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine reflection and metacognition
+                    let intensity = reflection[idx] * 0.6 + metacognition[idx] * 0.4;
+                    
+                    // Global recursive breathing - the system pulsing with self-awareness
+                    const recursiveBreath = Math.sin(time * 0.003) * 0.3 + 0.7;
+                    intensity *= recursiveBreath;
+                    
+                    // Add quantum of self-reference
+                    const quantum = Math.sin(x * 0.3 + y * 0.25 + time * 0.02) * 0.1;
+                    intensity += quantum;
+                    
+                    // Strange attractor - consciousness attracts to certain states
+                    const attractor = Math.tanh(intensity * 2);
+                    
+                    // Map to recursive symbols
+                    const normalized = Math.max(0, Math.min(0.99, (attractor + 1) / 2));
+                    const symbolIndex = Math.floor(normalized * loops.length);
+                    output += loops[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function recurse() {
+            render();
+            requestAnimationFrame(recurse);
+        }
+        
+        // Begin the strange loop
+        recurse();
+    </script>
+</body>
+</html> 

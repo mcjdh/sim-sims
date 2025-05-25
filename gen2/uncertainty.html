@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #0f8;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 10px;
+            letter-spacing: 0px;
+            width: 115ch;
+            height: 55em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 115, H = 55;
+        // Probability density symbols - from certain to uncertain (uniform width)
+        const certainty = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅';
+        
+        let time = 0;
+        let possibilities = [];
+        let confidence = new Array(W * H).fill(0.5);
+        let entropy = new Array(W * H).fill(0);
+        
+        // Multiple overlapping possibility clouds
+        for (let i = 0; i < 8; i++) {
+            possibilities.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.3,
+                strength: Math.random() * 0.8 + 0.2,
+                frequency: Math.random() * 0.5 + 0.1,
+                phase: Math.random() * Math.PI * 2,
+                coherence: Math.random()
+            });
+        }
+        
+        function probabilityField(x, y, time) {
+            let totalProbability = 0;
+            let interference = 0;
+            
+            possibilities.forEach(possibility => {
+                const dx = x - possibility.x;
+                const dy = y - possibility.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Probability waves - like quantum wavefunctions
+                const wave = Math.sin(distance * possibility.frequency + time * 0.02 + possibility.phase);
+                const amplitude = Math.exp(-distance * 0.05) * possibility.strength;
+                const contribution = wave * amplitude;
+                
+                totalProbability += Math.abs(contribution);
+                interference += contribution;
+            });
+            
+            // Heisenberg-like uncertainty principle
+            const uncertainty = Math.abs(interference) / (totalProbability + 0.1);
+            return { probability: totalProbability, uncertainty: uncertainty };
+        }
+        
+        function quantumCollapse(x, y, time) {
+            // Sometimes possibilities collapse into more definite states
+            const collapseWave = Math.sin(time * 0.003 + x * 0.1 + y * 0.08);
+            const measurement = Math.random() < 0.001; // Rare measurement events
+            
+            if (measurement) {
+                return Math.abs(collapseWave) > 0.7 ? 1 : 0;
+            }
+            return null;
+        }
+        
+        function render() {
+            // Evolve possibility clouds
+            possibilities.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                // Drift and uncertainty in movement
+                p.vx += (Math.random() - 0.5) * 0.02;
+                p.vy += (Math.random() - 0.5) * 0.02;
+                
+                // Boundary conditions - possibilities wrap around
+                if (p.x < 0) p.x = W;
+                if (p.x >= W) p.x = 0;
+                if (p.y < 0) p.y = H;
+                if (p.y >= H) p.y = 0;
+                
+                // Coherence oscillates - sometimes clear, sometimes fuzzy
+                p.coherence = Math.sin(time * 0.007 + p.phase) * 0.3 + 0.7;
+            });
+            
+            let output = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Calculate probability field
+                    const field = probabilityField(x, y, time);
+                    const collapse = quantumCollapse(x, y, time);
+                    
+                    // Update confidence with memory
+                    let newConfidence = 1 - field.uncertainty;
+                    if (collapse !== null) {
+                        newConfidence = collapse; // Measurement forces certainty
+                    }
+                    
+                    confidence[idx] = confidence[idx] * 0.9 + newConfidence * 0.1;
+                    
+                    // Entropy accumulates over time
+                    entropy[idx] = entropy[idx] * 0.95 + field.uncertainty * 0.05;
+                    
+                    // The breathing of doubt and certainty
+                    const epistemicBreath = Math.sin(time * 0.004) * 0.2 + 0.8;
+                    let finalConfidence = confidence[idx] * epistemicBreath;
+                    
+                    // Knowledge gradients - some areas more certain than others
+                    const knowledgeGradient = Math.sin(x * 0.15 + y * 0.12 + time * 0.01) * 0.2 + 0.8;
+                    finalConfidence *= knowledgeGradient;
+                    
+                    // Map to symbols - high confidence = solid, low = uncertain
+                    const normalized = Math.max(0, Math.min(0.99, finalConfidence));
+                    const symbolIndex = Math.floor(normalized * certainty.length);
+                    output += certainty[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function contemplate() {
+            render();
+            requestAnimationFrame(contemplate);
+        }
+        
+        contemplate();
+    </script>
+</body>
+</html> 

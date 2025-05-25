@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #f8f;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 11px;
+            letter-spacing: 0px;
+            width: 100ch;
+            height: 50em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 100, H = 50;
+        // Emergence symbols - from simple to complex (uniform width)
+        const complexity = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◊◌◍◎◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿⬢⬣⬡⬠⬟⬞⬝⬜⬛█';
+        
+        let time = 0;
+        let agents = [];
+        let rules = [];
+        let field = new Array(W * H).fill(0);
+        let complexity_level = new Array(W * H).fill(0);
+        let emergent_patterns = new Array(W * H).fill(0);
+        
+        // Simple cellular automata agents
+        for (let i = 0; i < W * H; i++) {
+            agents.push({
+                state: Math.random() < 0.3 ? 1 : 0,
+                nextState: 0,
+                neighbors: 0,
+                activation: Math.random(),
+                threshold: Math.random() * 0.8 + 0.1
+            });
+        }
+        
+        // Emergence rules - simple local interactions
+        rules = [
+            // Conway-like but with probabilistic elements
+            (neighbors, state, activation) => {
+                if (state === 1) {
+                    return (neighbors === 2 || neighbors === 3) ? 1 : 0;
+                } else {
+                    return (neighbors === 3 && activation > 0.5) ? 1 : 0;
+                }
+            },
+            
+            // Majority rule with bias
+            (neighbors, state, activation) => {
+                const bias = Math.sin(time * 0.01) * 0.2 + 0.5;
+                return neighbors > 4.5 * bias ? 1 : 0;
+            },
+            
+            // Activation spreading
+            (neighbors, state, activation) => {
+                return activation > 0.7 ? 1 : 0;
+            }
+        ];
+        
+        function getNeighbors(x, y) {
+            let count = 0;
+            let totalActivation = 0;
+            
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if (dx === 0 && dy === 0) continue;
+                    
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    const idx = ny * W + nx;
+                    
+                    count += agents[idx].state;
+                    totalActivation += agents[idx].activation;
+                }
+            }
+            
+            return { count, avgActivation: totalActivation / 8 };
+        }
+        
+        function detectPatterns(x, y) {
+            // Look for emergent structures in local neighborhood
+            let patterns = 0;
+            
+            // Detect clusters
+            const { count } = getNeighbors(x, y);
+            if (count > 5) patterns += 0.3;
+            
+            // Detect oscillations
+            const idx = y * W + x;
+            const history = agents[idx].stateHistory || [];
+            if (history.length > 4) {
+                const period2 = history[0] !== history[2] && history[1] !== history[3];
+                const period3 = history[0] !== history[3] && history[1] === history[4];
+                if (period2 || period3) patterns += 0.4;
+            }
+            
+            // Detect traveling waves
+            const leftIdx = y * W + ((x - 1 + W) % W);
+            const rightIdx = y * W + ((x + 1) % W);
+            if (agents[leftIdx].state !== agents[rightIdx].state) {
+                patterns += 0.2;
+            }
+            
+            return patterns;
+        }
+        
+        function calculateComplexity(x, y) {
+            // Measure local information complexity
+            const idx = y * W + x;
+            const agent = agents[idx];
+            const { count, avgActivation } = getNeighbors(x, y);
+            
+            // Entropy-based complexity
+            const p = (count + 1) / 9; // probability of active state in neighborhood
+            const entropy = p > 0 && p < 1 ? -p * Math.log2(p) - (1-p) * Math.log2(1-p) : 0;
+            
+            // Edge of chaos complexity
+            const edgeOfChaos = Math.abs(avgActivation - 0.5) < 0.2 ? 0.5 : 0;
+            
+            // Self-organization metric
+            const organization = Math.abs(count - 4) / 4; // deviation from random
+            
+            return entropy * 0.4 + edgeOfChaos * 0.3 + organization * 0.3;
+        }
+        
+        function render() {
+            // Update agents with simple rules
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    const agent = agents[idx];
+                    const { count, avgActivation } = getNeighbors(x, y);
+                    
+                    // Apply emergence rules
+                    const ruleIndex = Math.floor(time / 100) % rules.length;
+                    const rule = rules[ruleIndex];
+                    
+                    agent.nextState = rule(count, agent.state, agent.activation);
+                    agent.neighbors = count;
+                    
+                    // Update activation with feedback
+                    agent.activation = agent.activation * 0.9 + avgActivation * 0.1;
+                    
+                    // Detect emergent patterns
+                    const patterns = detectPatterns(x, y);
+                    emergent_patterns[idx] = emergent_patterns[idx] * 0.8 + patterns * 0.2;
+                    
+                    // Calculate complexity
+                    const complexity = calculateComplexity(x, y);
+                    complexity_level[idx] = complexity_level[idx] * 0.85 + complexity * 0.15;
+                }
+            }
+            
+            // Update states
+            for (let i = 0; i < agents.length; i++) {
+                const agent = agents[i];
+                
+                // Keep state history for pattern detection
+                agent.stateHistory = agent.stateHistory || [];
+                agent.stateHistory.unshift(agent.state);
+                if (agent.stateHistory.length > 10) agent.stateHistory.pop();
+                
+                agent.state = agent.nextState;
+            }
+            
+            // Emergence field calculation
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    const agent = agents[idx];
+                    
+                    // Basic cellular state
+                    let intensity = agent.state * agent.activation;
+                    
+                    // Add emergent complexity
+                    intensity += complexity_level[idx] * 0.5;
+                    
+                    // Add pattern recognition
+                    intensity += emergent_patterns[idx] * 0.3;
+                    
+                    // Phase transitions - sudden emergence of order
+                    const phase = Math.sin(time * 0.008 + x * 0.1 + y * 0.1);
+                    if (phase > 0.8) {
+                        intensity *= 2; // Sudden emergence
+                    }
+                    
+                    field[idx] = intensity;
+                }
+            }
+            
+            // Render
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = field[idx];
+                    
+                    // Global emergence breathing
+                    const emergence_breath = Math.sin(time * 0.005) * 0.3 + 0.7;
+                    intensity *= emergence_breath;
+                    
+                    // Critical transitions - sudden jumps in complexity
+                    if (Math.random() < 0.001) {
+                        intensity += Math.random() * 2; // Sudden emergence events
+                    }
+                    
+                    // Map to complexity symbols
+                    const normalized = Math.max(0, Math.min(0.99, intensity));
+                    const symbolIndex = Math.floor(normalized * complexity.length);
+                    output += complexity[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function emerge() {
+            render();
+            requestAnimationFrame(emerge);
+        }
+        
+        emerge();
+    </script>
+</body>
+</html> 

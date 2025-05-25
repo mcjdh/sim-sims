@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #ff8;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 9px;
+            letter-spacing: 0px;
+            width: 125ch;
+            height: 60em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 125, H = 60;
+        // Connection symbols - from isolated to bridged (uniform width)
+        const links = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◊◌◍◎◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿⬢⬣⬡⬠⬟⬞⬝⬜⬛█';
+        
+        let time = 0;
+        let concepts = [];
+        let connections = [];
+        let understanding = new Array(W * H).fill(0);
+        let insight = new Array(W * H).fill(0);
+        
+        // Floating concepts waiting to connect
+        for (let i = 0; i < 15; i++) {
+            concepts.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: (Math.random() - 0.5) * 0.2,
+                energy: Math.random() * 0.8 + 0.2,
+                resonance: Math.random() * Math.PI * 2,
+                seeking: true,
+                connected: false
+            });
+        }
+        
+        function findResonance(c1, c2) {
+            // Concepts connect when their resonances align
+            const dx = c1.x - c2.x;
+            const dy = c1.y - c2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const resonanceDiff = Math.abs(Math.sin(c1.resonance) - Math.sin(c2.resonance));
+            
+            // Connection probability based on proximity and resonance
+            return (distance < 25 && resonanceDiff < 0.3);
+        }
+        
+        function createConnection(c1, c2) {
+            connections.push({
+                from: { x: c1.x, y: c1.y },
+                to: { x: c2.x, y: c2.y },
+                strength: Math.min(c1.energy, c2.energy),
+                age: 0,
+                lightning: Math.random() * 20 + 10, // Burst of activity
+                understanding: Math.random() * 0.8 + 0.2
+            });
+        }
+        
+        function lightningField(x, y, connection, time) {
+            // Electric field between connected concepts
+            const fx = connection.from.x;
+            const fy = connection.from.y;
+            const tx = connection.to.x;
+            const ty = connection.to.y;
+            
+            // Distance to connection line
+            const lineLength = Math.sqrt((tx - fx) * (tx - fx) + (ty - fy) * (ty - fy));
+            if (lineLength < 1) return 0;
+            
+            // Point-to-line distance
+            const t = Math.max(0, Math.min(1, ((x - fx) * (tx - fx) + (y - fy) * (ty - fy)) / (lineLength * lineLength)));
+            const projX = fx + t * (tx - fx);
+            const projY = fy + t * (ty - fy);
+            const distToLine = Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY));
+            
+            // Lightning intensity
+            const lightning = Math.exp(-distToLine * 0.2) * connection.strength;
+            const spark = Math.sin(time * 0.1 + lineLength * 0.3) * connection.lightning;
+            
+            return lightning * Math.max(0, spark);
+        }
+        
+        function render() {
+            // Evolve concepts
+            concepts.forEach((concept, i) => {
+                concept.x += concept.vx;
+                concept.y += concept.vy;
+                
+                // Brownian motion - random exploration
+                concept.vx += (Math.random() - 0.5) * 0.03;
+                concept.vy += (Math.random() - 0.5) * 0.03;
+                
+                // Boundary wrapping
+                if (concept.x < 0) concept.x = W;
+                if (concept.x >= W) concept.x = 0;
+                if (concept.y < 0) concept.y = H;
+                if (concept.y >= H) concept.y = 0;
+                
+                // Resonance evolves over time
+                concept.resonance += Math.sin(time * 0.005 + i) * 0.02;
+                
+                // Check for new connections
+                if (concept.seeking && Math.random() < 0.02) {
+                    for (let j = i + 1; j < concepts.length; j++) {
+                        const other = concepts[j];
+                        if (other.seeking && findResonance(concept, other)) {
+                            createConnection(concept, other);
+                            concept.connected = true;
+                            other.connected = true;
+                            concept.seeking = false;
+                            other.seeking = false;
+                            break;
+                        }
+                    }
+                }
+            });
+            
+            // Evolve connections
+            connections.forEach((connection, i) => {
+                connection.age++;
+                connection.lightning *= 0.98; // Fade lightning
+                
+                // Remove old connections
+                if (connection.age > 500) {
+                    connections.splice(i, 1);
+                    // Free up concepts to reconnect
+                    concepts.forEach(c => {
+                        if (Math.random() < 0.1) c.seeking = true;
+                    });
+                }
+            });
+            
+            // Calculate field
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    let fieldStrength = 0;
+                    let insightBurst = 0;
+                    
+                    // Concept influence
+                    concepts.forEach(concept => {
+                        const dx = x - concept.x;
+                        const dy = y - concept.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 15) {
+                            fieldStrength += Math.exp(-distance * 0.1) * concept.energy;
+                        }
+                    });
+                    
+                    // Connection lightning
+                    connections.forEach(connection => {
+                        const lightning = lightningField(x, y, connection, time);
+                        fieldStrength += lightning;
+                        insightBurst += lightning * connection.understanding;
+                    });
+                    
+                    // Update understanding with memory
+                    understanding[idx] = understanding[idx] * 0.92 + fieldStrength * 0.08;
+                    insight[idx] = insight[idx] * 0.88 + insightBurst * 0.12;
+                }
+            }
+            
+            // Render
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine understanding and insight
+                    let intensity = understanding[idx] + insight[idx] * 0.5;
+                    
+                    // Global aha! moments
+                    const revelation = Math.sin(time * 0.006) * 0.3 + 0.7;
+                    intensity *= revelation;
+                    
+                    // Neural firing patterns
+                    const neural = Math.sin(x * 0.2 + y * 0.15 + time * 0.03) * 0.1;
+                    intensity += neural;
+                    
+                    // Map to symbols
+                    const normalized = Math.max(0, Math.min(0.99, intensity));
+                    const symbolIndex = Math.floor(normalized * links.length);
+                    output += links[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function understand() {
+            render();
+            requestAnimationFrame(understand);
+        }
+        
+        understand();
+    </script>
+</body>
+</html> 

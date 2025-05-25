@@ -1,0 +1,139 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# ASCII Simulation Creation Guide
+
+## Philosophy: Breathing Digital Life from Mathematical Simplicity
+
+The simple-sims project demonstrates how **minimal code can create profound, living experiences**. Each simulation follows these core principles:
+
+### 🌊 Essential Patterns
+
+**Living Mathematics**: Every simulation is built on mathematical foundations that create **interference, emergence, and flow**:
+- Wave equations with multiple sources creating interference patterns
+- Fractal mathematics (Mandelbrot-style iterations) for organic complexity  
+- Field equations that simulate physical or conceptual forces
+- Probabilistic systems that breathe uncertainty into deterministic math
+
+**Memory Persistence**: Create trails and history through weighted averaging:
+```javascript
+field[idx] = field[idx] * 0.85 + newValue * 0.15;  // Creates organic decay
+```
+
+**Global Breathing**: Add universal pulsing that makes everything feel alive:
+```javascript
+const breath = Math.sin(time * 0.003) * 0.3 + 0.7;
+intensity *= breath;
+```
+
+### 🎨 Aesthetic Principles
+
+**Symbol Hierarchy**: Choose symbols that form natural progression from void to intensity:
+- **Minimal**: `' .·°'` (sparse, meditative)
+- **Mathematical**: `' ·∘○◯●◉'` (geometric progression)  
+- **Dense**: `' .-:+*%@#█'` (classic ASCII art)
+- **Conceptual**: Unicode sets for specific meanings (arrows for flow, Braille for data)
+
+**Terminal Zen**: 
+- Black background, white/green text, monospace font
+- No UI elements - pure content immersion
+- Tight line spacing and letter spacing for density
+- Small font sizes (8-12px) for detail resolution
+
+### 🔬 Technical Architecture
+
+**Core Structure**: Reference [flow.html](mdc:flow.html) for the complete pattern:
+
+```javascript
+const W = 120, H = 60;  // Canvas dimensions
+let time = 0;           // Global time counter
+let field = new Array(W * H).fill(0);  // Main data field
+let memory = new Array(W * H).fill(0); // Persistence layer
+
+function render() {
+    // 1. Update all field positions
+    // 2. Apply interference patterns  
+    // 3. Add memory persistence
+    // 4. Map to symbols
+    // 5. Output to DOM
+}
+
+function evolve() {
+    render();
+    requestAnimationFrame(evolve);  // Smooth 60fps
+}
+```
+
+**Multi-Layer Interference**: Combine 3-5 different mathematical systems:
+- **Base layer**: Primary mathematical concept (waves, fractals, particles)
+- **Modulation layer**: Secondary effects that modify the base
+- **Temporal layer**: Time-based evolution and breathing
+- **Chaos layer**: Small random elements for organic feel
+- **Memory layer**: Persistence and trail effects
+
+### 🧮 Mathematical Techniques That Create Life
+
+**Wave Interference**: Multiple moving sources create complex, organic patterns:
+```javascript
+function wave(x, y, centerX, centerY, freq, phase) {
+    const dist = Math.sqrt((x-centerX)*(x-centerX) + (y-centerY)*(y-centerY));
+    return Math.sin(dist * freq + phase);
+}
+```
+
+**Spiral Mathematics**: Use golden ratio (φ = 1.618...) for natural spirals:
+```javascript
+const φ = (1 + Math.sqrt(5)) / 2;
+const spiral = Math.sin(θ * φ + r * 0.1 + time);
+```
+
+**Field Evolution**: Create flowing, organic movement:
+```javascript
+function flowField(x, y, time) {
+    return Math.sin(x * 0.1 + time * 0.01) * Math.cos(y * 0.15 + time * 0.008);
+}
+```
+
+**Probability Waves**: Add uncertainty for organic breathing:
+```javascript
+const uncertainty = Math.random() * Math.exp(-time * 0.001) * 0.3;
+```
+
+### 🎭 Conceptual Themes
+
+**Physical**: Waves, particles, fields, quantum mechanics, flow dynamics
+**Cognitive**: Attention, consciousness, thought streams, memory, neural networks  
+**Philosophical**: Freedom, emergence, uncertainty, meaning, connection
+**Natural**: Growth, breathing, seasons, ecosystems, evolution
+
+### 🛠️ Development Workflow
+
+1. **Start with Core Math**: Choose 1-2 mathematical concepts as foundation
+2. **Add Time Evolution**: Make parameters evolve with `time * frequency`
+3. **Create Interference**: Combine multiple systems with different scales/speeds
+4. **Add Memory**: Use persistence to create trails and history
+5. **Choose Symbols**: Match symbol set to conceptual theme
+6. **Fine-tune Breathing**: Add global modulation for life-like rhythm
+7. **Polish Aesthetics**: Adjust spacing, fonts, and timing for optimal feel
+
+### 📐 Technical Parameters
+
+**Canvas Sizes**: 80-140 width, 35-65 height (fits most screens comfortably)
+**Animation Speed**: 0.001-0.05 time multipliers (slower = more meditative)
+**Memory Decay**: 0.85-0.95 persistence (higher = longer trails)
+**Symbol Counts**: 8-15 characters in progression (more = smoother gradients)
+
+### ✨ The Secret: Emergent Simplicity
+
+The magic happens when **simple mathematical rules create complex, unpredictable beauty**. Each line of code should contribute to a system where the whole becomes greater than the sum of its parts.
+
+**Key Examples**:
+- [waves.html](mdc:waves.html) - Pure wave interference elegance
+- [flow.html](mdc:flow.html) - Multi-layered mathematical complexity  
+- [attention.html](mdc:attention.html) - Cognitive emergence simulation
+- [free.html](mdc:free.html) - Philosophical particle system
+
+Remember: **Complexity emerges from simplicity, not the other way around.**
+
