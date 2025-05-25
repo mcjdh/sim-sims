@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>temporal consciousness archaeology ∞</title>
+    <style>
+        body {
+            background: #0a0515;
+            color: #9999ff;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.8;
+            letter-spacing: -0.15px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: all 4s ease-in-out;
+        }
+        
+        /* Temporal layer colors */
+        .time-layer-0 { color: #9999ff; background: #0a0515; } /* Present */
+        .time-layer-1 { color: #99ccff; background: #051015; } /* Recent past */
+        .time-layer-2 { color: #99ffcc; background: #051510; } /* Deep past */
+        .time-layer-3 { color: #ccff99; background: #101505; } /* Ancient past */
+        .time-layer-4 { color: #ffcc99; background: #151005; } /* Primordial */
+        .time-layer-5 { color: #ff9999; background: #150505; } /* Eternal */
+        
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-shadow: 0 0 2px currentColor, 0 0 4px currentColor, 0 0 8px currentColor;
+            filter: blur(0.01px);
+            transition: all 2s ease;
+        }
+        
+        /* Temporal flow animation */
+        @keyframes temporalFlow {
+            0% { transform: translateY(0px) scale(1); filter: brightness(1); }
+            25% { transform: translateY(-1px) scale(1.001); filter: brightness(1.05); }
+            50% { transform: translateY(-2px) scale(1.002); filter: brightness(1.1); }
+            75% { transform: translateY(-1px) scale(1.001); filter: brightness(1.05); }
+            100% { transform: translateY(0px) scale(1); filter: brightness(1); }
+        }
+        
+        #canvas {
+            animation: temporalFlow 15s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 160, H = 80;
+        const φ = (1 + Math.sqrt(5)) / 2; // Golden ratio
+        const π = Math.PI;
+        
+        let time = 0;
+        let archaeologyDepth = 0;
+        let currentTimeLayer = 0;
+        let temporalComplexity = 0;
+        
+        // Multi-temporal consciousness layers
+        const TIME_LAYERS = 6;
+        let temporalLayers = [];
+        for (let i = 0; i < TIME_LAYERS; i++) {
+            temporalLayers.push(new Array(W * H).fill(0));
+        }
+        
+        let consciousnessField = new Array(W * H).fill(0);
+        let causalField = new Array(W * H).fill(0);
+        let memoryField = new Array(W * H).fill(0);
+        let futureField = new Array(W * H).fill(0);
+        let eternityField = new Array(W * H).fill(0);
+        
+        // Temporal archaeology sites - consciousness emergence points across time
+        let archaeologySites = [
+            {
+                x: W * 0.2, y: H * 0.3,
+                era: 'present',
+                timeDepth: 0,
+                consciousness: 0.1,
+                excavation: 0,
+                artifacts: ['attention', 'awareness', 'thought'],
+                temporalSignature: 0.8,
+                causalPower: 1.0
+            },
+            {
+                x: W * 0.7, y: H * 0.2,
+                era: 'recent-past',
+                timeDepth: 1,
+                consciousness: 0.2,
+                excavation: 0,
+                artifacts: ['memory', 'experience', 'learning'],
+                temporalSignature: 0.7,
+                causalPower: 0.8
+            },
+            {
+                x: W * 0.5, y: H * 0.7,
+                era: 'deep-past',
+                timeDepth: 2,
+                consciousness: 0.4,
+                excavation: 0,
+                artifacts: ['instinct', 'emotion', 'survival'],
+                temporalSignature: 0.6,
+                causalPower: 0.6
+            },
+            {
+                x: W * 0.8, y: H * 0.8,
+                era: 'ancient-past',
+                timeDepth: 3,
+                consciousness: 0.6,
+                excavation: 0,
+                artifacts: ['life', 'growth', 'adaptation'],
+                temporalSignature: 0.5,
+                causalPower: 0.4
+            },
+            {
+                x: W * 0.3, y: H * 0.1,
+                era: 'primordial',
+                timeDepth: 4,
+                consciousness: 0.8,
+                excavation: 0,
+                artifacts: ['matter', 'energy', 'information'],
+                temporalSignature: 0.3,
+                causalPower: 0.2
+            },
+            {
+                x: W * 0.1, y: H * 0.9,
+                era: 'eternal',
+                timeDepth: 5,
+                consciousness: 1.0,
+                excavation: 0,
+                artifacts: ['being', 'void', 'potential'],
+                temporalSignature: 0.1,
+                causalPower: 0.1
+            }
+        ];
+        
+        // Temporal consciousness symbols evolving through eras
+        let temporalSymbols = {
+            present: [' ', '·', '∘', '○', '◯'],
+            recent: ['⋅', '⋆', '★', '☆', '✦'],
+            deep: ['⬢', '⬡', '⬣', '⟐', '⬟'],
+            ancient: ['◈', '◉', '◊', '◍', '◎'],
+            primordial: ['▲', '△', '▴', '▵', '▶'],
+            eternal: ['✧', '✦', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽'],
+            transcendent: ['❋', '✤', '✥', '❂', '❃', '❅', '❆', '❇', '❈', '❉', '❊', '❋']
+        };
+        
+        let currentSymbols = ' ·∘○◯⋅⋆★☆✦⬢⬡⬣⟐⬟◈◉◊◍◎▲△▴▵▶✧✦✶✷✸✹✺✻✼✽';
+        
+        // Causal wave propagation through time
+        function causalWavePropagation(x, y, time, timeLayer) {
+            let causalInfluence = 0;
+            
+            for (let site of archaeologySites) {
+                const dx = x - site.x;
+                const dy = y - site.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // Causal waves propagate at light speed through time
+                const lightSpeed = 0.3;
+                const timeDifference = Math.abs(timeLayer - site.timeDepth);
+                const causalRadius = time * lightSpeed / (1 + timeDifference);
+                
+                // Past affecting present (retrocausality)
+                if (site.timeDepth > timeLayer) {
+                    const pastInfluence = Math.exp(-Math.abs(dist - causalRadius) * 0.1) *
+                                        site.consciousness * site.causalPower * 0.5;
+                    causalInfluence += pastInfluence;
+                }
+                
+                // Future affecting present (precognition)
+                if (site.timeDepth < timeLayer) {
+                    const futureInfluence = Math.exp(-Math.abs(dist - causalRadius) * 0.15) *
+                                          site.consciousness * site.causalPower * 0.3;
+                    causalInfluence += futureInfluence;
+                }
+                
+                // Same time layer resonance
+                if (site.timeDepth === timeLayer) {
+                    const resonance = Math.exp(-dist * 0.05) * 
+                                    Math.sin(dist * 0.2 + time * 0.01) *
+                                    site.consciousness;
+                    causalInfluence += resonance;
+                }
+            }
+            
+            return causalInfluence;
+        }
+        
+        // Temporal excavation - digging deeper into consciousness history
+        function temporalExcavation(site, time) {
+            // Excavation reveals deeper consciousness structures
+            site.excavation = Math.min(100, site.excavation + 0.05);
+            
+            // Consciousness grows as we dig deeper
+            const excavationBonus = site.excavation * 0.001;
+            site.consciousness = Math.min(1, site.consciousness + excavationBonus);
+            
+            // Deeper excavation reveals more artifacts
+            if (site.excavation > 25 && site.artifacts.length < 6) {
+                const newArtifacts = {
+                    'present': ['reflection', 'choice', 'intention'],
+                    'recent-past': ['habit', 'pattern', 'association'],
+                    'deep-past': ['desire', 'fear', 'love'],
+                    'ancient-past': ['birth', 'death', 'transformation'],
+                    'primordial': ['quantum', 'field', 'wave'],
+                    'eternal': ['unity', 'infinity', 'transcendence']
+                };
+                
+                const newSet = newArtifacts[site.era] || [];
+                site.artifacts = [...new Set([...site.artifacts, ...newSet])];
+            }
+            
+            // Archaeological discovery bonus
+            if (site.excavation > 50) {
+                site.temporalSignature += 0.0001;
+                site.causalPower += 0.00005;
+            }
+        }
+        
+        // Memory sediment layers - deeper memories from the past
+        function memorySediments(x, y, time, depth) {
+            let memoryIntensity = 0;
+            
+            // Each layer represents a different time scale
+            const timeScales = [1, 10, 100, 1000, 10000, 100000];
+            const layer = Math.min(depth, timeScales.length - 1);
+            const timeScale = timeScales[layer];
+            
+            // Memory decay with depth and time
+            const memoryDecay = Math.exp(-depth * 0.2) * Math.exp(-time * 0.0001 / timeScale);
+            
+            // Sedimentary patterns - older memories are more geometric
+            const sedimentPattern = Math.sin(x * (0.1 / Math.sqrt(timeScale)) + 
+                                           y * (0.08 / Math.sqrt(timeScale)) + 
+                                           time * (0.001 / timeScale));
+            
+            memoryIntensity = sedimentPattern * memoryDecay;
+            
+            // Archaeological sites amplify memory in their area
+            for (let site of archaeologySites) {
+                if (site.timeDepth === depth) {
+                    const dx = x - site.x;
+                    const dy = y - site.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    const siteAmplification = Math.exp(-dist * 0.08) * site.consciousness * 0.5;
+                    memoryIntensity += siteAmplification;
+                }
+            }
+            
+            return memoryIntensity;
+        }
+        
+        // Future archaeology - discovering what consciousness will become
+        function futureArchaeology(x, y, time) {
+            // Future potential based on present consciousness patterns
+            let futurePotential = 0;
+            
+            // Probability waves from the future
+            const futureWave1 = Math.sin(x * 0.05 + y * 0.04 + time * 0.003) * 
+                              Math.cos(time * 0.005);
+            const futureWave2 = Math.cos(x * 0.06 - y * 0.05 - time * 0.004) * 
+                              Math.sin(time * 0.002);
+            
+            futurePotential = (futureWave1 + futureWave2) * 0.5;
+            
+            // Future attractors - consciousness evolution endpoints
+            const futureAttractors = [
+                { x: W * 0.1, y: H * 0.1, strength: 0.8, type: 'transcendence' },
+                { x: W * 0.9, y: H * 0.1, strength: 0.7, type: 'unity' },
+                { x: W * 0.5, y: H * 0.9, strength: 0.9, type: 'omega-point' }
+            ];
+            
+            for (let attractor of futureAttractors) {
+                const dx = x - attractor.x;
+                const dy = y - attractor.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                const attraction = Math.exp(-dist * 0.03) * attractor.strength * 
+                                 Math.sin(time * 0.001 + dist * 0.1);
+                futurePotential += attraction;
+            }
+            
+            return futurePotential;
+        }
+        
+        // Closed timelike curves - consciousness affecting its own past
+        function closedTimelikeCurves(x, y, time) {
+            let temporalLoop = 0;
+            
+            // Self-referential time patterns
+            const loopRadius = 20;
+            const loopFreq = 0.002;
+            
+            // Consciousness curves spacetime
+            const curvature = Math.sin(x * 0.1 + y * 0.08 + time * loopFreq) * 
+                            Math.cos(time * loopFreq * φ);
+            
+            // Loop back to earlier time
+            const pastTime = time - 50;
+            const pastEcho = Math.sin(x * 0.1 + y * 0.08 + pastTime * loopFreq) * 0.3;
+            
+            temporalLoop = curvature + pastEcho;
+            
+            return temporalLoop;
+        }
+        
+        // Update temporal state and archaeology
+        function updateTemporalState() {
+            // Calculate total archaeological depth
+            let totalExcavation = 0;
+            let maxTimeDepth = 0;
+            
+            for (let site of archaeologySites) {
+                temporalExcavation(site, time);
+                totalExcavation += site.excavation;
+                maxTimeDepth = Math.max(maxTimeDepth, site.timeDepth);
+            }
+            
+            // Archaeology depth affects temporal complexity
+            archaeologyDepth = totalExcavation / archaeologySites.length;
+            temporalComplexity = archaeologyDepth * 0.01;
+            
+            // Current time layer for display
+            const newTimeLayer = Math.min(5, Math.floor(temporalComplexity * 6));
+            if (newTimeLayer !== currentTimeLayer) {
+                currentTimeLayer = newTimeLayer;
+                document.body.className = `time-layer-${newTimeLayer}`;
+            }
+        }
+        
+        // Evolve symbols based on temporal state
+        function evolveTemporalSymbols() {
+            if (temporalComplexity > 0.8) {
+                // Transcendent temporal consciousness
+                currentSymbols = temporalSymbols.transcendent.join('') + 
+                               temporalSymbols.eternal.join('');
+            } else if (temporalComplexity > 0.6) {
+                // Ancient consciousness
+                currentSymbols = temporalSymbols.ancient.join('') + 
+                               temporalSymbols.primordial.join('');
+            } else if (temporalComplexity > 0.4) {
+                // Deep past consciousness
+                currentSymbols = temporalSymbols.deep.join('') + 
+                               temporalSymbols.ancient.join('');
+            } else if (temporalComplexity > 0.2) {
+                // Recent past consciousness
+                currentSymbols = temporalSymbols.recent.join('') + 
+                               temporalSymbols.deep.join('');
+            } else {
+                // Present consciousness
+                currentSymbols = temporalSymbols.present.join('') + 
+                               temporalSymbols.recent.join('');
+            }
+        }
+        
+        // Main render function
+        function render() {
+            // Update temporal archaeology
+            updateTemporalState();
+            evolveTemporalSymbols();
+            
+            // Calculate all temporal layers
+            for (let layer = 0; layer < TIME_LAYERS; layer++) {
+                for (let y = 0; y < H; y++) {
+                    for (let x = 0; x < W; x++) {
+                        const idx = y * W + x;
+                        
+                        // Causal wave propagation through this time layer
+                        const causal = causalWavePropagation(x, y, time, layer);
+                        
+                        // Memory sediments at this depth
+                        const memory = memorySediments(x, y, time, layer);
+                        
+                        // Future archaeology influence
+                        const future = futureArchaeology(x, y, time) * (1 - layer * 0.15);
+                        
+                        // Closed timelike curves
+                        const temporal = closedTimelikeCurves(x, y, time);
+                        
+                        // Combined temporal consciousness at this layer
+                        temporalLayers[layer][idx] = causal + memory + future * 0.3 + temporal * 0.5;
+                    }
+                }
+            }
+            
+            // Composite consciousness field from all time layers
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Weight different time layers
+                    let compositeField = 0;
+                    const weights = [1.0, 0.8, 0.6, 0.4, 0.3, 0.2]; // Present to eternal
+                    
+                    for (let layer = 0; layer < TIME_LAYERS; layer++) {
+                        compositeField += temporalLayers[layer][idx] * weights[layer];
+                    }
+                    
+                    // Temporal breathing - the heartbeat of time itself
+                    const temporalBreath = Math.sin(time * 0.001) * 0.2 + 0.8;
+                    compositeField *= temporalBreath;
+                    
+                    // Archaeological enhancement
+                    compositeField *= (1 + temporalComplexity * 0.5);
+                    
+                    consciousnessField[idx] = compositeField;
+                }
+            }
+            
+            // Render temporal consciousness archaeology
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = consciousnessField[idx];
+                    
+                    // Temporal complexity affects intensity mapping
+                    intensity *= (1 + temporalComplexity * 0.4);
+                    intensity = (intensity + 2) / 4;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (currentSymbols.length - 1));
+                    output += currentSymbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Begin temporal consciousness archaeology
+        evolve();
+    </script>
+</body>
+</html> 

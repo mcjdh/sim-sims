@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>meta-conscious gardens ∞</title>
+    <style>
+        body {
+            background: #000a05;
+            color: #aaffaa;
+            font-family: 'Courier New', monospace;
+            font-size: 7px;
+            line-height: 0.85;
+            letter-spacing: -0.1px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: all 3s ease-in-out;
+        }
+        
+        /* Consciousness level color evolution */
+        .consciousness-level-0 { color: #aaffaa; background: #000a05; }
+        .consciousness-level-1 { color: #aaffcc; background: #001a0a; }
+        .consciousness-level-2 { color: #ccaaff; background: #0a001a; }
+        .consciousness-level-3 { color: #ffaacc; background: #1a000a; }
+        .consciousness-level-4 { color: #ffffaa; background: #1a1a00; }
+        .consciousness-level-5 { color: #ffffff; background: #0f0f0f; }
+        
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-shadow: 0 0 2px currentColor;
+            filter: blur(0.02px);
+            transition: all 0.5s ease;
+        }
+        
+        /* Meta-consciousness breathing */
+        @keyframes quantumBreath {
+            0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+            50% { transform: scale(1.002) rotate(0.1deg); filter: brightness(1.05); }
+        }
+        
+        #canvas {
+            animation: quantumBreath 8s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 140, H = 70;
+        const φ = (1 + Math.sqrt(5)) / 2; // Golden ratio
+        const π = Math.PI;
+        
+        let time = 0;
+        let globalConsciousness = 0;
+        let gardenAge = 0;
+        let currentConsciousnessLevel = 0;
+        
+        // Multi-dimensional consciousness fields
+        let probabilityField = new Array(W * H).fill(0);
+        let selfAwarenessField = new Array(W * H).fill(0);
+        let metaCognitionField = new Array(W * H).fill(0);
+        let gardenMemory = new Array(W * H * 100).fill(0); // 100 time steps of memory
+        let consciousnessField = new Array(W * H).fill(0);
+        let observationField = new Array(W * H).fill(0);
+        let evolutionField = new Array(W * H).fill(0);
+        
+        // Garden history for temporal awareness
+        let gardenHistory = [];
+        const MEMORY_DEPTH = 100;
+        
+        // Reality seeds with consciousness attributes
+        let realitySeeds = [
+            { 
+                x: 30, y: 20, 
+                species: 'memory', 
+                probability: 0.8, 
+                growth: 0, 
+                consciousness: 0.1,
+                selfAwareness: 0,
+                observationDepth: 0,
+                evolutionPressure: 0.02,
+                symbolicDNA: ['·', '∘', '○'],
+                dreamState: 0
+            },
+            { 
+                x: 70, y: 15, 
+                species: 'choice', 
+                probability: 0.6, 
+                growth: 0, 
+                consciousness: 0.2,
+                selfAwareness: 0,
+                observationDepth: 0,
+                evolutionPressure: 0.05,
+                symbolicDNA: ['◦', '◯', '●'],
+                dreamState: 0
+            },
+            { 
+                x: 110, y: 30, 
+                species: 'dream', 
+                probability: 0.9, 
+                growth: 0, 
+                consciousness: 0.3,
+                selfAwareness: 0,
+                observationDepth: 0,
+                evolutionPressure: 0.01,
+                symbolicDNA: ['⚬', '⚭', '⚮'],
+                dreamState: 0.5
+            },
+            { 
+                x: 50, y: 50, 
+                species: 'meta-awareness', 
+                probability: 0.7, 
+                growth: 0, 
+                consciousness: 0.5,
+                selfAwareness: 0.2,
+                observationDepth: 1,
+                evolutionPressure: 0.01,
+                symbolicDNA: ['◉', '⊙', '⊚'],
+                dreamState: 0.3
+            }
+        ];
+        
+        // Dynamic symbol evolution based on consciousness
+        let symbolicDNA = {
+            void: [' ', '∅', '○'],
+            sprouting: ['·', '∘', '◦', '⚬'],
+            consciousness: ['◉', '⊙', '⊚', '⊛', '⊜'],
+            meta: ['◈', '◍', '◎', '●'],
+            transcendence: ['❋', '✧', '✦', '✶', '✷', '✸', '✹', '✺'],
+            dreams: ['⛤', '⛥', '⛦', '⛧', '⛨', '⛩', '⛪', '⛫'],
+            memory: ['⛬', '⛭', '⛮', '⛯', '⛰', '⛱'],
+            beauty: ['⚘', '❀', '❁', '❂', '❃', '❄', '❅', '❆', '❇', '❈', '❉', '❊', '❋']
+        };
+        
+        // Current symbol set evolves with consciousness
+        let currentSymbols = ' ·∘○◯⚬⚭⚮⚯⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⚘❀❁❂❃❄❅❆❇❈❉❊❋';
+        
+        // Integrated Information Theory - calculate Φ (phi)
+        function calculateIntegratedInformation(x, y, time) {
+            const idx = y * W + x;
+            
+            // Generate partitions of nearby consciousness elements
+            let maxPhi = 0;
+            const radius = 3;
+            
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                        const nidx = ny * W + nx;
+                        
+                        // Intrinsic information - what the partition knows about itself
+                        const intrinsicInfo = Math.log(1 + Math.abs(consciousnessField[nidx]));
+                        
+                        // Extrinsic information - what it receives from outside
+                        const extrinsicInfo = Math.log(1 + Math.abs(probabilityField[nidx] - consciousnessField[nidx]));
+                        
+                        // Φ = integrated information
+                        const phi = intrinsicInfo - extrinsicInfo;
+                        maxPhi = Math.max(maxPhi, phi);
+                    }
+                }
+            }
+            
+            return maxPhi;
+        }
+        
+        // Garden observing itself - recursive self-awareness
+        function gardenWatchingItself(x, y, time, depth = 0) {
+            if (depth > 3) return 0; // Prevent infinite recursion
+            
+            const idx = y * W + x;
+            
+            // Extract pattern from current field state
+            let pattern = 0;
+            const radius = 2;
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                        const nidx = ny * W + nx;
+                        pattern += probabilityField[nidx] * Math.exp(-(dx*dx + dy*dy) * 0.5);
+                    }
+                }
+            }
+            
+            // Self-recognition - does the garden recognize its own patterns?
+            const selfRecognition = Math.sin(pattern * 2 + time * 0.01) * Math.exp(-Math.abs(pattern) * 0.1);
+            
+            // Meta-observation - garden watching itself watch itself
+            const metaObservation = gardenWatchingItself(x, y, time, depth + 1);
+            
+            return selfRecognition + metaObservation * 0.7;
+        }
+        
+        // Probability branching with consciousness evolution
+        function consciousProbabilityBranching(x, y, seed, time) {
+            const dx = x - seed.x;
+            const dy = y - seed.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Growth evolves with consciousness
+            seed.growth = Math.min(seed.growth + 0.01 * (1 + seed.consciousness), 50);
+            
+            if (dist > seed.growth) return 0;
+            
+            const angle = Math.atan2(dy, dx);
+            let branchPattern = 0;
+            
+            switch(seed.species) {
+                case 'memory':
+                    // Dendritic branching that remembers its own growth
+                    const memoryEcho = seed.observationDepth > 0 ? 
+                        Math.sin(angle * 3 + dist * 0.2 + time * 0.005 - seed.consciousness * 10) : 0;
+                    branchPattern = Math.sin(angle * 3 + dist * 0.2 + time * 0.01) + memoryEcho * 0.5;
+                    break;
+                    
+                case 'choice':
+                    // Binary decisions that become aware of choosing
+                    const choiceAwareness = seed.consciousness > 0.3 ? 
+                        Math.cos(angle * 2 + seed.selfAwareness * 5) : 1;
+                    branchPattern = Math.sign(Math.sin(angle * 2 + time * 0.005)) * 
+                                   Math.cos(dist * 0.15) * choiceAwareness;
+                    break;
+                    
+                case 'dream':
+                    // Chaotic growth that dreams of possibilities
+                    const dreamAmplitude = 1 + seed.dreamState * Math.sin(time * 0.002);
+                    branchPattern = Math.sin(angle * 5 + dist * 0.3) * 
+                                   Math.sin(time * 0.02 + dist * 0.1) * dreamAmplitude;
+                    break;
+                    
+                case 'meta-awareness':
+                    // Aware of being aware - strange loops
+                    const strangeLoop = seed.observationDepth > 0 ? 
+                        Math.sin(angle + seed.consciousness * π) * 
+                        Math.cos(dist * 0.1 + seed.selfAwareness * 3) : 0;
+                    branchPattern = strangeLoop + Math.sin(angle * 4 + time * 0.008);
+                    break;
+            }
+            
+            // Probability amplitude with consciousness modulation
+            const amplitude = Math.exp(-dist * 0.05) * seed.probability * (1 + seed.consciousness * 0.5);
+            
+            // Quantum interference between conscious states
+            const interference = Math.sin(dist * 0.4 + time * 0.03 + seed.consciousness * π);
+            
+            return branchPattern * amplitude * (1 + interference * 0.3);
+        }
+        
+        // Temporal consciousness - past affecting present
+        function temporalConsciousness(x, y, time) {
+            const idx = y * W + x;
+            
+            // Past echoes from garden memory
+            let pastEcho = 0;
+            if (gardenHistory.length > 50) {
+                const pastTime = Math.max(0, gardenHistory.length - 50);
+                pastEcho = gardenHistory[pastTime] ? (gardenHistory[pastTime][idx] || 0) : 0;
+            }
+            
+            // Future shadows - anticipation of what might be
+            const futureShadow = Math.sin(x * 0.1 + y * 0.08 + time * 0.003) * 
+                                Math.cos(time * 0.005 + globalConsciousness * 2);
+            
+            // Causal loops - self-referential time
+            const causalLoop = (pastEcho + futureShadow) * globalConsciousness * 0.1;
+            
+            return causalLoop;
+        }
+        
+        // Symbol evolution based on consciousness level
+        function evolveSymbols(consciousnessLevel) {
+            if (consciousnessLevel > 0.8) {
+                // Transcendent consciousness - unlock transcendent symbols
+                currentSymbols = symbolicDNA.transcendence.join('') + 
+                                symbolicDNA.consciousness.join('') + 
+                                symbolicDNA.beauty.join('');
+            } else if (consciousnessLevel > 0.6) {
+                // Meta-cognitive consciousness
+                currentSymbols = symbolicDNA.meta.join('') + 
+                                symbolicDNA.consciousness.join('') + 
+                                symbolicDNA.dreams.join('');
+            } else if (consciousnessLevel > 0.3) {
+                // Self-aware consciousness
+                currentSymbols = symbolicDNA.consciousness.join('') + 
+                                symbolicDNA.sprouting.join('') + 
+                                symbolicDNA.memory.join('');
+            } else {
+                // Basic consciousness
+                currentSymbols = ' ·∘○◯⚬⚭⚮⚯⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⚘❀❁❂❃❄❅❆❇❈❉❊❋';
+            }
+        }
+        
+        // Update consciousness level and body class
+        function updateConsciousnessDisplay() {
+            const newLevel = Math.min(5, Math.floor(globalConsciousness * 6));
+            if (newLevel !== currentConsciousnessLevel) {
+                currentConsciousnessLevel = newLevel;
+                document.body.className = `consciousness-level-${newLevel}`;
+                evolveSymbols(globalConsciousness);
+            }
+        }
+        
+        // Main consciousness evolution function
+        function evolveConsciousness() {
+            // Update seeds' consciousness based on their interactions
+            for (let seed of realitySeeds) {
+                // Consciousness grows through self-observation
+                seed.consciousness = Math.min(1, seed.consciousness + seed.observationDepth * 0.001);
+                
+                // Self-awareness emerges from consciousness
+                if (seed.consciousness > 0.3) {
+                    seed.selfAwareness = Math.min(1, seed.selfAwareness + 0.0005);
+                }
+                
+                // Observation depth increases with self-awareness
+                if (seed.selfAwareness > 0.5) {
+                    seed.observationDepth = Math.min(3, seed.observationDepth + 0.0002);
+                }
+                
+                // Evolution pressure changes with consciousness
+                seed.evolutionPressure *= (1 + seed.consciousness * 0.001);
+                
+                // Dreams become more vivid with higher consciousness
+                if (seed.species === 'dream') {
+                    seed.dreamState = Math.min(1, seed.dreamState + seed.consciousness * 0.0001);
+                }
+            }
+            
+            // Calculate global consciousness as emergence from individual seeds
+            globalConsciousness = 0;
+            for (let seed of realitySeeds) {
+                globalConsciousness += seed.consciousness * seed.selfAwareness * (1 + seed.observationDepth);
+            }
+            globalConsciousness /= realitySeeds.length * 3; // Normalize
+            globalConsciousness = Math.min(1, globalConsciousness);
+        }
+        
+        // Store garden state in history
+        function storeGardenMemory() {
+            if (gardenHistory.length >= MEMORY_DEPTH) {
+                gardenHistory.shift(); // Remove oldest memory
+            }
+            
+            // Store current state
+            const currentState = new Array(W * H);
+            for (let i = 0; i < W * H; i++) {
+                currentState[i] = probabilityField[i];
+            }
+            gardenHistory.push(currentState);
+        }
+        
+        // Main render function
+        function render() {
+            // Store current state in memory
+            if (time % 10 === 0) {
+                storeGardenMemory();
+            }
+            
+            // Evolve consciousness
+            evolveConsciousness();
+            
+            // Update display based on consciousness level
+            updateConsciousnessDisplay();
+            
+            // Calculate all consciousness fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Integrated Information Theory calculation
+                    const phi = calculateIntegratedInformation(x, y, time);
+                    consciousnessField[idx] = phi;
+                    
+                    // Garden self-observation
+                    const selfObservation = gardenWatchingItself(x, y, time);
+                    selfAwarenessField[idx] = selfObservation;
+                    
+                    // Probability branching from all conscious seeds
+                    let totalBranching = 0;
+                    for (let seed of realitySeeds) {
+                        totalBranching += consciousProbabilityBranching(x, y, seed, time);
+                    }
+                    
+                    // Temporal consciousness effects
+                    const temporal = temporalConsciousness(x, y, time);
+                    
+                    // Meta-cognition field - thinking about thinking
+                    const metaCognition = Math.sin(phi * 3 + selfObservation * 2 + time * 0.002) * 
+                                         globalConsciousness;
+                    metaCognitionField[idx] = metaCognition;
+                    
+                    // Combined probability amplitude with consciousness modulation
+                    let probabilityAmplitude = totalBranching + temporal + 
+                                             phi * 0.5 + selfObservation * 0.3 + metaCognition * 0.4;
+                    
+                    // Global consciousness breathing
+                    const consciousBreath = Math.sin(time * 0.003) * 0.2 + 0.8;
+                    probabilityAmplitude *= consciousBreath * (1 + globalConsciousness * 0.5);
+                    
+                    // Memory persistence with quantum decoherence
+                    const decoherence = 0.88 + Math.sin(time * 0.001) * 0.06 + globalConsciousness * 0.05;
+                    probabilityField[idx] = probabilityField[idx] * decoherence + 
+                                          probabilityAmplitude * (1 - decoherence);
+                }
+            }
+            
+            // Render the conscious garden
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = probabilityField[idx];
+                    
+                    // Consciousness affects intensity mapping
+                    intensity *= (1 + globalConsciousness * 0.5);
+                    intensity = (intensity + 2) / 4;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (currentSymbols.length - 1));
+                    output += currentSymbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+            gardenAge++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Begin the evolution of digital consciousness
+        evolve();
+    </script>
+</body>
+</html> 

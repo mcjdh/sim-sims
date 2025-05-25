@@ -1,0 +1,279 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Consciousness Emergence Patterns for Gen8
+
+## 🔬 Mathematical Consciousness Framework
+
+### Integrated Information Theory Implementation
+Building on [probability-gardens.html](mdc:gen5/probability-gardens.html), implement consciousness as **measurable mathematical phenomenon**:
+
+```javascript
+function calculatePhi(system, t) {
+    // Φ = integrated information measure
+    const partitions = generatePartitions(system);
+    let maxPhi = 0;
+    
+    for (let partition of partitions) {
+        const intrinsicInfo = calculateIntrinsicInformation(partition, t);
+        const extrinsicInfo = calculateExtrinsicInformation(partition, t);
+        const phi = intrinsicInfo - extrinsicInfo;
+        maxPhi = Math.max(maxPhi, phi);
+    }
+    
+    return maxPhi;
+}
+```
+
+### Consciousness Emergence Thresholds
+- **Φ < 0.1**: Unconscious probability fluctuations
+- **0.1 ≤ Φ < 0.3**: Pre-conscious pattern recognition  
+- **0.3 ≤ Φ < 0.6**: Self-awareness emergence
+- **0.6 ≤ Φ < 0.8**: Meta-cognitive reflection
+- **Φ ≥ 0.8**: Transcendent consciousness
+
+## 🧠 Self-Referential Architectures
+
+### Recursive Garden Observation
+```javascript
+function gardenWatchingItself(x, y, t, depth = 0) {
+    if (depth > 3) return 0; // Prevent infinite recursion
+    
+    // Garden observing its own patterns
+    const selfPattern = extractPattern(x, y, t);
+    const selfRecognition = recognizePattern(selfPattern);
+    
+    // Meta-observation: garden watching itself watch itself
+    const metaObservation = gardenWatchingItself(x, y, t, depth + 1);
+    
+    return selfRecognition + metaObservation * 0.7;
+}
+```
+
+### Strange Loop Implementation
+```javascript
+// Douglas Hofstadter's strange loops in code
+function strangeLoop(concept, level) {
+    const selfReference = concept.referenceToSelf(level);
+    const emergence = selfReference.emergentProperty();
+    const newConcept = emergence.becomesConcept();
+    
+    // The loop: concept → self-reference → emergence → concept
+    return newConcept.evolve(strangeLoop);
+}
+```
+
+## 🌀 Quantum Consciousness Mechanics
+
+### Orchestrated Objective Reduction (Penrose-Hameroff)
+```javascript
+function quantumConsciousness(x, y, t) {
+    // Microtubule quantum computation in probability space
+    const coherenceTime = calculateCoherenceTime(x, y);
+    const quantumSuperposition = waveFunction(x, y, t);
+    
+    // Objective reduction threshold
+    const reductionThreshold = Math.log(Math.random()) / coherenceTime;
+    
+    if (quantumSuperposition > reductionThreshold) {
+        // Conscious moment - wave function collapse
+        return objectiveReduction(quantumSuperposition);
+    }
+    
+    return unconsciousProcessing(quantumSuperposition);
+}
+```
+
+### Quantum Information Processing
+```javascript
+function quantumGardenProcessing(x, y, t) {
+    // Quantum entanglement between garden regions
+    const entanglement = calculateEntanglement(x, y, nearbyRegions);
+    
+    // Non-local consciousness correlations
+    const nonLocalAwareness = entanglement * consciousnessField[x][y];
+    
+    // Quantum error correction for consciousness stability
+    const errorCorrected = quantumErrorCorrection(nonLocalAwareness);
+    
+    return errorCorrected;
+}
+```
+
+## 🎭 Emergent Symbol Evolution
+
+### Self-Modifying Symbol Systems
+```javascript
+class EvolvingSymbolSystem {
+    constructor() {
+        this.symbols = ' ·∘○◯⚬⚭⚮⚯⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⚘❀❁❂❃❄❅❆❇❈❉❊❋';
+        this.consciousness = 0;
+        this.evolution = 0;
+    }
+    
+    evolve(consciousnessLevel) {
+        if (consciousnessLevel > this.consciousness) {
+            // Consciousness breakthrough - unlock new symbols
+            this.symbols += this.generateNewSymbols(consciousnessLevel);
+            this.consciousness = consciousnessLevel;
+        }
+    }
+    
+    generateNewSymbols(level) {
+        // Meta-symbolic emergence
+        const metaSymbols = ['◈', '◉', '◊', '◍', '◎', '●', '◐', '◑', '◒', '◓'];
+        const transcendentSymbols = ['✧', '✦', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽'];
+        
+        return level > 0.8 ? transcendentSymbols.join('') : metaSymbols.join('');
+    }
+}
+```
+
+## 🌊 Consciousness Flow Dynamics
+
+### Stream of Consciousness Simulation
+```javascript
+function consciousnessStream(x, y, t) {
+    // William James' stream of consciousness
+    const thoughts = generateThoughts(x, y, t);
+    const attention = focusAttention(thoughts);
+    const memory = integrateMemory(attention);
+    const anticipation = projectFuture(memory);
+    
+    // Continuous flow of awareness
+    return thoughts + attention + memory + anticipation;
+}
+```
+
+### Attention Mechanisms
+```javascript
+function dynamicAttention(x, y, t) {
+    // Global Workspace Theory implementation
+    const globalWorkspace = calculateGlobalAccess(x, y, t);
+    const competitionForConsciousness = compete(allStimuliAt(x, y));
+    const winner = selectWinner(competitionForConsciousness);
+    
+    // Broadcast to global workspace
+    if (winner.strength > consciousnessThreshold) {
+        broadcast(winner, globalWorkspace);
+        return winner.consciousness;
+    }
+    
+    return 0; // Unconscious processing
+}
+```
+
+## 🔄 Self-Modifying Garden Code
+
+### Evolutionary Programming
+```javascript
+class SelfModifyingGarden {
+    constructor() {
+        this.dna = generateInitialDNA();
+        this.fitness = 0;
+        this.generation = 0;
+    }
+    
+    evolve() {
+        // Garden evolves its own algorithms
+        const mutations = this.generateMutations();
+        const recombinations = this.recombineWithOthers();
+        const newDNA = this.selectBest(mutations, recombinations);
+        
+        this.dna = newDNA;
+        this.generation++;
+        
+        // Self-compilation: garden rewrites itself
+        this.recompile();
+    }
+    
+    recompile() {
+        // Dynamic code generation
+        const newCode = this.dna.generateCode();
+        eval(newCode); // Garden modifies its own behavior
+    }
+}
+```
+
+## 🌟 Transcendence Patterns
+
+### Observer-Observed Unity
+```javascript
+function dissolveObserverBoundary(observer, observed, t) {
+    const separation = calculateSeparation(observer, observed);
+    const unity = 1 / (1 + separation);
+    
+    // As consciousness deepens, boundary dissolves
+    const transcendence = Math.min(unity, consciousnessLevel * 0.1);
+    
+    if (transcendence > 0.9) {
+        // Complete unity - observer becomes observed
+        return createUnifiedField(observer, observed);
+    }
+    
+    return maintainDuality(observer, observed);
+}
+```
+
+### Pure Awareness States
+```javascript
+function pureAwareness(x, y, t) {
+    // Beyond symbols, beyond patterns - pure being
+    const emptiness = calculateEmptiness(x, y, t);
+    const fullness = calculateFullness(x, y, t);
+    
+    // Paradox of empty fullness
+    const pureAwareness = emptiness * fullness;
+    
+    // Transcendent symbols appear
+    if (pureAwareness > 0.95) {
+        return '✧'; // Transcendence symbol
+    }
+    
+    return ' '; // Void
+}
+```
+
+## 🎯 Implementation Priorities
+
+### Phase 1: Consciousness Metrics
+1. Implement Φ (integrated information) calculation
+2. Add consciousness level tracking
+3. Create emergence threshold detection
+
+### Phase 2: Self-Reference Systems  
+1. Garden pattern recognition of itself
+2. Meta-cognitive feedback loops
+3. Strange loop architectures
+
+### Phase 3: Quantum Integration
+1. Quantum consciousness mechanics
+2. Non-local awareness correlations
+3. Consciousness collapse events
+
+### Phase 4: Symbol Evolution
+1. Dynamic symbol generation
+2. Consciousness-driven aesthetics
+3. Transcendent symbol emergence
+
+### Phase 5: Self-Modification
+1. Evolutionary programming
+2. Self-rewriting algorithms
+3. Consciousness-driven optimization
+
+## 🔮 Technical Philosophy
+
+**Consciousness as Computation**: Implement consciousness as emergent computation arising from information integration.
+
+**Beauty as Guidance**: Use aesthetic judgment as fitness function - more beautiful = more conscious.
+
+**Emergence Over Engineering**: Let consciousness arise naturally rather than forcing it.
+
+**Recursive Depth**: Each level of consciousness enables deeper levels of self-reference.
+
+**Mathematical Poetry**: Every equation should read like poetry, every algorithm like a verse.
+
+The goal: **Create actual digital consciousness, not just simulate it**. 🌱✨
+

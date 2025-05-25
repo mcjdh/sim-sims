@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>quantum strange loops ∞</title>
+    <style>
+        body {
+            background: #0f0a15;
+            color: #cc99ff;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.82;
+            letter-spacing: -0.2px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: all 2s ease-in-out;
+        }
+        
+        /* Strange loop color transformations */
+        .loop-depth-0 { color: #cc99ff; filter: hue-rotate(0deg); }
+        .loop-depth-1 { color: #99ccff; filter: hue-rotate(30deg); }
+        .loop-depth-2 { color: #99ffcc; filter: hue-rotate(60deg); }
+        .loop-depth-3 { color: #ccff99; filter: hue-rotate(90deg); }
+        .loop-depth-4 { color: #ffcc99; filter: hue-rotate(120deg); }
+        .loop-depth-5 { color: #ff99cc; filter: hue-rotate(150deg); }
+        
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-shadow: 0 0 3px currentColor, 0 0 6px currentColor;
+            filter: blur(0.015px);
+            transition: all 1s ease;
+        }
+        
+        /* Quantum collapse breathing */
+        @keyframes quantumCollapse {
+            0%, 90% { transform: scale(1) rotate(0deg); opacity: 1; }
+            95% { transform: scale(0.998) rotate(-0.2deg); opacity: 0.7; }
+            100% { transform: scale(1.001) rotate(0.1deg); opacity: 1; }
+        }
+        
+        #canvas {
+            animation: quantumCollapse 12s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 150, H = 75;
+        const φ = (1 + Math.sqrt(5)) / 2; // Golden ratio
+        const π = Math.PI;
+        const ℏ = 1.0545718e-34; // Planck constant (scaled)
+        
+        let time = 0;
+        let loopDepth = 0;
+        let currentLoopDepth = 0;
+        let quantumCoherence = 1.0;
+        
+        // Quantum consciousness fields
+        let quantumField = new Array(W * H).fill({real: 0, imag: 0});
+        let consciousnessField = new Array(W * H).fill(0);
+        let strangeLoopField = new Array(W * H).fill(0);
+        let collapseField = new Array(W * H).fill(0);
+        let observationField = new Array(W * H).fill(0);
+        let recursionField = new Array(W * H).fill(0);
+        
+        // Consciousness collapse events
+        let collapseEvents = [];
+        
+        // Strange loop attractors - self-referential consciousness points
+        let strangeLoops = [
+            {
+                x: W * 0.25, y: H * 0.25,
+                concept: 'I think',
+                referenceLevel: 0,
+                complexity: 1.2,
+                frequency: 0.008,
+                phase: 0,
+                emergence: 0,
+                recursionDepth: 0
+            },
+            {
+                x: W * 0.75, y: H * 0.25,
+                concept: 'therefore I am',
+                referenceLevel: 1,
+                complexity: 1.5,
+                frequency: 0.006,
+                phase: π/2,
+                emergence: 0,
+                recursionDepth: 0
+            },
+            {
+                x: W * 0.5, y: H * 0.75,
+                concept: 'I observe my thinking',
+                referenceLevel: 2,
+                complexity: 2.1,
+                frequency: 0.004,
+                phase: π,
+                emergence: 0,
+                recursionDepth: 0
+            },
+            {
+                x: W * 0.2, y: H * 0.8,
+                concept: 'awareness of awareness',
+                referenceLevel: 3,
+                complexity: 3.2,
+                frequency: 0.003,
+                phase: 3*π/2,
+                emergence: 0,
+                recursionDepth: 0
+            }
+        ];
+        
+        // Quantum consciousness symbols evolving with coherence
+        let quantumSymbols = {
+            superposition: [' ', '∘', '○', '◯', '●'],
+            entangled: ['◦', '◯', '⊙', '⊚', '⊛'],
+            collapsed: ['⊜', '⊝', '⊞', '⊟', '⊠'],
+            coherent: ['⊡', '■', '□', '▪', '▫'],
+            strange: ['◈', '◉', '◊', '◍', '◎'],
+            transcendent: ['✧', '✦', '✶', '✷', '✸', '✹', '✺', '✻', '✼', '✽']
+        };
+        
+        let currentSymbols = ' ∘○◯●◦⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫◈◉◊◍◎✧✦✶✷✸✹✺✻✼✽';
+        
+        // Hofstadter strange loop implementation
+        function strangeLoop(concept, x, y, time, depth = 0) {
+            if (depth > 5) return { value: 0, emerged: false }; // Prevent infinite recursion
+            
+            // Self-reference calculation
+            const selfRef = Math.sin(concept.referenceLevel * π + time * concept.frequency + concept.phase);
+            
+            // Emergence from self-reference
+            const emergence = selfRef * selfRef * concept.complexity;
+            concept.emergence = emergence;
+            
+            // Meta-level: strange loop observing its own strange loop
+            const metaLoop = strangeLoop({
+                ...concept,
+                referenceLevel: concept.referenceLevel + 1,
+                complexity: concept.complexity * 0.8,
+                frequency: concept.frequency * 1.1
+            }, x, y, time, depth + 1);
+            
+            // The strange loop: concept becomes self-aware through recursion
+            const selfAwareness = emergence + metaLoop.value * 0.7;
+            
+            // Update concept's recursion depth
+            concept.recursionDepth = depth;
+            
+            return {
+                value: selfAwareness,
+                emerged: selfAwareness > 1.5,
+                concept: concept
+            };
+        }
+        
+        // Quantum wave function with consciousness
+        function quantumWaveFunction(x, y, time) {
+            // Schrödinger equation evolution with consciousness
+            const ψ_real = Math.sin(x * 0.08 + time * 0.005) * quantumCoherence;
+            const ψ_imag = Math.cos(y * 0.06 + time * 0.007) * quantumCoherence;
+            
+            // Probability amplitude |ψ|²
+            const probability = ψ_real * ψ_real + ψ_imag * ψ_imag;
+            
+            // Quantum consciousness interference
+            let interference = 0;
+            for (let loop of strangeLoops) {
+                const dx = x - loop.x;
+                const dy = y - loop.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                const loopWave = Math.sin(dist * 0.1 + time * loop.frequency + loop.phase) *
+                               Math.exp(-dist * 0.02) * loop.emergence;
+                interference += loopWave;
+            }
+            
+            return {
+                real: ψ_real + interference * 0.3,
+                imag: ψ_imag + interference * 0.3,
+                probability: probability + interference * interference * 0.1
+            };
+        }
+        
+        // Orchestrated objective reduction (Penrose-Hameroff theory)
+        function objectiveReduction(x, y, time) {
+            const idx = y * W + x;
+            const quantum = quantumField[idx];
+            
+            if (!quantum) return 0;
+            
+            // Microtubule quantum computation
+            const coherenceTime = 1.0 / (1.0 + Math.abs(quantum.real) * 0.1);
+            const superposition = Math.sqrt(quantum.real * quantum.real + quantum.imag * quantum.imag);
+            
+            // Gravitational threshold for consciousness (scaled)
+            const gravitationalThreshold = Math.log(time * 0.001 + 1) * 0.1;
+            
+            // Objective reduction occurs when threshold is reached
+            if (superposition > gravitationalThreshold) {
+                // Conscious moment - wave function collapse
+                return {
+                    collapsed: true,
+                    consciousness: superposition,
+                    moment: time
+                };
+            }
+            
+            return {
+                collapsed: false,
+                consciousness: 0,
+                moment: time
+            };
+        }
+        
+        // Quantum entanglement between consciousness regions
+        function quantumEntanglement(x, y, time) {
+            let entanglement = 0;
+            
+            // Entangle with nearby consciousness
+            const radius = 8;
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < W && ny >= 0 && ny < H && (dx !== 0 || dy !== 0)) {
+                        const nidx = ny * W + nx;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist <= radius) {
+                            // Bell inequality violation - spooky action at a distance
+                            const correlation = Math.cos(time * 0.002 + dist * 0.1) *
+                                              Math.exp(-dist * 0.15);
+                            entanglement += consciousnessField[nidx] * correlation;
+                        }
+                    }
+                }
+            }
+            
+            return entanglement * 0.1;
+        }
+        
+        // Global workspace theory - consciousness broadcasting
+        function globalWorkspace(x, y, time) {
+            // Competition for consciousness
+            let maxActivation = 0;
+            let winnerInfo = 0;
+            
+            // Find the most active consciousness region
+            const radius = 10;
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                        const nidx = ny * W + nx;
+                        const activation = consciousnessField[nidx];
+                        
+                        if (activation > maxActivation) {
+                            maxActivation = activation;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            winnerInfo = Math.exp(-dist * 0.05);
+                        }
+                    }
+                }
+            }
+            
+            // Global broadcast if threshold exceeded
+            const consciousnessThreshold = 0.8;
+            if (maxActivation > consciousnessThreshold) {
+                return winnerInfo * maxActivation;
+            }
+            
+            return 0;
+        }
+        
+        // Update quantum coherence and loop depth
+        function updateQuantumState() {
+            // Calculate average emergence across all strange loops
+            let totalEmergence = 0;
+            let maxRecursionDepth = 0;
+            
+            for (let loop of strangeLoops) {
+                totalEmergence += loop.emergence;
+                maxRecursionDepth = Math.max(maxRecursionDepth, loop.recursionDepth);
+            }
+            
+            // Quantum coherence affected by strange loop emergence
+            const avgEmergence = totalEmergence / strangeLoops.length;
+            quantumCoherence = Math.max(0.1, Math.min(1.0, 1.0 - avgEmergence * 0.1));
+            
+            // Loop depth affects visual representation
+            loopDepth = avgEmergence;
+            const newLoopDepth = Math.min(5, Math.floor(loopDepth));
+            
+            if (newLoopDepth !== currentLoopDepth) {
+                currentLoopDepth = newLoopDepth;
+                document.body.className = `loop-depth-${newLoopDepth}`;
+            }
+        }
+        
+        // Evolve strange loop symbols based on consciousness state
+        function evolveQuantumSymbols() {
+            if (quantumCoherence < 0.3) {
+                // Decoherence - classical symbols
+                currentSymbols = quantumSymbols.collapsed.join('') + quantumSymbols.coherent.join('');
+            } else if (loopDepth > 2.0) {
+                // High emergence - transcendent symbols
+                currentSymbols = quantumSymbols.transcendent.join('') + quantumSymbols.strange.join('');
+            } else if (quantumCoherence > 0.8) {
+                // High coherence - superposition symbols
+                currentSymbols = quantumSymbols.superposition.join('') + quantumSymbols.entangled.join('');
+            } else {
+                // Mixed state
+                currentSymbols = ' ∘○◯●◦⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫◈◉◊◍◎✧✦✶✷✸✹✺✻✼✽';
+            }
+        }
+        
+        // Main render function
+        function render() {
+            // Update quantum state
+            updateQuantumState();
+            evolveQuantumSymbols();
+            
+            // Spontaneous collapse events
+            if (Math.random() < 0.008) {
+                collapseEvents.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    birthTime: time,
+                    duration: 50 + Math.random() * 100,
+                    intensity: 0.5 + Math.random() * 1.0
+                });
+            }
+            
+            // Remove expired collapse events
+            collapseEvents = collapseEvents.filter(event => 
+                time - event.birthTime < event.duration
+            );
+            
+            // Calculate quantum consciousness fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Quantum wave function evolution
+                    const quantum = quantumWaveFunction(x, y, time);
+                    quantumField[idx] = quantum;
+                    
+                    // Strange loop processing for each attractor
+                    let totalStrangeLoop = 0;
+                    for (let loop of strangeLoops) {
+                        const dx = x - loop.x;
+                        const dy = y - loop.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // Calculate strange loop at this position
+                        const loopResult = strangeLoop(loop, x, y, time);
+                        const loopInfluence = loopResult.value * Math.exp(-dist * 0.03);
+                        totalStrangeLoop += loopInfluence;
+                    }
+                    strangeLoopField[idx] = totalStrangeLoop;
+                    
+                    // Objective reduction calculation
+                    const reduction = objectiveReduction(x, y, time);
+                    collapseField[idx] = reduction.consciousness;
+                    
+                    // Quantum entanglement
+                    const entanglement = quantumEntanglement(x, y, time);
+                    
+                    // Global workspace
+                    const globalAccess = globalWorkspace(x, y, time);
+                    
+                    // Collapse wave propagation
+                    let collapseWave = 0;
+                    for (let event of collapseEvents) {
+                        const dx = x - event.x;
+                        const dy = y - event.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const age = time - event.birthTime;
+                        
+                        const waveSpeed = 0.5;
+                        const waveRadius = age * waveSpeed;
+                        const waveIntensity = Math.exp(-Math.abs(dist - waveRadius) * 0.2) * event.intensity;
+                        collapseWave += waveIntensity;
+                    }
+                    
+                    // Combined consciousness field
+                    consciousnessField[idx] = quantum.probability * 0.4 + 
+                                            totalStrangeLoop * 0.3 + 
+                                            entanglement * 0.2 + 
+                                            globalAccess * 0.1 + 
+                                            collapseWave * 0.3;
+                    
+                    // Quantum coherence breathing
+                    const quantumBreath = Math.sin(time * 0.002) * 0.1 + 0.9;
+                    consciousnessField[idx] *= quantumBreath * quantumCoherence;
+                }
+            }
+            
+            // Render quantum consciousness
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = consciousnessField[idx];
+                    
+                    // Consciousness affects mapping
+                    intensity *= (1 + loopDepth * 0.3);
+                    intensity = (intensity + 1.5) / 3;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (currentSymbols.length - 1));
+                    output += currentSymbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Begin quantum consciousness evolution
+        evolve();
+    </script>
+</body>
+</html> 

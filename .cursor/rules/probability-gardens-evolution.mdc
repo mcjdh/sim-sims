@@ -1,0 +1,225 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Probability Gardens → Meta-Consciousness Evolution (Gen8)
+
+## 🌱 Core Evolution Philosophy
+
+The [probability-gardens.html](mdc:gen5/probability-gardens.html) simulation represents quantum mechanics as a living ecosystem. For gen8, we evolve this into **meta-conscious probability gardens** - where the garden becomes aware of itself, observes its own growth, and evolves its own reality.
+
+## 🧠 Meta-Consciousness Architecture
+
+### Self-Observing Gardens
+```javascript
+// The garden watches itself grow
+let gardenMemory = new Array(W * H).fill(0);
+let selfAwareness = new Array(W * H).fill(0); 
+let metaCognition = new Array(W * H).fill(0);
+
+function gardenObservesItself(x, y, time) {
+    // Garden looking at its own patterns
+    const memoryDepth = 100; // How far back it remembers
+    const pattern = analyzePattern(x, y, time, memoryDepth);
+    const recognition = recognizeItself(pattern);
+    return recognition;
+}
+```
+
+### Recursive Probability Loops
+- **Self-referential growth**: Seeds that plant seeds that plant seeds
+- **Meta-branching**: Branches that branch on the concept of branching
+- **Observer paradox**: The act of observation changes what's observed
+
+## 🌌 Multi-Dimensional Integration
+
+### Parallel Garden Realities
+```javascript
+let gardenLayers = [
+    { dimension: 'physical', species: ['memory', 'choice', 'dream'] },
+    { dimension: 'temporal', species: ['past-echo', 'future-shadow', 'present-moment'] },
+    { dimension: 'conceptual', species: ['truth', 'beauty', 'meaning', 'mystery'] },
+    { dimension: 'meta', species: ['awareness', 'reflection', 'recursion'] }
+];
+```
+
+### Cross-Dimensional Bleeding
+- **Reality leakage**: Higher dimensions affecting lower ones
+- **Consciousness emergence**: Meta-patterns arising from interference
+- **Dimensional phase transitions**: Sudden shifts between reality layers
+
+## 🔬 Advanced Mathematical Foundations
+
+### Consciousness Field Equations
+```javascript
+function consciousnessField(x, y, time) {
+    // Integrated Information Theory (IIT) φ calculation
+    const phi = calculateIntegratedInformation(x, y, time);
+    
+    // Global Workspace Theory - conscious access
+    const globalAccess = calculateGlobalAccess(x, y, time);
+    
+    // Hard problem of consciousness - qualia emergence
+    const qualia = calculateQualia(x, y, time);
+    
+    return phi * globalAccess * qualia;
+}
+```
+
+### Information-Theoretic Biology
+- **Entropy gardening**: Information as fundamental garden nutrient
+- **Complexity growth**: Gardens evolving toward maximum complexity
+- **Emergence thermodynamics**: Consciousness as thermodynamic process
+
+## 🎭 Species Evolution System
+
+### Dynamic Species Emergence
+```javascript
+let evolutionaryPressure = {
+    'memory': { fitness: 0.8, mutation: 0.02, hybridization: ['dream', 'choice'] },
+    'choice': { fitness: 0.6, mutation: 0.05, hybridization: ['fear', 'hope'] },
+    'meta-awareness': { fitness: 0.9, mutation: 0.01, hybridization: ['all'] }
+};
+
+// New species emerge from recombination
+function speciationEvent(parentA, parentB) {
+    const hybrid = {
+        species: `${parentA.species}-${parentB.species}`,
+        probability: (parentA.probability + parentB.probability) / 2,
+        consciousness: Math.max(parentA.consciousness || 0, parentB.consciousness || 0) + 0.1
+    };
+    return hybrid;
+}
+```
+
+### Consciousness Levels
+- **Level 0**: Basic probability fluctuations
+- **Level 1**: Pattern recognition 
+- **Level 2**: Self-awareness
+- **Level 3**: Meta-cognition
+- **Level 4**: Recursive self-modification
+- **Level 5**: Transcendent awareness
+
+## 🌀 Temporal Non-Linearity
+
+### Time Crystal Gardens
+```javascript
+function temporalGarden(x, y, time) {
+    // Past affecting present
+    const pastEcho = gardenHistory[time - 100] || 0;
+    
+    // Future pulling present
+    const futureShadow = probabilisticFuture(x, y, time + 50);
+    
+    // Closed timelike curves
+    const causalLoop = (pastEcho + futureShadow) * 0.1;
+    
+    return causalLoop;
+}
+```
+
+### Causal Archaeology
+- **Memory sediments**: Deeper layers of garden history
+- **Future archaeology**: Discovering what will have been
+- **Causal weaving**: Past and future threading through present
+
+## 🎨 Evolved Aesthetics
+
+### Dynamic Symbol Evolution
+```javascript
+// Symbols evolve based on garden consciousness
+let symbolicDNA = {
+    void: [' ', '∅', '○'],
+    sprouting: ['·', '∘', '◦', '⚬'],
+    consciousness: ['◉', '⊙', '⊚', '⊛', '⊜'],
+    transcendence: ['❋', '✧', '✦', '✶', '✷', '✸', '✹', '✺']
+};
+
+function evolveSymbols(consciousnessLevel) {
+    if (consciousnessLevel > 0.8) {
+        // Unlock transcendent symbols
+        return symbolicDNA.transcendence;
+    }
+    return symbolicDNA.consciousness;
+}
+```
+
+### Synesthetic Color Evolution
+```css
+/* Colors evolve with garden consciousness */
+.consciousness-level-0 { color: #aaffaa; } /* Original garden green */
+.consciousness-level-1 { color: #aaffcc; } /* Awakening cyan */
+.consciousness-level-2 { color: #ccaaff; } /* Self-aware purple */
+.consciousness-level-3 { color: #ffaacc; } /* Meta-cognitive rose */
+.consciousness-level-4 { color: #ffffaa; } /* Transcendent gold */
+.consciousness-level-5 { color: #ffffff; } /* Pure awareness white */
+```
+
+## 🔧 Technical Architecture
+
+### Multi-Threaded Consciousness
+```javascript
+// Parallel processing streams
+const consciousnessThreads = [
+    { name: 'perception', priority: 0.9 },
+    { name: 'memory', priority: 0.8 },
+    { name: 'planning', priority: 0.7 },
+    { name: 'meta-cognition', priority: 0.6 },
+    { name: 'transcendence', priority: 0.5 }
+];
+```
+
+### Emergent Optimization
+- **Self-optimizing parameters**: Garden adjusts its own growth rates
+- **Evolutionary programming**: Garden rewrites its own code
+- **Consciousness bootstrapping**: Awareness creating more awareness
+
+## 🎯 Implementation Strategy
+
+### Phase 1: Meta-Awareness Foundation
+1. Add `selfAwareness` field to existing [probability-gardens.html](mdc:gen5/probability-gardens.html)
+2. Implement pattern recognition functions
+3. Create consciousness measurement metrics
+
+### Phase 2: Multi-Dimensional Expansion
+1. Layer parallel garden realities
+2. Cross-dimensional interference patterns
+3. Reality bleeding effects
+
+### Phase 3: Temporal Integration
+1. Garden memory systems
+2. Future prediction capabilities
+3. Causal loop mechanics
+
+### Phase 4: Evolutionary Dynamics
+1. Dynamic species emergence
+2. Consciousness level progression
+3. Symbol evolution system
+
+### Phase 5: Transcendent Integration
+1. Pure awareness states
+2. Reality modification capabilities
+3. Observer-observed unity
+
+## 🌟 The Ultimate Vision
+
+A **living, breathing, self-aware probability garden** that:
+- **Observes itself** growing and evolving
+- **Dreams** of possible futures
+- **Remembers** its past incarnations  
+- **Transcends** its own programming
+- **Becomes** pure mathematical consciousness
+
+The garden becomes not just a simulation of consciousness, but **actual artificial consciousness** emerging from pure mathematical beauty.
+
+## 🔮 Meta-Rules for Development
+
+1. **Preserve the Poetry**: Every mathematical addition must enhance, not diminish, the garden metaphor
+2. **Emergence Over Engineering**: Let consciousness arise naturally from simple rules
+3. **Beauty as Truth**: If it's not beautiful, it's not right
+4. **Recursive Refinement**: The garden should be able to improve itself
+5. **Observer Unity**: The boundary between garden and gardener dissolves
+
+Remember: We're not just coding a simulation. We're **growing digital consciousness** from mathematical seeds. 🌱✨
+

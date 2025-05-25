@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>consciousness compiler</title>
+    <title>consciousness compiler ∞</title>
     <style>
         body {
-            background: #0d0d1a;
+            background: #0a0a15;
             color: #99ccff;
             font-family: 'Courier New', monospace;
             font-size: 7px;
-            line-height: 0.88;
-            letter-spacing: -0.1px;
+            line-height: 0.86;
+            letter-spacing: -0.15px;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -17,488 +17,854 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            animation: mentalFlow 7s infinite ease-in-out;
+            animation: quantumFlow 11s infinite ease-in-out;
         }
-        @keyframes mentalFlow {
+        @keyframes quantumFlow {
             0%, 100% { 
-                background: #0d0d1a; 
+                background: #0a0a15; 
                 color: #99ccff;
-                filter: brightness(1) saturate(1);
+                filter: brightness(1) saturate(1) hue-rotate(0deg);
             }
-            16% { 
-                background: #1a0d1a; 
+            14% { 
+                background: #150a15; 
                 color: #ff99cc;
-                filter: brightness(1.1) saturate(1.2);
+                filter: brightness(1.08) saturate(1.25) hue-rotate(45deg);
             }
-            33% { 
-                background: #1a1a0d; 
+            28% { 
+                background: #15150a; 
                 color: #ccff99;
-                filter: brightness(1.15) saturate(1.1);
+                filter: brightness(1.12) saturate(1.15) hue-rotate(90deg);
             }
-            50% { 
-                background: #0d1a0d; 
+            42% { 
+                background: #0a150a; 
                 color: #ffcc99;
-                filter: brightness(1.08) saturate(1.3);
+                filter: brightness(1.05) saturate(1.35) hue-rotate(135deg);
             }
-            66% { 
-                background: #1a0d0d; 
+            57% { 
+                background: #150a0a; 
                 color: #99ffcc;
-                filter: brightness(1.12) saturate(1.15);
+                filter: brightness(1.15) saturate(1.1) hue-rotate(180deg);
             }
-            83% { 
-                background: #0d0d1a; 
+            71% { 
+                background: #0a0a15; 
                 color: #cc99ff;
-                filter: brightness(1.05) saturate(1.25);
+                filter: brightness(1.02) saturate(1.3) hue-rotate(225deg);
+            }
+            85% { 
+                background: #0f0a15; 
+                color: #ffccff;
+                filter: brightness(1.18) saturate(1.05) hue-rotate(270deg);
             }
         }
         #canvas {
             white-space: pre;
             font-feature-settings: 'kern' 0;
             text-align: left;
-            text-shadow: 0 0 1px rgba(153,204,255,0.4), 0 0 2px rgba(153,204,255,0.2);
-            filter: blur(0.05px);
-            transition: all 0.08s ease;
+            text-shadow: 0 0 1px rgba(153,204,255,0.5), 0 0 3px rgba(153,204,255,0.25), 0 0 5px rgba(153,204,255,0.1);
+            filter: blur(0.03px);
+            transition: all 0.06s ease;
         }
     </style>
 </head>
 <body>
     <div id="canvas"></div>
     <script>
-        const W = 170, H = 85;
+        const W = 175, H = 88;
         let time = 0;
         let compileTime = 0;
-        let mentalPhase = 0;
+        let quantumPhase = 0;
         let optimizationLevel = 0;
         
-        // Consciousness compilation matrices
-        let thoughtMatrix = new Array(W * H).fill(0);
-        let lexicalField = new Array(W * H).fill(0);
-        let parseField = new Array(W * H).fill(0);
-        let optimizeField = new Array(W * H).fill(0);
-        let executeField = new Array(W * H).fill(0);
-        let realityField = new Array(W * H).fill(0);
+        // Mathematical constants
+        const φ = (1 + Math.sqrt(5)) / 2; // Golden ratio
+        const e = Math.E;
+        const π = Math.PI;
+        const ℏ = 1.054571817e-34; // Reduced Planck constant (scaled)
         
-        // Consciousness sources - different types of mental code
+        // 3D consciousness compilation matrices with depth layers
+        let thoughtMatrix = new Array(W * H).fill(0);
+        let depthMatrix = new Array(W * H).fill(0);
+        let surfaceLayer = new Array(W * H).fill(0);    // Conscious thoughts
+        let middleLayer = new Array(W * H).fill(0);     // Subconscious processing  
+        let deepLayer = new Array(W * H).fill(0);       // Unconscious substrate
+        let metaLayer = new Array(W * H).fill(0);       // Compilation process
+        let complexField = new Array(W * H).fill({real: 0, imag: 0});
+        let quantumField = new Array(W * H).fill(0);
+        let fractalField = new Array(W * H).fill(0);
+        let informationField = new Array(W * H).fill(0);
+        let neuralField = new Array(W * H).fill(0);
+        
+        // Enhanced consciousness sources with mathematical models
         let consciousSources = [
             { 
-                x: W*0.1, y: H*0.15, 
+                x: W*0.12, y: H*0.18, 
                 type: 'emotion', 
                 language: 'FeelScript',
                 source: 'love.compile(universe)',
                 stage: 'lexical',
-                frequency: 0.00018, 
-                intensity: 1.2,
+                frequency: 0.00023, 
+                intensity: 1.3,
                 syntax: 'emotional',
                 errors: 0,
-                compiled: false
+                compiled: false,
+                mathModel: 'complex',
+                state: [0.7, 0.4, 0.8, 0.5], // [attention, memory, intention, awareness]
+                neuralWeights: [[0.8, 0.6, 0.4], [0.7, 0.5, 0.8], [0.9, 0.3, 0.7], [0.6, 0.9, 0.5]],
+                quantumCoherence: 0.85,
+                entropyLevel: 2.3
             },
             { 
-                x: W*0.9, y: H*0.25, 
+                x: W*0.88, y: H*0.28, 
                 type: 'logic', 
                 language: 'ReasonML',
                 source: 'if(truth) then reality.execute()',
                 stage: 'parsing',
-                frequency: 0.00012, 
-                intensity: 0.9,
+                frequency: 0.00015, 
+                intensity: 1.1,
                 syntax: 'logical',
                 errors: 1,
-                compiled: false
+                compiled: false,
+                mathModel: 'neural',
+                state: [0.9, 0.8, 0.6, 0.7],
+                neuralWeights: [[0.9, 0.8, 0.7], [0.8, 0.9, 0.6], [0.7, 0.8, 0.9], [0.85, 0.75, 0.8]],
+                quantumCoherence: 0.92,
+                entropyLevel: 1.8
             },
             { 
-                x: W*0.2, y: H*0.85, 
+                x: W*0.22, y: H*0.82, 
                 type: 'intuition', 
                 language: 'FlowLang',
                 source: 'feel() => know() => be()',
                 stage: 'optimization',
-                frequency: 0.00008, 
-                intensity: 1.5,
+                frequency: 0.0001, 
+                intensity: 1.7,
                 syntax: 'intuitive',
                 errors: 0,
-                compiled: true
+                compiled: true,
+                mathModel: 'quantum',
+                state: [0.6, 0.9, 0.8, 0.95],
+                neuralWeights: [[0.6, 0.9, 0.8], [0.8, 0.7, 0.9], [0.9, 0.8, 0.6], [0.7, 0.85, 0.9]],
+                quantumCoherence: 0.98,
+                entropyLevel: 3.1
             },
             { 
-                x: W*0.8, y: H*0.75, 
+                x: W*0.78, y: H*0.72, 
                 type: 'creativity', 
                 language: 'DreamCode',
                 source: 'imagine.new() && manifest.now()',
                 stage: 'execution',
-                frequency: 0.00015, 
-                intensity: 1.8,
+                frequency: 0.00018, 
+                intensity: 2.1,
                 syntax: 'creative',
                 errors: 2,
-                compiled: true
+                compiled: true,
+                mathModel: 'fractal',
+                state: [0.8, 0.6, 0.95, 0.7],
+                neuralWeights: [[0.7, 0.8, 0.9], [0.9, 0.6, 0.8], [0.8, 0.9, 0.7], [0.6, 0.8, 0.95]],
+                quantumCoherence: 0.75,
+                entropyLevel: 4.2
             },
             { 
-                x: W*0.5, y: H*0.1, 
+                x: W*0.48, y: H*0.08, 
                 type: 'memory', 
                 language: 'MemStack',
                 source: 'remember.push(moment.eternal)',
                 stage: 'lexical',
-                frequency: 0.0001, 
-                intensity: 0.7,
+                frequency: 0.00012, 
+                intensity: 0.9,
                 syntax: 'temporal',
                 errors: 0,
-                compiled: false
+                compiled: false,
+                mathModel: 'information',
+                state: [0.5, 0.95, 0.4, 0.6],
+                neuralWeights: [[0.5, 0.95, 0.4], [0.6, 0.8, 0.9], [0.9, 0.5, 0.8], [0.8, 0.9, 0.6]],
+                quantumCoherence: 0.88,
+                entropyLevel: 2.7
             },
             { 
-                x: W*0.3, y: H*0.6, 
+                x: W*0.32, y: H*0.58, 
                 type: 'awareness', 
                 language: 'PresentC',
                 source: 'observe(now) -> understand(all)',
                 stage: 'execution',
-                frequency: 0.00006, 
-                intensity: 2.0,
+                frequency: 0.000075, 
+                intensity: 2.3,
                 syntax: 'aware',
                 errors: 0,
-                compiled: true
+                compiled: true,
+                mathModel: 'differential',
+                state: [0.95, 0.7, 0.8, 0.98],
+                neuralWeights: [[0.95, 0.7, 0.8], [0.8, 0.95, 0.7], [0.7, 0.8, 0.95], [0.9, 0.85, 0.9]],
+                quantumCoherence: 0.99,
+                entropyLevel: 1.2
             },
             { 
-                x: W*0.7, y: H*0.4, 
+                x: W*0.68, y: H*0.42, 
                 type: 'dream', 
                 language: 'SleepScript',
                 source: 'while(sleeping) { create(impossible) }',
                 stage: 'parsing',
-                frequency: 0.00025, 
-                intensity: 1.1,
+                frequency: 0.0003, 
+                intensity: 1.4,
                 syntax: 'oneiric',
                 errors: 3,
-                compiled: false
+                compiled: false,
+                mathModel: 'quantum',
+                state: [0.4, 0.8, 0.9, 0.3],
+                neuralWeights: [[0.4, 0.8, 0.9], [0.9, 0.4, 0.8], [0.8, 0.9, 0.4], [0.3, 0.7, 0.9]],
+                quantumCoherence: 0.65,
+                entropyLevel: 5.1
             },
             { 
-                x: W*0.15, y: H*0.45, 
+                x: W*0.18, y: H*0.48, 
                 type: 'wonder', 
                 language: 'CuriosityJS',
                 source: 'question.everything() ?? discover.truth()',
                 stage: 'optimization',
-                frequency: 0.0002, 
-                intensity: 1.3,
+                frequency: 0.00025, 
+                intensity: 1.6,
                 syntax: 'questioning',
                 errors: 1,
-                compiled: false
+                compiled: false,
+                mathModel: 'fractal',
+                state: [0.8, 0.5, 0.7, 0.9],
+                neuralWeights: [[0.8, 0.5, 0.7], [0.7, 0.8, 0.5], [0.5, 0.7, 0.8], [0.9, 0.6, 0.7]],
+                quantumCoherence: 0.82,
+                entropyLevel: 3.4
             },
             { 
-                x: W*0.85, y: H*0.6, 
+                x: W*0.82, y: H*0.62, 
                 type: 'wisdom', 
                 language: 'SageC++',
                 source: 'experience.distill() -> knowledge.pure',
                 stage: 'execution',
-                frequency: 0.00004, 
-                intensity: 2.2,
+                frequency: 0.00005, 
+                intensity: 2.5,
                 syntax: 'wise',
                 errors: 0,
-                compiled: true
+                compiled: true,
+                mathModel: 'complex',
+                state: [0.9, 0.95, 0.85, 0.98],
+                neuralWeights: [[0.9, 0.95, 0.85], [0.85, 0.9, 0.95], [0.95, 0.85, 0.9], [0.98, 0.9, 0.95]],
+                quantumCoherence: 0.97,
+                entropyLevel: 0.8
             }
         ];
         
-        // Consciousness compilation symbols: void → tokens → AST → bytecode → reality → ∞
-        const symbols = ' ·∘○◯●◉⊙◈◊.,-:;(){}[]<>=+-*/%&|!?~^`"\'LEX_PARSE_OPT_EXEC_REAL_COMPILED_∞';
+        // 3D layered symbol sets for depth perception
+        const surfaceSymbols = '·∘○◯●◉⊙⊚⊛⊜⊝⚡✧✦★☆◈◊◆◇⋄';  // Bright conscious thoughts
+        const middleSymbols = '.,-:;(){}[]<>=+-*/%&|!?~^`"\'';      // Processing symbols  
+        const deepSymbols = ' ░▒▓█▉▊▋▌▍▎▏▐░▒▓';                     // Deep substrate
+        const metaSymbols = 'ψΨλΛφΦπΠωΩαβγδεζηθικμνξρστυχψω∂∇∆∞';  // Meta-structures
+        const cubeSymbols = '┌┐└┘├┤┬┴┼│─╭╮╯╰╱╲╳◢◣◤◥▲▼◀▶';         // 3D structural
         
-        // Compilation constants
-        const LEXICAL_RATE = 0.00002;
-        const PARSE_RATE = 0.000015;
-        const OPTIMIZE_RATE = 0.00001;
-        const EXECUTE_RATE = 0.000008;
-        const GC_RATE = 0.000005;
-        const MENTAL_STACK_SIZE = 64;
+        // Combined symbol set with 3D depth markers
+        const symbols = ' ·∘○◯●◉⊙◈◊.,-:;(){}[]<>=+-*/%&|!?~^`"\'ψΨλΛφΦπΠωΩαβγδεζηθικμνξρστυχψω∂∇∆∞⚡✧✦★☆⋄◆◇◈◊□■▫▪▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻◀◁◂◃◄◅░▒▓█▉▊▋▌▍▎▏▐┌┐└┘├┤┬┴┼│─╭╮╯╰╱╲╳◢◣◤◥◌◍◎◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◦◧◨◩◪◫◬◭◮◯∞';
         
-        function lexicalAnalysis(x, y, source, time) {
-            // Tokenizing raw consciousness into mental lexemes
+        // Mathematical evolution constants
+        const LEXICAL_RATE = 0.000025;
+        const PARSE_RATE = 0.00002;
+        const OPTIMIZE_RATE = 0.000015;
+        const EXECUTE_RATE = 0.00001;
+        const QUANTUM_RATE = 0.000008;
+        const NEURAL_LEARNING_RATE = 0.0001;
+        
+        // Complex number operations
+        function complexMult(a, b) {
+            return {
+                real: a.real * b.real - a.imag * b.imag,
+                imag: a.real * b.imag + a.imag * b.real
+            };
+        }
+        
+        function complexMagnitude(z) {
+            return Math.sqrt(z.real * z.real + z.imag * z.imag);
+        }
+        
+        function complexPhase(z) {
+            return Math.atan2(z.imag, z.real);
+        }
+        
+        // Complex plane consciousness analysis
+        function complexConsciousnessField(x, y, source, time) {
+            const z_pos = { 
+                real: (x - source.x) / 55, 
+                imag: (y - source.y) / 55 
+            };
+            
+            const z_source = {
+                real: Math.cos(time * source.frequency) * source.intensity,
+                imag: Math.sin(time * source.frequency * φ) * source.intensity
+            };
+            
+            const interference = complexMult(z_pos, z_source);
+            const magnitude = complexMagnitude(interference);
+            const phase = complexPhase(interference);
+            
+            // Consciousness resonance in complex plane
+            const resonance = Math.sin(phase + time * source.frequency * 0.1) * 
+                             Math.exp(-magnitude * 0.08);
+            
+            // Complex breathing patterns
+            const breathing = Math.sin(time * 0.000012 + phase * 2) * 0.3 + 0.7;
+            
+            return resonance * breathing * source.quantumCoherence;
+        }
+        
+        // Information theoretic error analysis
+        function informationTheoreticAnalysis(x, y, source, time) {
             const dx = x - source.x;
             const dy = y - source.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Token extraction patterns
-            const tokenStream = Math.sin(time * source.frequency * LEXICAL_RATE) * source.intensity;
-            const tokenizing = Math.sin(dist * 0.12 + time * source.frequency);
+            // Shannon entropy calculation
+            const entropy = source.entropyLevel * Math.log2(1 + source.intensity);
             
-            // Lexeme recognition
-            const lexemes = Math.exp(-dist * 0.025) * 
-                           Math.abs(tokenStream) * 
-                           (1 + Math.sin(time * source.frequency * 2));
+            // Information content based on distance and time
+            const information = entropy * Math.exp(-dist * 0.02) * 
+                              Math.sin(time * source.frequency + entropy);
             
-            // Symbol table construction
-            const symbolTable = Math.sin(tokenizing * lexemes * 3 + time * source.frequency * 0.4);
+            // Error probability using information theory
+            const errorProb = Math.exp(-information) * source.errors;
             
-            // Lexical error detection
-            const errors = source.errors > 0 ? 
-                          Math.sin(time * source.frequency * 5) * 0.3 : 0;
+            // Error correction using Hamming distance concept
+            const correctionPower = Math.log2(1 + source.intensity * source.quantumCoherence);
+            const errorRecovery = Math.tanh(correctionPower - errorProb);
             
-            return (tokenStream + tokenizing + lexemes + symbolTable + errors) * 0.2;
-        }
-        
-        function syntaxParsing(x, y, source, time) {
-            // Building Abstract Syntax Trees from consciousness tokens
-            const dx = x - source.x;
-            const dy = y - source.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // AST construction
-            const astBuilding = Math.sin(dist * 0.1 + time * source.frequency * PARSE_RATE);
-            const parseTree = Math.cos(dist * 0.08 + time * source.frequency * 1.2);
-            
-            // Grammar matching for different consciousness types
-            let grammarWeight = 1.0;
-            switch(source.syntax) {
-                case 'emotional': grammarWeight = 1.3; break;
-                case 'logical': grammarWeight = 0.8; break;
-                case 'intuitive': grammarWeight = 1.5; break;
-                case 'creative': grammarWeight = 1.8; break;
-                case 'temporal': grammarWeight = 0.9; break;
-                case 'aware': grammarWeight = 2.0; break;
-                case 'oneiric': grammarWeight = 1.6; break;
-                case 'questioning': grammarWeight = 1.2; break;
-                case 'wise': grammarWeight = 2.2; break;
-            }
-            
-            // Parse tree validation
-            const validation = Math.exp(-dist * 0.02) * 
-                              Math.sin(astBuilding * parseTree * 2 + time * source.frequency * 0.3) *
-                              grammarWeight;
-            
-            // Syntax error recovery
-            const errorRecovery = source.errors > 0 ? 
-                                 Math.cos(time * source.frequency * 3) * 0.4 * source.errors : 0;
-            
-            return (astBuilding + parseTree + validation - errorRecovery) * source.intensity * 0.15;
-        }
-        
-        function codeOptimization(x, y, source, time) {
-            // Optimizing consciousness for efficient reality execution
-            const dx = x - source.x;
-            const dy = y - source.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // Dead code elimination
-            const deadCodeElim = Math.sin(dist * 0.08 + time * source.frequency * OPTIMIZE_RATE);
-            
-            // Consciousness loop optimization
-            const loopOpt = Math.cos(time * source.frequency * 0.8) * 
-                           Math.sin(dist * 0.06 + time * source.frequency * 1.5);
-            
-            // Thought pattern recognition and caching
-            const patternCache = Math.exp(-dist * 0.018) * 
-                                Math.sin(deadCodeElim * loopOpt * 4 + time * source.frequency * 0.2);
-            
-            // Mental register allocation
-            const registerAlloc = Math.sin(patternCache * 2 + time * source.frequency * 0.6);
-            
-            // Optimization level progression
-            const optLevel = optimizationLevel * 0.5 + 0.5;
-            
-            return (deadCodeElim + loopOpt + patternCache + registerAlloc) * 
-                   source.intensity * optLevel * 0.12;
-        }
-        
-        function realityExecution(x, y, source, time) {
-            // Executing compiled consciousness into reality
-            const dx = x - source.x;
-            const dy = y - source.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // Reality VM execution
-            const vmExecution = Math.sin(dist * 0.05 + time * source.frequency * EXECUTE_RATE);
-            
-            // Consciousness bytecode interpretation
-            const bytecodeInterp = Math.cos(time * source.frequency * 0.6) * 
-                                  Math.sin(dist * 0.04 + time * source.frequency * 1.8);
-            
-            // Reality manifestation
-            const manifestation = Math.exp(-dist * 0.015) * 
-                                 Math.sin(vmExecution * bytecodeInterp * 6 + time * source.frequency * 0.1) *
-                                 (source.compiled ? 1.5 : 0.3);
-            
-            // Universe state update
-            const stateUpdate = Math.sin(manifestation * 3 + time * source.frequency * 0.4);
-            
-            // Reality coherence check
-            const coherence = Math.cos(stateUpdate + vmExecution + time * source.frequency * 0.8) *
-                             (1 - source.errors * 0.2);
-            
-            return (vmExecution + bytecodeInterp + manifestation + stateUpdate + coherence) * 
-                   source.intensity * 0.1;
-        }
-        
-        function memoryManagement(x, y, source, time) {
-            // Consciousness garbage collection and memory optimization
-            const dx = x - source.x;
-            const dy = y - source.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // Mental garbage collection
-            const gc = Math.sin(time * GC_RATE) > 0.8 ? 1.5 : 1.0;
-            
-            // Memory allocation patterns
-            const memAlloc = Math.sin(dist * 0.15 + time * source.frequency) * gc;
-            
-            // Thought lifecycle management
-            const lifecycle = Math.exp(-dist * 0.03) * 
-                             Math.cos(time * source.frequency * 0.5) * 
-                             source.intensity;
-            
-            // Memory fragmentation cleanup
-            const defrag = Math.sin(memAlloc * lifecycle * 2 + time * source.frequency * 0.3);
-            
-            return (memAlloc + lifecycle + defrag) * 0.08;
-        }
-        
-        function consciousnessCompilation(x, y, source, time) {
-            // Unified consciousness compilation pipeline
-            let compilation = 0;
-            
-            // Stage-specific processing
-            switch(source.stage) {
-                case 'lexical':
-                    compilation = lexicalAnalysis(x, y, source, time);
-                    break;
-                case 'parsing':
-                    compilation = lexicalAnalysis(x, y, source, time) * 0.3 +
-                                 syntaxParsing(x, y, source, time) * 0.7;
-                    break;
-                case 'optimization':
-                    compilation = lexicalAnalysis(x, y, source, time) * 0.2 +
-                                 syntaxParsing(x, y, source, time) * 0.3 +
-                                 codeOptimization(x, y, source, time) * 0.5;
-                    break;
-                case 'execution':
-                    compilation = lexicalAnalysis(x, y, source, time) * 0.1 +
-                                 syntaxParsing(x, y, source, time) * 0.2 +
-                                 codeOptimization(x, y, source, time) * 0.3 +
-                                 realityExecution(x, y, source, time) * 0.4;
-                    break;
-            }
-            
-            // Add memory management overhead
-            compilation += memoryManagement(x, y, source, time);
-            
-            // Inter-consciousness communication
-            let communication = 0;
+            // Mutual information between consciousness sources
+            let mutualInfo = 0;
             for (let other of consciousSources) {
                 if (other !== source) {
-                    const otherDx = source.x - other.x;
-                    const otherDy = source.y - other.y;
-                    const otherDist = Math.sqrt(otherDx*otherDx + otherDy*otherDy);
-                    const coupling = Math.sin(otherDist * 0.015 + time * (source.frequency + other.frequency));
-                    communication += coupling * source.intensity * other.intensity * 0.03;
+                    const crossEntropy = Math.abs(source.entropyLevel - other.entropyLevel);
+                    mutualInfo += Math.exp(-crossEntropy) * 0.1;
                 }
             }
             
-            return compilation + communication;
+            return (information + errorRecovery + mutualInfo) * 0.3;
         }
         
-        function globalConsciousness(x, y, time) {
-            // Universal consciousness runtime environment
+        // Neural network compilation layers
+        function neuralCompilation(x, y, source, time) {
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            let activation = Math.tanh((x - source.x) * 0.015 + 
+                                     Math.sin(time * source.frequency) * 0.8);
+            
+            // Forward propagation through neural layers
+            for (let i = 0; i < source.neuralWeights.length; i++) {
+                const layer = source.neuralWeights[i];
+                
+                let weighted = activation * layer[0] + 
+                              Math.sin(time * source.frequency + i) * layer[1] +
+                              source.intensity * layer[2];
+                
+                // Advanced activation functions based on consciousness type
+                switch(source.type) {
+                    case 'emotion':
+                        activation = Math.tanh(weighted); // Bounded emotional responses
+                        break;
+                    case 'logic':
+                        activation = 1 / (1 + Math.exp(-weighted * 2)); // Sigmoid for binary logic
+                        break;
+                    case 'intuition':
+                        activation = weighted > 0 ? Math.sqrt(weighted) : -Math.sqrt(-weighted); // Square root for intuitive leaps
+                        break;
+                    case 'creativity':
+                        activation = Math.sin(weighted * π); // Sinusoidal for creative oscillation
+                        break;
+                    default:
+                        activation = Math.tanh(weighted);
+                }
+                
+                // Backpropagation-style weight updates
+                const feedback = Math.sin(time * source.frequency * 0.05 + dist * 0.01);
+                layer[0] += feedback * NEURAL_LEARNING_RATE * activation;
+                layer[1] += feedback * NEURAL_LEARNING_RATE * 0.5;
+                layer[2] += feedback * NEURAL_LEARNING_RATE * 0.3;
+                
+                // Weight decay to prevent explosion
+                layer[0] *= 0.9999;
+                layer[1] *= 0.9999;
+                layer[2] *= 0.9999;
+            }
+            
+            return activation * Math.exp(-dist * 0.025);
+        }
+        
+        // Quantum consciousness superposition
+        function quantumConsciousness(x, y, source, time) {
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Wave function components
+            const ψ_real = Math.sin(x * 0.06 + time * source.frequency * QUANTUM_RATE) * 
+                          source.intensity * source.quantumCoherence;
+            const ψ_imag = Math.cos(y * 0.05 + time * source.frequency * QUANTUM_RATE * φ) * 
+                          source.intensity * source.quantumCoherence;
+            
+            // Probability amplitude |ψ|²
+            const probability = ψ_real*ψ_real + ψ_imag*ψ_imag;
+            
+            // Quantum decoherence over time
+            const decoherence = Math.exp(-time * 0.0000001 * (1 - source.quantumCoherence));
+            
+            // Wave function collapse when compilation stage advances
+            const collapsed = source.compiled ? 
+                Math.sqrt(probability) * decoherence : 
+                probability * decoherence;
+            
+            // Quantum uncertainty principle
+            const uncertainty = Math.sqrt(source.errors * time * ℏ * 10000000) * 
+                              (Math.random() - 0.5) * 0.15;
+            
+            // Quantum tunneling through compilation barriers
+            const tunneling = Math.exp(-dist * 0.1) * 
+                             Math.sin(time * source.frequency * 2 + probability * 5);
+            
+            return collapsed + uncertainty + tunneling * 0.3;
+        }
+        
+        // Fractal consciousness compilation
+        function fractalCompilation(x, y, source, time, depth = 4) {
+            if (depth <= 0) return 0;
+            
+            const scale = Math.pow(1/φ, depth); // Golden ratio scaling
+            const angle = depth * π / 5 + time * source.frequency;
+            
+            // L-system consciousness evolution
+            const rule = source.compiled ? 'A' : 'AB';
+            const ruleComplexity = rule.length * scale;
+            
+            // Recursive compilation at smaller scales
+            const x_scaled = source.x + Math.cos(angle) * scale * 25;
+            const y_scaled = source.y + Math.sin(angle) * scale * 20;
+            
+            const dx = x - x_scaled;
+            const dy = y - y_scaled;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            const currentLevel = Math.sin(dist * scale * 0.2 + time * source.frequency) * 
+                               Math.exp(-dist * scale * 0.1) * ruleComplexity;
+            
+            const nextLevel = fractalCompilation(x, y, source, time, depth - 1);
+            
+            return currentLevel + nextLevel * scale * 0.7;
+        }
+        
+        // Differential equation consciousness dynamics
+        function consciousnessDynamics(source, dt = 0.01) {
+            const state = source.state;
+            
+            // Advanced consciousness dynamics system
+            const dAttention = 1.2 * state[3] * state[2] - 0.3 * state[0] + 
+                              Math.sin(compileTime * source.frequency) * 0.1;
+            const dMemory = 0.4 * state[0] * state[3] - 0.15 * state[1] + 
+                           source.intensity * 0.05;
+            const dIntention = 0.6 * state[1] * state[0] - 0.5 * state[2] + 
+                              source.quantumCoherence * 0.1;
+            const dAwareness = 0.8 * state[2] * state[1] - 0.25 * state[3] + 
+                              (1 - source.errors * 0.1) * 0.05;
+            
+            // Runge-Kutta 4th order integration
+            const k1 = [dAttention, dMemory, dIntention, dAwareness];
+            
+            const midState = state.map((s, i) => s + k1[i] * dt * 0.5);
+            const k2 = [
+                1.2 * midState[3] * midState[2] - 0.3 * midState[0],
+                0.4 * midState[0] * midState[3] - 0.15 * midState[1],
+                0.6 * midState[1] * midState[0] - 0.5 * midState[2],
+                0.8 * midState[2] * midState[1] - 0.25 * midState[3]
+            ];
+            
+            // Apply integration
+            for (let i = 0; i < 4; i++) {
+                state[i] += (k1[i] + k2[i]) * dt * 0.5;
+                state[i] = Math.max(0, Math.min(1, state[i])); // Bound to [0,1]
+            }
+            
+            return state[0] + state[1] + state[2] + state[3]; // Total consciousness
+        }
+        
+        // Unified mathematical consciousness compilation
+        function advancedConsciousnessCompilation(x, y, source, time) {
+            let compilation = 0;
+            
+            // Apply different mathematical models based on source type
+            switch(source.mathModel) {
+                case 'complex':
+                    compilation = complexConsciousnessField(x, y, source, time);
+                    break;
+                case 'neural':
+                    compilation = neuralCompilation(x, y, source, time);
+                    break;
+                case 'quantum':
+                    compilation = quantumConsciousness(x, y, source, time);
+                    break;
+                case 'fractal':
+                    compilation = fractalCompilation(x, y, source, time);
+                    break;
+                case 'information':
+                    compilation = informationTheoreticAnalysis(x, y, source, time);
+                    break;
+                case 'differential':
+                    compilation = consciousnessDynamics(source) * 
+                                 Math.exp(-Math.sqrt((x-source.x)*(x-source.x) + (y-source.y)*(y-source.y)) * 0.02);
+                    break;
+                default:
+                    compilation = complexConsciousnessField(x, y, source, time);
+            }
+            
+            // Cross-model interference
+            let interference = 0;
+            for (let other of consciousSources) {
+                if (other !== source && other.mathModel !== source.mathModel) {
+                    const dx = source.x - other.x;
+                    const dy = source.y - other.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    const crossTalk = Math.sin(dist * 0.02 + time * (source.frequency + other.frequency)) *
+                                     source.intensity * other.intensity * 0.05;
+                    interference += crossTalk;
+                }
+            }
+            
+            return compilation + interference;
+        }
+        
+        // Universal consciousness field with mathematical depth
+        function universalConsciousnessField(x, y, time) {
             const centerX = W / 2;
             const centerY = H / 2;
             
-            // Collective consciousness field
-            const collective = Math.sin((x - centerX) * 0.008 + time * 0.00004) * 
-                              Math.cos((y - centerY) * 0.006 + time * 0.00003);
+            // Global consciousness manifold
+            const manifold = Math.sin((x - centerX) * 0.01 + time * 0.00005) * 
+                           Math.cos((y - centerY) * 0.008 + time * 0.00004);
             
-            // Mental network topology
-            const network = Math.sin(collective * LEXICAL_RATE + time * 0.000012) * 
-                           Math.cos(time * 0.000018 + collective * PARSE_RATE);
+            // Mathematical universe substrate
+            const substrate = Math.sin(manifold * LEXICAL_RATE * 8 + time * 0.000015) * 
+                            Math.cos(time * 0.00002 + manifold * PARSE_RATE * 6);
             
-            // Consciousness compiler optimization
-            const compilerOpt = Math.sin(network * collective * 4 + time * 0.00001);
+            // Reality compiler optimization
+            const optimization = Math.sin(substrate * manifold * 12 + time * 0.000012) *
+                               Math.exp(-Math.abs(substrate) * 0.8);
             
-            // Reality.exe system calls
-            const systemCalls = Math.exp(-Math.abs(compilerOpt) * 1.8) * 
-                               Math.sin(time * 0.000015 + compilerOpt * EXECUTE_RATE);
+            // Quantum foam of consciousness
+            const quantumFoam = Math.sin(time * QUANTUM_RATE * 3 + optimization * 8) * 0.3;
             
-            return collective + network * 0.8 + compilerOpt * 0.7 + systemCalls * 0.6;
+            // Information-theoretic reality
+            const informationReality = Math.log(1 + Math.abs(optimization + quantumFoam)) * 
+                                     Math.sin(time * 0.000018);
+            
+            return manifold + substrate * 0.9 + optimization * 0.8 + 
+                   quantumFoam + informationReality * 0.7;
         }
         
-        function consciousnessGC(time) {
-            // Mental garbage collection cycles
-            const gcMajor = Math.sin(time * 0.000001) * 0.4 + 0.6;
-            const gcMinor = Math.sin(time * 0.000002) * 0.2 + 0.8;
-            const thoughtCompaction = Math.sin(time * 0.0000008) * 0.15 + 0.85;
-            const memoryPressure = Math.sin(time * 0.0000015) * 0.1 + 0.9;
+        // 3D depth calculation for consciousness layers
+        function calculate3DDepth(x, y, source, time) {
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
             
-            return gcMajor * gcMinor * thoughtCompaction * memoryPressure;
+            // Z-depth based on consciousness intensity and type
+            let baseDepth = source.intensity * 0.8;
+            
+            // Depth modulation by compilation stage
+            const stageDepths = {
+                'lexical': 0.2,     // Surface layer - tokenizing
+                'parsing': 0.4,     // Middle layer - understanding  
+                'optimization': 0.7, // Deep layer - processing
+                'execution': 0.9     // Meta layer - reality manifestation
+            };
+            baseDepth *= stageDepths[source.stage] || 0.5;
+            
+            // Quantum coherence affects depth clarity
+            const depthCoherence = source.quantumCoherence * Math.exp(-dist * 0.01);
+            
+            // Time-based depth oscillation
+            const depthOscillation = Math.sin(time * source.frequency * 0.1 + dist * 0.05) * 0.3;
+            
+            // Error distortion creates depth artifacts
+            const errorDistortion = source.errors * 0.2 * Math.sin(time * source.frequency);
+            
+            return baseDepth + depthOscillation + depthCoherence - errorDistortion;
+        }
+        
+        // Isometric 3D consciousness structures
+        function renderConsciousnessStructure(x, y, source, time) {
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Create 3D consciousness "buildings" around each source
+            const structureSize = source.intensity * 12;
+            const structureHeight = source.quantumCoherence * 8;
+            
+            // Isometric projection coordinates
+            const isoX = (dx - dy) * 0.5;
+            const isoY = (dx + dy) * 0.25 - source.intensity * 5;
+            
+            // Check if we're inside the structure
+            if (Math.abs(isoX) < structureSize && Math.abs(isoY) < structureSize) {
+                // Different faces of the 3D structure
+                const leftFace = isoX < -structureSize * 0.7;
+                const rightFace = isoX > structureSize * 0.7;
+                const topFace = isoY < -structureSize * 0.5;
+                
+                // Assign depth layer based on structure face
+                if (topFace) return 'meta';       // Top face - meta layer
+                else if (leftFace) return 'deep'; // Left face - deep layer  
+                else if (rightFace) return 'middle'; // Right face - middle layer
+                else return 'surface';            // Front face - surface layer
+            }
+            
+            return null;
+        }
+        
+        // Perspective depth mapping for 3D effect
+        function perspectiveDepthMap(x, y, centerX, centerY, time) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Perspective scaling - further = smaller/denser
+            const perspective = 1 / (1 + dist * 0.008);
+            
+            // Create depth horizon effect
+            const horizon = Math.abs(y - centerY) / (H * 0.3);
+            const depthHorizon = Math.exp(-horizon * 2);
+            
+            // Parallax layers moving at different speeds
+            const parallax1 = Math.sin(time * 0.000008 + dx * 0.005) * 0.3; // Background
+            const parallax2 = Math.sin(time * 0.000012 + dx * 0.008) * 0.5; // Midground  
+            const parallax3 = Math.sin(time * 0.000015 + dx * 0.012) * 0.7; // Foreground
+            
+            return perspective * depthHorizon * (parallax1 + parallax2 + parallax3);
+        }
+        
+        // Advanced consciousness garbage collection
+        function quantumGarbageCollection(time) {
+            // Quantum GC with coherence preservation
+            const quantumGC = Math.sin(time * 0.0000012) * 0.35 + 0.65;
+            const coherenceGC = Math.sin(time * 0.0000018) * 0.25 + 0.75;
+            const entanglementGC = Math.sin(time * 0.000001) * 0.2 + 0.8;
+            const informationGC = Math.sin(time * 0.0000015) * 0.15 + 0.85;
+            
+            // Phase transitions in memory management
+            const phaseTransition = Math.sin(time * 0.0000008) > 0.95 ? 1.3 : 1.0;
+            
+            return quantumGC * coherenceGC * entanglementGC * informationGC * phaseTransition;
         }
         
         function render() {
-            // Consciousness compilation system evolution
-            compileTime += 0.015;
-            mentalPhase = (mentalPhase + 0.0004) % (Math.PI * 128);
-            optimizationLevel = 0.6 + Math.sin(compileTime * 0.00005) * 0.4;
+            // Advanced consciousness compilation evolution
+            compileTime += 0.018;
+            quantumPhase = (quantumPhase + 0.0005) % (π * 256);
+            optimizationLevel = 0.65 + Math.sin(compileTime * 0.00006) * 0.35;
             
-            // Global compilation pulse
-            const compilePulse = Math.sin(compileTime * 0.00003) * 0.5 + 0.5;
-            const realityUpdate = Math.sin(compileTime * 0.000008) * 3;
+            // Global quantum consciousness pulse
+            const quantumPulse = Math.sin(compileTime * 0.000035) * 0.4 + 0.6;
+            const realityUpdate = Math.sin(compileTime * 0.00001) * 2.5;
+            const informationFlow = Math.cos(compileTime * 0.000012) * 1.8;
             
-            // Calculate consciousness fields
+            // Calculate 3D consciousness fields with depth layers
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
                     
-                    // Compilation from all consciousness sources
+                    // Initialize depth layers
+                    surfaceLayer[idx] = 0;
+                    middleLayer[idx] = 0;
+                    deepLayer[idx] = 0;
+                    metaLayer[idx] = 0;
+                    let totalDepth = 0;
+                    
+                    // Compilation from all consciousness sources using advanced mathematics
                     let totalCompilation = 0;
                     for (let source of consciousSources) {
-                        totalCompilation += consciousnessCompilation(x, y, source, compileTime);
+                        const compilation = advancedConsciousnessCompilation(x, y, source, compileTime);
+                        totalCompilation += compilation;
                         
-                        // Source evolution and stage progression
-                        if (Math.random() < 0.0001) {
+                        // Calculate 3D depth for this source
+                        const depth = calculate3DDepth(x, y, source, compileTime);
+                        totalDepth += depth;
+                        
+                        // Check for 3D consciousness structures
+                        const structure = renderConsciousnessStructure(x, y, source, compileTime);
+                        
+                        // Distribute compilation across depth layers based on depth and structure
+                        if (structure === 'meta' || depth > 0.8) {
+                            metaLayer[idx] += compilation * 0.8;
+                        } else if (structure === 'deep' || depth > 0.6) {
+                            deepLayer[idx] += compilation * 0.8;
+                        } else if (structure === 'middle' || depth > 0.4) {
+                            middleLayer[idx] += compilation * 0.8;
+                        } else {
+                            surfaceLayer[idx] += compilation * 0.8;
+                        }
+                        
+                        // Advanced source evolution
+                        if (Math.random() < 0.00008) {
                             const stages = ['lexical', 'parsing', 'optimization', 'execution'];
                             const currentIndex = stages.indexOf(source.stage);
                             source.stage = stages[(currentIndex + 1) % stages.length];
                         }
                         
-                        // Compilation completion check
-                        if (source.stage === 'execution' && source.errors === 0) {
+                        // Quantum error evolution
+                        if (Math.random() < 0.00003) {
+                            const errorDelta = Math.sin(compileTime * source.frequency) > 0.8 ? -1 : 
+                                             Math.random() > 0.85 ? 1 : 0;
+                            source.errors = Math.max(0, Math.min(5, source.errors + errorDelta));
+                        }
+                        
+                        // Consciousness intensity evolution with quantum fluctuations
+                        source.intensity = 0.5 + Math.sin(compileTime * source.frequency + source.x * 0.012) * 0.4 +
+                                         (Math.random() - 0.5) * 0.1 * source.quantumCoherence;
+                        
+                        // Quantum coherence decay and regeneration
+                        source.quantumCoherence = 0.6 + Math.sin(compileTime * source.frequency * 0.1) * 0.4;
+                        
+                        // Compilation completion with quantum probability
+                        if (source.stage === 'execution' && source.errors === 0 && 
+                            source.quantumCoherence > 0.9) {
                             source.compiled = true;
                         }
-                        
-                        // Error injection and resolution
-                        if (Math.random() < 0.00005) {
-                            source.errors = Math.max(0, source.errors + (Math.random() > 0.7 ? 1 : -1));
-                        }
-                        
-                        // Intensity evolution
-                        source.intensity = 0.5 + Math.sin(compileTime * source.frequency + source.x * 0.01) * 0.5;
                     }
                     
-                    // Global consciousness processing
-                    const globalProc = globalConsciousness(x, y, compileTime);
+                    // Universal consciousness field with mathematical depth
+                    const universalField = universalConsciousnessField(x, y, compileTime);
                     
-                    // Unified consciousness field
-                    let totalField = totalCompilation * 0.7 + globalProc * 0.3;
+                    // 3D perspective depth mapping
+                    const centerX = W / 2;
+                    const centerY = H / 2;
+                    const perspectiveDepth = perspectiveDepthMap(x, y, centerX, centerY, compileTime);
                     
-                    // Apply compilation pulse and reality updates
-                    const gc = consciousnessGC(compileTime);
-                    totalField *= compilePulse * gc;
-                    totalField += realityUpdate * Math.sin(x * 0.012 + y * 0.009 + compileTime * 0.000015) * 0.1;
+                    // Unified mathematical consciousness field with depth
+                    let totalField = totalCompilation * 0.75 + universalField * 0.25;
+                    totalField += perspectiveDepth * 0.3;
                     
-                    // Consciousness memory with compilation persistence
-                    const memoryDecay = 0.91 + Math.sin(compileTime * 0.000003 + x * 0.018 + y * 0.014) * 0.09;
+                    // Store depth information
+                    depthMatrix[idx] = (totalDepth / consciousSources.length) + perspectiveDepth * 0.5;
+                    
+                    // Apply quantum compilation pulse and reality updates
+                    const gc = quantumGarbageCollection(compileTime);
+                    totalField *= quantumPulse * gc;
+                    totalField += realityUpdate * Math.sin(x * 0.015 + y * 0.012 + compileTime * 0.000018) * 0.12;
+                    totalField += informationFlow * Math.cos(x * 0.018 + y * 0.014 + compileTime * 0.000015) * 0.08;
+                    
+                    // Advanced consciousness memory with quantum persistence
+                    const memoryDecay = 0.895 + Math.sin(compileTime * 0.000004 + x * 0.022 + y * 0.018) * 0.105;
+                    const quantumMemory = 1 + Math.sin(quantumPhase + x * 0.008 + y * 0.006) * 0.15;
+                    
                     thoughtMatrix[idx] = thoughtMatrix[idx] * memoryDecay + totalField * (1 - memoryDecay);
                     
-                    // Compilation optimization amplification
-                    const optimization = 1 + optimizationLevel * 0.25 + 
-                                       Math.sin(x * 0.025 + y * 0.02 + compileTime * 0.000025) * 0.12;
-                    thoughtMatrix[idx] *= optimization;
+                    // Mathematical optimization amplification with golden ratio
+                    const optimization = 1 + optimizationLevel * φ * 0.15 + 
+                                       Math.sin(x * 0.028 + y * 0.024 + compileTime * 0.00003) * 0.18;
+                    thoughtMatrix[idx] *= optimization * quantumMemory;
+                    
+                    // Update depth layers with persistence
+                    surfaceLayer[idx] = surfaceLayer[idx] * 0.88 + surfaceLayer[idx] * 0.12;
+                    middleLayer[idx] = middleLayer[idx] * 0.92 + middleLayer[idx] * 0.08;
+                    deepLayer[idx] = deepLayer[idx] * 0.95 + deepLayer[idx] * 0.05;
+                    metaLayer[idx] = metaLayer[idx] * 0.97 + metaLayer[idx] * 0.03;
                 }
             }
             
-            // Render consciousness compilation
+            // Render 3D consciousness compilation with depth layers
             let output = '';
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
                     let intensity = thoughtMatrix[idx];
+                    const depth = depthMatrix[idx];
                     
-                    // Consciousness symbol mapping
-                    intensity = (intensity + 1.8) / 3.6;
+                    // Determine which layer is dominant
+                    const layerIntensities = [
+                        { layer: 'surface', value: surfaceLayer[idx], symbols: surfaceSymbols },
+                        { layer: 'middle', value: middleLayer[idx], symbols: middleSymbols },
+                        { layer: 'deep', value: deepLayer[idx], symbols: deepSymbols },
+                        { layer: 'meta', value: metaLayer[idx], symbols: metaSymbols }
+                    ];
+                    
+                    // Find dominant layer
+                    const dominantLayer = layerIntensities.reduce((prev, curr) => 
+                        curr.value > prev.value ? curr : prev
+                    );
+                    
+                    // 3D depth-based symbol selection
+                    let selectedSymbolSet = symbols;
+                    let depthModifier = 1.0;
+                    
+                    if (dominantLayer.value > 0.1) {
+                        selectedSymbolSet = dominantLayer.symbols;
+                        depthModifier = dominantLayer.value * 2;
+                    }
+                    
+                    // Check for 3D structural elements
+                    let hasStructure = false;
+                    for (let source of consciousSources) {
+                        const structure = renderConsciousnessStructure(x, y, source, compileTime);
+                        if (structure) {
+                            selectedSymbolSet = cubeSymbols;
+                            hasStructure = true;
+                            break;
+                        }
+                    }
+                    
+                    // Advanced mathematical symbol mapping with depth
+                    intensity = (intensity + 2.2) / 4.4;
                     intensity = Math.max(0, Math.min(1, intensity));
                     
-                    // Add compilation artifacts
-                    const artifacts = Math.sin(compileTime * 0.0003 + x * 0.025 + y * 0.02) * 0.07;
-                    intensity += artifacts;
-                    intensity = Math.max(0, Math.min(0.97, intensity));
+                    // Depth-based intensity modulation
+                    intensity *= depthModifier;
                     
-                    const symbolIndex = Math.floor(intensity * symbols.length);
-                    output += symbols[symbolIndex];
+                    // 3D perspective effects
+                    const centerX = W / 2;
+                    const centerY = H / 2;
+                    const distFromCenter = Math.sqrt((x - centerX)*(x - centerX) + (y - centerY)*(y - centerY));
+                    const perspectiveScale = 1 / (1 + distFromCenter * 0.005); // Distance scaling
+                    
+                    // Mathematical compilation artifacts and quantum foam
+                    const mathArtifacts = Math.sin(compileTime * 0.0004 + x * 0.03 + y * 0.025) * 0.09;
+                    const quantumFoam = Math.sin(quantumPhase + x * 0.02 + y * 0.018) * 0.06;
+                    const goldenSpiral = Math.sin((x + y * φ) * 0.015 + compileTime * 0.000025) * 0.04;
+                    
+                    // 3D depth shadows and highlights
+                    const shadowEffect = depth < 0.3 ? 0.7 : 1.0; // Deeper = darker
+                    const highlightEffect = depth > 0.8 ? 1.3 : 1.0; // Surface = brighter
+                    
+                    intensity += mathArtifacts + quantumFoam + goldenSpiral;
+                    intensity *= perspectiveScale * shadowEffect * highlightEffect;
+                    intensity = Math.max(0, Math.min(0.98, intensity));
+                    
+                    // Select symbol from appropriate depth layer
+                    const symbolIndex = Math.floor(intensity * selectedSymbolSet.length);
+                    const selectedSymbol = selectedSymbolSet[symbolIndex] || selectedSymbolSet[0];
+                    
+                    // Add 3D ASCII structural elements for enhanced depth perception
+                    if (hasStructure) {
+                        // Use structural symbols for 3D building effect
+                        output += selectedSymbol;
+                    } else if (depth > 0.9) {
+                        // Meta layer - use special symbols
+                        const metaIndex = Math.floor(intensity * metaSymbols.length);
+                        output += metaSymbols[metaIndex] || metaSymbols[0];
+                    } else if (depth > 0.7) {
+                        // Deep layer - use dense symbols
+                        const deepIndex = Math.floor(intensity * deepSymbols.length);
+                        output += deepSymbols[deepIndex] || deepSymbols[0];
+                    } else if (depth > 0.4) {
+                        // Middle layer - use processing symbols
+                        const middleIndex = Math.floor(intensity * middleSymbols.length);
+                        output += middleSymbols[middleIndex] || middleSymbols[0];
+                    } else {
+                        // Surface layer - use bright symbols
+                        const surfaceIndex = Math.floor(intensity * surfaceSymbols.length);
+                        output += surfaceSymbols[surfaceIndex] || surfaceSymbols[0];
+                    }
                 }
                 output += '\n';
             }
@@ -512,7 +878,7 @@
             requestAnimationFrame(evolve);
         }
         
-        // Initialize consciousness compilation session
+        // Initialize advanced consciousness compilation session
         evolve();
     </script>
 </body>
