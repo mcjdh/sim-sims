@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>reality debug</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.9;
+            letter-spacing: -0.2px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: systemPulse 6s infinite ease-in-out;
+        }
+        @keyframes systemPulse {
+            0%, 100% { 
+                background: #0a0a0a; 
+                color: #00ff41;
+                filter: brightness(1) hue-rotate(0deg);
+            }
+            20% { 
+                background: #0a0f0a; 
+                color: #ffaa00;
+                filter: brightness(1.1) hue-rotate(45deg);
+            }
+            40% { 
+                background: #0f0a0a; 
+                color: #ff4400;
+                filter: brightness(1.2) hue-rotate(90deg);
+            }
+            60% { 
+                background: #0f0f0a; 
+                color: #aa00ff;
+                filter: brightness(1.15) hue-rotate(180deg);
+            }
+            80% { 
+                background: #0a0a0f; 
+                color: #0044ff;
+                filter: brightness(1.05) hue-rotate(270deg);
+            }
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: left;
+            text-shadow: 0 0 1px rgba(0,255,65,0.5), 0 0 2px rgba(0,255,65,0.2);
+            filter: blur(0.1px);
+            transition: all 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+        let debugTime = 0;
+        let systemPhase = 0;
+        let patchLevel = 0;
+        
+        // Debug field matrices - reality's error correction system
+        let debugMatrix = new Array(W * H).fill(0);
+        let errorField = new Array(W * H).fill(0);
+        let patchField = new Array(W * H).fill(0);
+        let memoryField = new Array(W * H).fill(0);
+        let stackField = new Array(W * H).fill(0);
+        let heapField = new Array(W * H).fill(0);
+        
+        // Cosmic bugs - reality's debugging events
+        let cosmicBugs = [
+            { 
+                x: W*0.15, y: H*0.2, 
+                type: 'memory_leak', 
+                severity: 'WARNING',
+                message: 'spacetime.malloc() never freed',
+                frequency: 0.00012, 
+                intensity: 0.8,
+                lifespan: 5000,
+                age: 0
+            },
+            { 
+                x: W*0.85, y: H*0.3, 
+                type: 'null_pointer', 
+                severity: 'ERROR',
+                message: 'consciousness.ptr == NULL',
+                frequency: 0.0001, 
+                intensity: 1.2,
+                lifespan: 3000,
+                age: 1500
+            },
+            { 
+                x: W*0.3, y: H*0.8, 
+                type: 'race_condition', 
+                severity: 'CRITICAL',
+                message: 'past_future.lock() deadlock',
+                frequency: 0.00008, 
+                intensity: 1.5,
+                lifespan: 8000,
+                age: 200
+            },
+            { 
+                x: W*0.7, y: H*0.7, 
+                type: 'stack_overflow', 
+                severity: 'ERROR',
+                message: 'infinity.recurse() exceeded limit',
+                frequency: 0.00015, 
+                intensity: 1.0,
+                lifespan: 4000,
+                age: 3000
+            },
+            { 
+                x: W*0.5, y: H*0.1, 
+                type: 'segfault', 
+                severity: 'CRITICAL',
+                message: 'reality.core dumped',
+                frequency: 0.00005, 
+                intensity: 2.0,
+                lifespan: 10000,
+                age: 9500
+            },
+            { 
+                x: W*0.1, y: H*0.6, 
+                type: 'logic_error', 
+                severity: 'DEBUG',
+                message: 'paradox.resolve() returned NaN',
+                frequency: 0.0002, 
+                intensity: 0.6,
+                lifespan: 2000,
+                age: 0
+            },
+            { 
+                x: W*0.9, y: H*0.5, 
+                type: 'assertion_failed', 
+                severity: 'WARNING',
+                message: 'assert(existence == true) failed',
+                frequency: 0.00009, 
+                intensity: 0.9,
+                lifespan: 6000,
+                age: 4000
+            },
+            { 
+                x: W*0.4, y: H*0.4, 
+                type: 'memory_corruption', 
+                severity: 'ERROR',
+                message: 'quantum_state buffer overflow',
+                frequency: 0.00011, 
+                intensity: 1.1,
+                lifespan: 5500,
+                age: 1000
+            },
+            { 
+                x: W*0.6, y: H*0.6, 
+                type: 'patch_applied', 
+                severity: 'FIXED',
+                message: 'causality.patch_v2.1.7 installed',
+                frequency: 0.00007, 
+                intensity: 0.7,
+                lifespan: 12000,
+                age: 2000
+            }
+        ];
+        
+        // Debug symbols: void → info → debug → warning → error → critical → patched → ∞
+        const symbols = ' ·∘○◯●◉⊙◈◊.,-:;!?*+=#%@&$><[]{}()|/\\~^`"\'DEBUG_INFO_WARN_ERROR_CRIT_FIXED_PATCH_∞';
+        
+        // Debugging constants
+        const MALLOC_RATE = 0.00001;
+        const FREE_RATE = 0.000008;
+        const GC_THRESHOLD = 1000;
+        const PATCH_FREQUENCY = 0.000003;
+        const STACK_DEPTH = 42;
+        const HEAP_SIZE = 1024;
+        
+        function memoryLeak(x, y, bug, time) {
+            // Memory allocation without proper cleanup
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Malloc patterns growing over time
+            const mallocRate = Math.sin(time * bug.frequency * MALLOC_RATE) * bug.intensity;
+            const memoryGrowth = bug.age * 0.0001; // Memory grows over time
+            
+            // Allocation field expanding
+            const allocation = Math.exp(-dist * 0.02) * 
+                              (1 + memoryGrowth) * 
+                              Math.abs(mallocRate);
+            
+            // Fragmentation patterns
+            const fragmentation = Math.sin(dist * 0.1 + time * bug.frequency) * 
+                                 Math.cos(dist * 0.08 + time * bug.frequency * 1.3);
+            
+            // Garbage collection attempts
+            const gcAttempt = Math.sin(time * FREE_RATE) > 0.9 ? 0.5 : 1.0;
+            
+            return allocation * fragmentation * gcAttempt;
+        }
+        
+        function nullPointerException(x, y, bug, time) {
+            // Dereferencing null consciousness pointers
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Null propagation waves
+            const nullWave = Math.sin(dist * 0.15 + time * bug.frequency);
+            const pointerChase = Math.cos(dist * 0.12 + time * bug.frequency * 0.7);
+            
+            // Segmentation fault ripples
+            const segfault = Math.exp(-dist * 0.03) * 
+                            Math.sin(time * bug.frequency * 2) * 
+                            bug.intensity;
+            
+            // Exception propagation
+            const exception = Math.sin(nullWave * pointerChase * 3 + time * bug.frequency * 0.5);
+            
+            return (nullWave + pointerChase + segfault + exception) * 0.25;
+        }
+        
+        function raceCondition(x, y, bug, time) {
+            // Past and future competing for the same memory
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            
+            // Thread competition - past vs future
+            const pastThread = Math.sin(dx * 0.1 + time * bug.frequency);
+            const futureThread = Math.cos(dy * 0.08 + time * bug.frequency * 1.2);
+            
+            // Deadlock detection
+            const deadlock = Math.abs(pastThread - futureThread) < 0.1 ? 2.0 : 1.0;
+            
+            // Critical section violations
+            const criticalSection = Math.sin(pastThread * futureThread * 5 + time * bug.frequency * 0.3);
+            
+            // Mutex contention
+            const mutex = Math.exp(-Math.abs(pastThread + futureThread) * 1.5) * bug.intensity;
+            
+            return (pastThread + futureThread + criticalSection + mutex) * deadlock * 0.2;
+        }
+        
+        function stackOverflow(x, y, bug, time) {
+            // Infinite recursion in mathematical concepts
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Recursive call stack
+            let stackDepth = 0;
+            let current = 1;
+            for (let level = 0; level < STACK_DEPTH; level++) {
+                current = Math.sin(current + time * bug.frequency * 0.1 + level);
+                stackDepth += current * Math.exp(-level * 0.1);
+                if (Math.abs(stackDepth) > 100) break; // Stack overflow!
+            }
+            
+            // Stack frame visualization
+            const stackFrame = Math.exp(-dist * 0.025) * 
+                              Math.sin(stackDepth * 0.1 + time * bug.frequency);
+            
+            // Return address corruption
+            const corruption = Math.sin(stackDepth * stackFrame + time * bug.frequency * 0.2);
+            
+            return stackFrame + corruption * bug.intensity * 0.5;
+        }
+        
+        function segmentationFault(x, y, bug, time) {
+            // Reality accessing invalid memory addresses
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Invalid memory access pattern
+            const invalidAccess = Math.sin(dist * 0.2 + time * bug.frequency) * 
+                                 Math.cos(time * bug.frequency * 1.5);
+            
+            // Core dump generation
+            const coreDump = Math.exp(-dist * 0.01) * 
+                            Math.sin(time * bug.frequency * 0.1) * 
+                            bug.intensity;
+            
+            // Signal propagation (SIGSEGV)
+            const signal = Math.sin(invalidAccess * coreDump * 4 + time * bug.frequency * 0.3);
+            
+            // Reality crash ripples
+            const crash = Math.sin(signal * 2 + time * bug.frequency * 0.8) * 
+                         Math.exp(-time * 0.00001); // Fades over time
+            
+            return (invalidAccess + coreDump + signal + crash) * 0.25;
+        }
+        
+        function logicError(x, y, bug, time) {
+            // Paradoxes in logical reasoning
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Paradox propagation
+            const paradox = Math.sin(dist * 0.3 + time * bug.frequency) * 
+                           Math.cos(dist * 0.25 + time * bug.frequency * 0.8);
+            
+            // Logical inconsistency waves
+            const inconsistency = Math.sin(paradox * 3 + time * bug.frequency * 0.4);
+            
+            // NaN propagation
+            const nanField = Math.exp(-dist * 0.04) * 
+                            (inconsistency > 0.7 ? 1.5 : 0.5);
+            
+            return (paradox + inconsistency + nanField) * bug.intensity * 0.33;
+        }
+        
+        function assertionFailed(x, y, bug, time) {
+            // Reality failing its own sanity checks
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Assertion checking
+            const assertion = Math.sin(dist * 0.18 + time * bug.frequency);
+            const expected = 1.0;
+            const actual = Math.cos(time * bug.frequency * 1.1);
+            
+            // Assertion failure
+            const failed = Math.abs(assertion - expected) > 0.5 ? 1.0 : 0.3;
+            
+            // Debug output generation
+            const debugOutput = Math.exp(-dist * 0.035) * failed * bug.intensity;
+            
+            return (assertion + debugOutput) * 0.5;
+        }
+        
+        function memoryCorruption(x, y, bug, time) {
+            // Quantum states corrupting adjacent memory
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Buffer overflow patterns
+            const overflow = Math.sin(dist * 0.16 + time * bug.frequency) * 
+                            Math.cos(time * bug.frequency * 1.4);
+            
+            // Heap corruption
+            const heapCorrupt = Math.exp(-dist * 0.03) * 
+                               Math.sin(overflow * 2 + time * bug.frequency * 0.6);
+            
+            // Adjacent memory contamination
+            const contamination = Math.sin(heapCorrupt * overflow * 4 + time * bug.frequency * 0.2);
+            
+            return (overflow + heapCorrupt + contamination) * bug.intensity * 0.33;
+        }
+        
+        function patchApplied(x, y, bug, time) {
+            // Successful fixes to reality's codebase
+            const dx = x - bug.x;
+            const dy = y - bug.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Patch deployment waves
+            const deployment = Math.sin(dist * 0.1 + time * bug.frequency) * 
+                              Math.cos(time * bug.frequency * 0.9);
+            
+            // System healing
+            const healing = Math.exp(-dist * 0.02) * 
+                           Math.sin(time * bug.frequency * 0.3) * 
+                           (1 - bug.age / bug.lifespan); // Healing effect diminishes
+            
+            // Stability improvement
+            const stability = Math.sin(deployment * healing * 2 + time * bug.frequency * 0.4);
+            
+            // Green healing glow
+            const glow = Math.exp(-dist * 0.025) * 
+                        Math.sin(time * bug.frequency * 0.1) * 
+                        0.8;
+            
+            return (deployment + healing + stability + glow) * 0.25;
+        }
+        
+        function bugResonance(x, y, bug, time) {
+            // Each bug type has its own debugging signature
+            let debug = 0;
+            
+            switch(bug.type) {
+                case 'memory_leak':
+                    debug = memoryLeak(x, y, bug, time);
+                    break;
+                case 'null_pointer':
+                    debug = nullPointerException(x, y, bug, time);
+                    break;
+                case 'race_condition':
+                    debug = raceCondition(x, y, bug, time);
+                    break;
+                case 'stack_overflow':
+                    debug = stackOverflow(x, y, bug, time);
+                    break;
+                case 'segfault':
+                    debug = segmentationFault(x, y, bug, time);
+                    break;
+                case 'logic_error':
+                    debug = logicError(x, y, bug, time);
+                    break;
+                case 'assertion_failed':
+                    debug = assertionFailed(x, y, bug, time);
+                    break;
+                case 'memory_corruption':
+                    debug = memoryCorruption(x, y, bug, time);
+                    break;
+                case 'patch_applied':
+                    debug = patchApplied(x, y, bug, time);
+                    break;
+            }
+            
+            // Bug interaction with other bugs
+            let interaction = 0;
+            for (let other of cosmicBugs) {
+                if (other !== bug) {
+                    const otherDx = bug.x - other.x;
+                    const otherDy = bug.y - other.y;
+                    const otherDist = Math.sqrt(otherDx*otherDx + otherDy*otherDy);
+                    const coupling = Math.sin(otherDist * 0.02 + time * (bug.frequency + other.frequency));
+                    interaction += coupling * bug.intensity * other.intensity * 0.05;
+                }
+            }
+            
+            return debug + interaction;
+        }
+        
+        function systemDiagnostics(x, y, time) {
+            // Overall system health monitoring
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            // System load monitoring
+            const load = Math.sin((x - centerX) * 0.01 + time * 0.00003) * 
+                        Math.cos((y - centerY) * 0.008 + time * 0.000025);
+            
+            // Memory pressure
+            const pressure = Math.sin(load * MALLOC_RATE + time * 0.00001) * 
+                            Math.cos(time * 0.000015 + load * FREE_RATE);
+            
+            // CPU utilization
+            const cpu = Math.sin(pressure * load * 3 + time * 0.000008);
+            
+            // System entropy
+            const entropy = Math.exp(-Math.abs(cpu) * 2) * 
+                           Math.sin(time * 0.00001 + cpu * PATCH_FREQUENCY);
+            
+            return load + pressure * 0.8 + cpu * 0.7 + entropy * 0.6;
+        }
+        
+        function garbageCollection(time) {
+            // Cosmic garbage collector cleaning up reality
+            const gcCycle = Math.sin(time * 0.000001) * 0.3 + 0.7;
+            const gcPressure = Math.sin(time * 0.0000008) * 0.2 + 0.8;
+            const gcEfficiency = Math.sin(time * 0.0000012) * 0.15 + 0.85;
+            const heapCompaction = Math.sin(time * 0.0000005) * 0.1 + 0.9;
+            
+            return gcCycle * gcPressure * gcEfficiency * heapCompaction;
+        }
+        
+        function render() {
+            // Debug system evolution
+            debugTime += 0.012;
+            systemPhase = (systemPhase + 0.0003) % (Math.PI * 64);
+            patchLevel = Math.min(patchLevel + 0.000001, 1.0);
+            
+            // System-wide debugging pulse
+            const debugPulse = Math.sin(debugTime * 0.00002) * 0.4 + 0.6;
+            const errorCorrection = Math.sin(debugTime * 0.000005) * 2.5;
+            
+            // Calculate debug fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Bug debugging from all cosmic errors
+                    let totalDebug = 0;
+                    for (let bug of cosmicBugs) {
+                        totalDebug += bugResonance(x, y, bug, debugTime);
+                        
+                        // Bug lifecycle management
+                        bug.age += 1;
+                        if (bug.age > bug.lifespan) {
+                            // Bug gets fixed or respawns
+                            if (bug.type === 'patch_applied') {
+                                bug.age = 0; // Patches persist
+                            } else {
+                                bug.age = 0;
+                                bug.x = Math.random() * W;
+                                bug.y = Math.random() * H;
+                            }
+                        }
+                        
+                        // Bug intensity evolution
+                        bug.intensity = 0.5 + Math.sin(debugTime * bug.frequency + bug.age * 0.001) * 0.5;
+                    }
+                    
+                    // System diagnostics
+                    const diagnostics = systemDiagnostics(x, y, debugTime);
+                    
+                    // Unified debug field
+                    let totalField = totalDebug * 0.6 + diagnostics * 0.4;
+                    
+                    // Apply garbage collection and error correction
+                    const gc = garbageCollection(debugTime);
+                    totalField *= debugPulse * gc;
+                    totalField += errorCorrection * Math.sin(x * 0.01 + y * 0.008 + debugTime * 0.00001) * 0.1;
+                    
+                    // Debug memory with system persistence
+                    const memoryDecay = 0.92 + Math.sin(debugTime * 0.000002 + x * 0.015 + y * 0.012) * 0.08;
+                    debugMatrix[idx] = debugMatrix[idx] * memoryDecay + totalField * (1 - memoryDecay);
+                    
+                    // System stability amplification
+                    const stability = 1 + patchLevel * 0.2 + Math.sin(x * 0.02 + y * 0.018 + debugTime * 0.00002) * 0.1;
+                    debugMatrix[idx] *= stability;
+                }
+            }
+            
+            // Render debug output
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = debugMatrix[idx];
+                    
+                    // Debug symbol mapping
+                    intensity = (intensity + 2.5) / 5;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    // Add debug noise for authenticity
+                    const debugNoise = Math.sin(debugTime * 0.0002 + x * 0.02 + y * 0.018) * 0.06;
+                    intensity += debugNoise;
+                    intensity = Math.max(0, Math.min(0.98, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * symbols.length);
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Initialize cosmic debugging session
+        evolve();
+    </script>
+</body>
+</html> 

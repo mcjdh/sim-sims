@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>consciousness compiler</title>
+    <style>
+        body {
+            background: #0d0d1a;
+            color: #99ccff;
+            font-family: 'Courier New', monospace;
+            font-size: 7px;
+            line-height: 0.88;
+            letter-spacing: -0.1px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: mentalFlow 7s infinite ease-in-out;
+        }
+        @keyframes mentalFlow {
+            0%, 100% { 
+                background: #0d0d1a; 
+                color: #99ccff;
+                filter: brightness(1) saturate(1);
+            }
+            16% { 
+                background: #1a0d1a; 
+                color: #ff99cc;
+                filter: brightness(1.1) saturate(1.2);
+            }
+            33% { 
+                background: #1a1a0d; 
+                color: #ccff99;
+                filter: brightness(1.15) saturate(1.1);
+            }
+            50% { 
+                background: #0d1a0d; 
+                color: #ffcc99;
+                filter: brightness(1.08) saturate(1.3);
+            }
+            66% { 
+                background: #1a0d0d; 
+                color: #99ffcc;
+                filter: brightness(1.12) saturate(1.15);
+            }
+            83% { 
+                background: #0d0d1a; 
+                color: #cc99ff;
+                filter: brightness(1.05) saturate(1.25);
+            }
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: left;
+            text-shadow: 0 0 1px rgba(153,204,255,0.4), 0 0 2px rgba(153,204,255,0.2);
+            filter: blur(0.05px);
+            transition: all 0.08s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 170, H = 85;
+        let time = 0;
+        let compileTime = 0;
+        let mentalPhase = 0;
+        let optimizationLevel = 0;
+        
+        // Consciousness compilation matrices
+        let thoughtMatrix = new Array(W * H).fill(0);
+        let lexicalField = new Array(W * H).fill(0);
+        let parseField = new Array(W * H).fill(0);
+        let optimizeField = new Array(W * H).fill(0);
+        let executeField = new Array(W * H).fill(0);
+        let realityField = new Array(W * H).fill(0);
+        
+        // Consciousness sources - different types of mental code
+        let consciousSources = [
+            { 
+                x: W*0.1, y: H*0.15, 
+                type: 'emotion', 
+                language: 'FeelScript',
+                source: 'love.compile(universe)',
+                stage: 'lexical',
+                frequency: 0.00018, 
+                intensity: 1.2,
+                syntax: 'emotional',
+                errors: 0,
+                compiled: false
+            },
+            { 
+                x: W*0.9, y: H*0.25, 
+                type: 'logic', 
+                language: 'ReasonML',
+                source: 'if(truth) then reality.execute()',
+                stage: 'parsing',
+                frequency: 0.00012, 
+                intensity: 0.9,
+                syntax: 'logical',
+                errors: 1,
+                compiled: false
+            },
+            { 
+                x: W*0.2, y: H*0.85, 
+                type: 'intuition', 
+                language: 'FlowLang',
+                source: 'feel() => know() => be()',
+                stage: 'optimization',
+                frequency: 0.00008, 
+                intensity: 1.5,
+                syntax: 'intuitive',
+                errors: 0,
+                compiled: true
+            },
+            { 
+                x: W*0.8, y: H*0.75, 
+                type: 'creativity', 
+                language: 'DreamCode',
+                source: 'imagine.new() && manifest.now()',
+                stage: 'execution',
+                frequency: 0.00015, 
+                intensity: 1.8,
+                syntax: 'creative',
+                errors: 2,
+                compiled: true
+            },
+            { 
+                x: W*0.5, y: H*0.1, 
+                type: 'memory', 
+                language: 'MemStack',
+                source: 'remember.push(moment.eternal)',
+                stage: 'lexical',
+                frequency: 0.0001, 
+                intensity: 0.7,
+                syntax: 'temporal',
+                errors: 0,
+                compiled: false
+            },
+            { 
+                x: W*0.3, y: H*0.6, 
+                type: 'awareness', 
+                language: 'PresentC',
+                source: 'observe(now) -> understand(all)',
+                stage: 'execution',
+                frequency: 0.00006, 
+                intensity: 2.0,
+                syntax: 'aware',
+                errors: 0,
+                compiled: true
+            },
+            { 
+                x: W*0.7, y: H*0.4, 
+                type: 'dream', 
+                language: 'SleepScript',
+                source: 'while(sleeping) { create(impossible) }',
+                stage: 'parsing',
+                frequency: 0.00025, 
+                intensity: 1.1,
+                syntax: 'oneiric',
+                errors: 3,
+                compiled: false
+            },
+            { 
+                x: W*0.15, y: H*0.45, 
+                type: 'wonder', 
+                language: 'CuriosityJS',
+                source: 'question.everything() ?? discover.truth()',
+                stage: 'optimization',
+                frequency: 0.0002, 
+                intensity: 1.3,
+                syntax: 'questioning',
+                errors: 1,
+                compiled: false
+            },
+            { 
+                x: W*0.85, y: H*0.6, 
+                type: 'wisdom', 
+                language: 'SageC++',
+                source: 'experience.distill() -> knowledge.pure',
+                stage: 'execution',
+                frequency: 0.00004, 
+                intensity: 2.2,
+                syntax: 'wise',
+                errors: 0,
+                compiled: true
+            }
+        ];
+        
+        // Consciousness compilation symbols: void → tokens → AST → bytecode → reality → ∞
+        const symbols = ' ·∘○◯●◉⊙◈◊.,-:;(){}[]<>=+-*/%&|!?~^`"\'LEX_PARSE_OPT_EXEC_REAL_COMPILED_∞';
+        
+        // Compilation constants
+        const LEXICAL_RATE = 0.00002;
+        const PARSE_RATE = 0.000015;
+        const OPTIMIZE_RATE = 0.00001;
+        const EXECUTE_RATE = 0.000008;
+        const GC_RATE = 0.000005;
+        const MENTAL_STACK_SIZE = 64;
+        
+        function lexicalAnalysis(x, y, source, time) {
+            // Tokenizing raw consciousness into mental lexemes
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Token extraction patterns
+            const tokenStream = Math.sin(time * source.frequency * LEXICAL_RATE) * source.intensity;
+            const tokenizing = Math.sin(dist * 0.12 + time * source.frequency);
+            
+            // Lexeme recognition
+            const lexemes = Math.exp(-dist * 0.025) * 
+                           Math.abs(tokenStream) * 
+                           (1 + Math.sin(time * source.frequency * 2));
+            
+            // Symbol table construction
+            const symbolTable = Math.sin(tokenizing * lexemes * 3 + time * source.frequency * 0.4);
+            
+            // Lexical error detection
+            const errors = source.errors > 0 ? 
+                          Math.sin(time * source.frequency * 5) * 0.3 : 0;
+            
+            return (tokenStream + tokenizing + lexemes + symbolTable + errors) * 0.2;
+        }
+        
+        function syntaxParsing(x, y, source, time) {
+            // Building Abstract Syntax Trees from consciousness tokens
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // AST construction
+            const astBuilding = Math.sin(dist * 0.1 + time * source.frequency * PARSE_RATE);
+            const parseTree = Math.cos(dist * 0.08 + time * source.frequency * 1.2);
+            
+            // Grammar matching for different consciousness types
+            let grammarWeight = 1.0;
+            switch(source.syntax) {
+                case 'emotional': grammarWeight = 1.3; break;
+                case 'logical': grammarWeight = 0.8; break;
+                case 'intuitive': grammarWeight = 1.5; break;
+                case 'creative': grammarWeight = 1.8; break;
+                case 'temporal': grammarWeight = 0.9; break;
+                case 'aware': grammarWeight = 2.0; break;
+                case 'oneiric': grammarWeight = 1.6; break;
+                case 'questioning': grammarWeight = 1.2; break;
+                case 'wise': grammarWeight = 2.2; break;
+            }
+            
+            // Parse tree validation
+            const validation = Math.exp(-dist * 0.02) * 
+                              Math.sin(astBuilding * parseTree * 2 + time * source.frequency * 0.3) *
+                              grammarWeight;
+            
+            // Syntax error recovery
+            const errorRecovery = source.errors > 0 ? 
+                                 Math.cos(time * source.frequency * 3) * 0.4 * source.errors : 0;
+            
+            return (astBuilding + parseTree + validation - errorRecovery) * source.intensity * 0.15;
+        }
+        
+        function codeOptimization(x, y, source, time) {
+            // Optimizing consciousness for efficient reality execution
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Dead code elimination
+            const deadCodeElim = Math.sin(dist * 0.08 + time * source.frequency * OPTIMIZE_RATE);
+            
+            // Consciousness loop optimization
+            const loopOpt = Math.cos(time * source.frequency * 0.8) * 
+                           Math.sin(dist * 0.06 + time * source.frequency * 1.5);
+            
+            // Thought pattern recognition and caching
+            const patternCache = Math.exp(-dist * 0.018) * 
+                                Math.sin(deadCodeElim * loopOpt * 4 + time * source.frequency * 0.2);
+            
+            // Mental register allocation
+            const registerAlloc = Math.sin(patternCache * 2 + time * source.frequency * 0.6);
+            
+            // Optimization level progression
+            const optLevel = optimizationLevel * 0.5 + 0.5;
+            
+            return (deadCodeElim + loopOpt + patternCache + registerAlloc) * 
+                   source.intensity * optLevel * 0.12;
+        }
+        
+        function realityExecution(x, y, source, time) {
+            // Executing compiled consciousness into reality
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Reality VM execution
+            const vmExecution = Math.sin(dist * 0.05 + time * source.frequency * EXECUTE_RATE);
+            
+            // Consciousness bytecode interpretation
+            const bytecodeInterp = Math.cos(time * source.frequency * 0.6) * 
+                                  Math.sin(dist * 0.04 + time * source.frequency * 1.8);
+            
+            // Reality manifestation
+            const manifestation = Math.exp(-dist * 0.015) * 
+                                 Math.sin(vmExecution * bytecodeInterp * 6 + time * source.frequency * 0.1) *
+                                 (source.compiled ? 1.5 : 0.3);
+            
+            // Universe state update
+            const stateUpdate = Math.sin(manifestation * 3 + time * source.frequency * 0.4);
+            
+            // Reality coherence check
+            const coherence = Math.cos(stateUpdate + vmExecution + time * source.frequency * 0.8) *
+                             (1 - source.errors * 0.2);
+            
+            return (vmExecution + bytecodeInterp + manifestation + stateUpdate + coherence) * 
+                   source.intensity * 0.1;
+        }
+        
+        function memoryManagement(x, y, source, time) {
+            // Consciousness garbage collection and memory optimization
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Mental garbage collection
+            const gc = Math.sin(time * GC_RATE) > 0.8 ? 1.5 : 1.0;
+            
+            // Memory allocation patterns
+            const memAlloc = Math.sin(dist * 0.15 + time * source.frequency) * gc;
+            
+            // Thought lifecycle management
+            const lifecycle = Math.exp(-dist * 0.03) * 
+                             Math.cos(time * source.frequency * 0.5) * 
+                             source.intensity;
+            
+            // Memory fragmentation cleanup
+            const defrag = Math.sin(memAlloc * lifecycle * 2 + time * source.frequency * 0.3);
+            
+            return (memAlloc + lifecycle + defrag) * 0.08;
+        }
+        
+        function consciousnessCompilation(x, y, source, time) {
+            // Unified consciousness compilation pipeline
+            let compilation = 0;
+            
+            // Stage-specific processing
+            switch(source.stage) {
+                case 'lexical':
+                    compilation = lexicalAnalysis(x, y, source, time);
+                    break;
+                case 'parsing':
+                    compilation = lexicalAnalysis(x, y, source, time) * 0.3 +
+                                 syntaxParsing(x, y, source, time) * 0.7;
+                    break;
+                case 'optimization':
+                    compilation = lexicalAnalysis(x, y, source, time) * 0.2 +
+                                 syntaxParsing(x, y, source, time) * 0.3 +
+                                 codeOptimization(x, y, source, time) * 0.5;
+                    break;
+                case 'execution':
+                    compilation = lexicalAnalysis(x, y, source, time) * 0.1 +
+                                 syntaxParsing(x, y, source, time) * 0.2 +
+                                 codeOptimization(x, y, source, time) * 0.3 +
+                                 realityExecution(x, y, source, time) * 0.4;
+                    break;
+            }
+            
+            // Add memory management overhead
+            compilation += memoryManagement(x, y, source, time);
+            
+            // Inter-consciousness communication
+            let communication = 0;
+            for (let other of consciousSources) {
+                if (other !== source) {
+                    const otherDx = source.x - other.x;
+                    const otherDy = source.y - other.y;
+                    const otherDist = Math.sqrt(otherDx*otherDx + otherDy*otherDy);
+                    const coupling = Math.sin(otherDist * 0.015 + time * (source.frequency + other.frequency));
+                    communication += coupling * source.intensity * other.intensity * 0.03;
+                }
+            }
+            
+            return compilation + communication;
+        }
+        
+        function globalConsciousness(x, y, time) {
+            // Universal consciousness runtime environment
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            // Collective consciousness field
+            const collective = Math.sin((x - centerX) * 0.008 + time * 0.00004) * 
+                              Math.cos((y - centerY) * 0.006 + time * 0.00003);
+            
+            // Mental network topology
+            const network = Math.sin(collective * LEXICAL_RATE + time * 0.000012) * 
+                           Math.cos(time * 0.000018 + collective * PARSE_RATE);
+            
+            // Consciousness compiler optimization
+            const compilerOpt = Math.sin(network * collective * 4 + time * 0.00001);
+            
+            // Reality.exe system calls
+            const systemCalls = Math.exp(-Math.abs(compilerOpt) * 1.8) * 
+                               Math.sin(time * 0.000015 + compilerOpt * EXECUTE_RATE);
+            
+            return collective + network * 0.8 + compilerOpt * 0.7 + systemCalls * 0.6;
+        }
+        
+        function consciousnessGC(time) {
+            // Mental garbage collection cycles
+            const gcMajor = Math.sin(time * 0.000001) * 0.4 + 0.6;
+            const gcMinor = Math.sin(time * 0.000002) * 0.2 + 0.8;
+            const thoughtCompaction = Math.sin(time * 0.0000008) * 0.15 + 0.85;
+            const memoryPressure = Math.sin(time * 0.0000015) * 0.1 + 0.9;
+            
+            return gcMajor * gcMinor * thoughtCompaction * memoryPressure;
+        }
+        
+        function render() {
+            // Consciousness compilation system evolution
+            compileTime += 0.015;
+            mentalPhase = (mentalPhase + 0.0004) % (Math.PI * 128);
+            optimizationLevel = 0.6 + Math.sin(compileTime * 0.00005) * 0.4;
+            
+            // Global compilation pulse
+            const compilePulse = Math.sin(compileTime * 0.00003) * 0.5 + 0.5;
+            const realityUpdate = Math.sin(compileTime * 0.000008) * 3;
+            
+            // Calculate consciousness fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Compilation from all consciousness sources
+                    let totalCompilation = 0;
+                    for (let source of consciousSources) {
+                        totalCompilation += consciousnessCompilation(x, y, source, compileTime);
+                        
+                        // Source evolution and stage progression
+                        if (Math.random() < 0.0001) {
+                            const stages = ['lexical', 'parsing', 'optimization', 'execution'];
+                            const currentIndex = stages.indexOf(source.stage);
+                            source.stage = stages[(currentIndex + 1) % stages.length];
+                        }
+                        
+                        // Compilation completion check
+                        if (source.stage === 'execution' && source.errors === 0) {
+                            source.compiled = true;
+                        }
+                        
+                        // Error injection and resolution
+                        if (Math.random() < 0.00005) {
+                            source.errors = Math.max(0, source.errors + (Math.random() > 0.7 ? 1 : -1));
+                        }
+                        
+                        // Intensity evolution
+                        source.intensity = 0.5 + Math.sin(compileTime * source.frequency + source.x * 0.01) * 0.5;
+                    }
+                    
+                    // Global consciousness processing
+                    const globalProc = globalConsciousness(x, y, compileTime);
+                    
+                    // Unified consciousness field
+                    let totalField = totalCompilation * 0.7 + globalProc * 0.3;
+                    
+                    // Apply compilation pulse and reality updates
+                    const gc = consciousnessGC(compileTime);
+                    totalField *= compilePulse * gc;
+                    totalField += realityUpdate * Math.sin(x * 0.012 + y * 0.009 + compileTime * 0.000015) * 0.1;
+                    
+                    // Consciousness memory with compilation persistence
+                    const memoryDecay = 0.91 + Math.sin(compileTime * 0.000003 + x * 0.018 + y * 0.014) * 0.09;
+                    thoughtMatrix[idx] = thoughtMatrix[idx] * memoryDecay + totalField * (1 - memoryDecay);
+                    
+                    // Compilation optimization amplification
+                    const optimization = 1 + optimizationLevel * 0.25 + 
+                                       Math.sin(x * 0.025 + y * 0.02 + compileTime * 0.000025) * 0.12;
+                    thoughtMatrix[idx] *= optimization;
+                }
+            }
+            
+            // Render consciousness compilation
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = thoughtMatrix[idx];
+                    
+                    // Consciousness symbol mapping
+                    intensity = (intensity + 1.8) / 3.6;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    // Add compilation artifacts
+                    const artifacts = Math.sin(compileTime * 0.0003 + x * 0.025 + y * 0.02) * 0.07;
+                    intensity += artifacts;
+                    intensity = Math.max(0, Math.min(0.97, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * symbols.length);
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Initialize consciousness compilation session
+        evolve();
+    </script>
+</body>
+</html> 
