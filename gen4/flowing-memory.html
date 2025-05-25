@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>flowing memory</title>
+    <style>
+        body {
+            background: black;
+            color: #88aaff;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.0;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 120, H = 55;
+        let time = 0;
+        
+        // Multi-layered memory system
+        let flowField = new Array(W * H).fill(0);
+        let memoryTrails = new Array(W * H).fill(0);
+        let experienceField = new Array(W * H).fill(0);
+        let consolidationField = new Array(W * H).fill(0);
+        
+        // Memory particles - experiences flowing through consciousness
+        let memoryParticles = [];
+        
+        // Memory anchors - important experiences that create persistent patterns
+        let memoryAnchors = [
+            { x: 20, y: 15, strength: 0.8, freq: 0.05 },
+            { x: 80, y: 35, strength: 0.6, freq: 0.08 },
+            { x: 60, y: 25, strength: 0.9, freq: 0.03 },
+            { x: 40, y: 40, strength: 0.7, freq: 0.06 }
+        ];
+        
+        // Symbols representing memory density: void → traces → strong memories
+        const symbols = ' ·•◦○◯●◉█';
+        
+        function flowVectorField(x, y, time) {
+            // Complex flow field influenced by memory anchors
+            let vx = Math.sin(y * 0.1 + time * 0.003) * 0.5;
+            let vy = Math.cos(x * 0.08 + time * 0.004) * 0.3;
+            
+            // Memory anchors create flow attractors/repellers
+            for (let anchor of memoryAnchors) {
+                const dx = x - anchor.x;
+                const dy = y - anchor.y;
+                const dist = Math.sqrt(dx * dx + dy * dy) + 1;
+                
+                // Spiral flow around memories
+                const angle = Math.atan2(dy, dx) + time * anchor.freq;
+                const force = anchor.strength / (dist * 0.1);
+                
+                vx += Math.cos(angle) * force * 0.1;
+                vy += Math.sin(angle) * force * 0.1;
+            }
+            
+            return { vx, vy };
+        }
+        
+        function memoryConsolidation(x, y, time) {
+            // Sleep-like consolidation waves that strengthen memories
+            const wave1 = Math.sin(x * 0.02 + time * 0.001) * Math.cos(y * 0.03 + time * 0.0015);
+            const wave2 = Math.sin((x + y) * 0.025 + time * 0.002);
+            
+            return (wave1 + wave2) * 0.3 + 0.7;
+        }
+        
+        function addMemoryParticle() {
+            // New experiences enter the flow
+            memoryParticles.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                intensity: 0.3 + Math.random() * 0.7,
+                age: 0,
+                lifetime: 100 + Math.random() * 200
+            });
+        }
+        
+        function render() {
+            // Add new memory particles (new experiences)
+            if (Math.random() < 0.15) {
+                addMemoryParticle();
+            }
+            
+            // Slowly drift memory anchors (changing importance over time)
+            for (let anchor of memoryAnchors) {
+                anchor.x += (Math.random() - 0.5) * 0.02;
+                anchor.y += (Math.random() - 0.5) * 0.02;
+                anchor.x = Math.max(5, Math.min(W-5, anchor.x));
+                anchor.y = Math.max(5, Math.min(H-5, anchor.y));
+            }
+            
+            // Update memory particles in the flow
+            for (let i = memoryParticles.length - 1; i >= 0; i--) {
+                let particle = memoryParticles[i];
+                
+                // Get flow vector at particle position
+                const flow = flowVectorField(particle.x, particle.y, time);
+                
+                // Update particle velocity (flow + momentum)
+                particle.vx = particle.vx * 0.8 + flow.vx * 0.2;
+                particle.vy = particle.vy * 0.8 + flow.vy * 0.2;
+                
+                // Update position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                // Boundary conditions with memory reflection
+                if (particle.x < 0 || particle.x >= W) {
+                    particle.vx *= -0.7;
+                    particle.x = Math.max(0, Math.min(W-1, particle.x));
+                }
+                if (particle.y < 0 || particle.y >= H) {
+                    particle.vy *= -0.7;
+                    particle.y = Math.max(0, Math.min(H-1, particle.y));
+                }
+                
+                particle.age++;
+                
+                // Remove old memories that fade
+                if (particle.age > particle.lifetime) {
+                    memoryParticles.splice(i, 1);
+                }
+            }
+            
+            // Calculate memory fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Flow field visualization
+                    const flow = flowVectorField(x, y, time);
+                    flowField[idx] = Math.sqrt(flow.vx * flow.vx + flow.vy * flow.vy);
+                    
+                    // Experience field from memory particles
+                    let experience = 0;
+                    for (let particle of memoryParticles) {
+                        const dx = x - particle.x;
+                        const dy = y - particle.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) + 0.5;
+                        
+                        // Gaussian influence with age-based intensity
+                        const influence = Math.exp(-dist * dist * 0.1) * particle.intensity;
+                        const ageFactor = 1 - (particle.age / particle.lifetime);
+                        experience += influence * ageFactor;
+                    }
+                    experienceField[idx] = experience;
+                    
+                    // Memory anchor influence
+                    let anchorInfluence = 0;
+                    for (let anchor of memoryAnchors) {
+                        const dx = x - anchor.x;
+                        const dy = y - anchor.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) + 1;
+                        anchorInfluence += anchor.strength * Math.exp(-dist * 0.05);
+                    }
+                    
+                    // Consolidation process
+                    const consolidation = memoryConsolidation(x, y, time);
+                    consolidationField[idx] = consolidation;
+                    
+                    // Combined memory formation
+                    let memoryStrength = experienceField[idx] + anchorInfluence * 0.5;
+                    memoryStrength *= consolidation;
+                    
+                    // Memory trails with different persistence based on strength
+                    const persistence = 0.85 + memoryStrength * 0.1;
+                    memoryTrails[idx] = memoryTrails[idx] * persistence + memoryStrength * (1 - persistence);
+                    
+                    // Global memory breathing
+                    const memoryBreath = Math.sin(time * 0.0008) * 0.15 + 0.85;
+                    memoryTrails[idx] *= memoryBreath;
+                }
+            }
+            
+            // Render flowing memories
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = memoryTrails[idx];
+                    
+                    // Add flow texture
+                    intensity += flowField[idx] * 0.1;
+                    
+                    // Normalize and map to symbols
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

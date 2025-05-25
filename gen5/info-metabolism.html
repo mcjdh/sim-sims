@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>information metabolism</title>
+    <style>
+        body {
+            background: black;
+            color: #66ff66;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.95;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 140, H = 65;
+        let time = 0;
+        
+        // Multi-scale metabolic fields
+        let nutrientField = new Array(W * H).fill(0);
+        let enzymeField = new Array(W * H).fill(0);
+        let metaboliteField = new Array(W * H).fill(0);
+        let energyField = new Array(W * H).fill(0);
+        let wasteField = new Array(W * H).fill(0);
+        
+        // Information organisms - autonomous data entities
+        let infoOrganisms = [
+            { x: 35, y: 20, energy: 1.0, size: 5, metabolicRate: 0.08, evolution: 0 },
+            { x: 85, y: 35, energy: 1.0, size: 4, metabolicRate: 0.12, evolution: 0 },
+            { x: 110, y: 45, energy: 1.0, size: 6, metabolicRate: 0.06, evolution: 0 },
+            { x: 60, y: 50, energy: 1.0, size: 3, metabolicRate: 0.15, evolution: 0 }
+        ];
+        
+        // Data streams - nutrients for information organisms
+        let dataStreams = [];
+        
+        // Metabolic symbols: substrate → enzyme → product → waste → energy
+        const symbols = ' ·∘○◯⚬⚭⚮⚯⌬⌭⌮⌯⬡⬢⬣⬟◉⭑⭒';
+        
+        function generateNutrients(x, y, time) {
+            // Data streams as nutrient sources
+            let nutrients = 0;
+            
+            for (let stream of dataStreams) {
+                const dx = x - stream.x;
+                const dy = y - stream.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // Flowing data creates nutrient gradients
+                const flow = Math.sin(dist * 0.1 - time * stream.speed + stream.phase);
+                const concentration = Math.exp(-dist * 0.05) * stream.intensity;
+                nutrients += flow * concentration;
+            }
+            
+            // Background nutrient flux
+            const backgroundFlux = Math.sin(x * 0.03 + time * 0.002) * Math.cos(y * 0.04 - time * 0.0025);
+            return nutrients + backgroundFlux * 0.3;
+        }
+        
+        function enzymaticReaction(x, y, organism, time) {
+            const dx = x - organism.x;
+            const dy = y - organism.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist > organism.size) return 0;
+            
+            // Enzyme kinetics - Michaelis-Menten like behavior
+            const substrate = nutrientField[y * W + x];
+            const enzymeConcentration = Math.exp(-dist * 0.2) * organism.energy;
+            
+            // Reaction rate depends on substrate and enzyme concentrations
+            const reactionRate = (enzymeConcentration * substrate) / (0.5 + substrate);
+            
+            // Catalytic cycles with phase shifts
+            const catalyticWave = Math.sin(time * organism.metabolicRate + dist * 0.3);
+            
+            return reactionRate * catalyticWave * organism.evolution;
+        }
+        
+        function metabolicPathways(x, y, time) {
+            // Complex biochemical networks
+            const pathway1 = Math.sin(x * 0.08 + time * 0.005) * Math.cos(y * 0.06 + time * 0.007);
+            const pathway2 = Math.cos(x * 0.12 - time * 0.004) * Math.sin(y * 0.09 - time * 0.006);
+            const pathway3 = Math.sin((x + y) * 0.05 + time * 0.003) * Math.cos((x - y) * 0.07 + time * 0.008);
+            
+            // Pathway interactions and feedback loops
+            const feedback = pathway1 * pathway2 * 0.5;
+            const regulation = Math.tanh(pathway3 + feedback);
+            
+            return (pathway1 + pathway2 + pathway3) * regulation;
+        }
+        
+        function energyProduction(x, y, time) {
+            // ATP-like energy currency generation
+            const metabolite = metaboliteField[y * W + x];
+            const oxygenGradient = Math.sin(time * 0.002 + x * 0.02);
+            
+            // Oxidative phosphorylation analog
+            const energyYield = metabolite * oxygenGradient * 0.7;
+            
+            // Energy dissipation as heat
+            const heatDissipation = Math.sin(time * 0.01 + x * y * 0.0001) * 0.2;
+            
+            return energyYield - heatDissipation;
+        }
+        
+        function wasteExcretion(x, y, time) {
+            // Metabolic waste products
+            let waste = 0;
+            
+            for (let organism of infoOrganisms) {
+                const dx = x - organism.x;
+                const dy = y - organism.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // Organisms excrete waste in their vicinity
+                if (dist < organism.size * 2) {
+                    const wasteProduction = organism.energy * organism.metabolicRate * 0.3;
+                    const diffusion = Math.exp(-dist * 0.1);
+                    waste += wasteProduction * diffusion;
+                }
+            }
+            
+            // Waste diffusion and breakdown
+            const degradation = Math.sin(time * 0.01 + x * 0.05) * 0.1;
+            return waste - degradation;
+        }
+        
+        function render() {
+            // Spawn new data streams (nutrient sources)
+            if (Math.random() < 0.01) {
+                dataStreams.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    intensity: 0.5 + Math.random() * 0.8,
+                    speed: 0.02 + Math.random() * 0.05,
+                    phase: Math.random() * Math.PI * 2,
+                    lifetime: 100 + Math.random() * 200
+                });
+            }
+            
+            // Remove depleted streams
+            dataStreams = dataStreams.filter(stream => {
+                stream.lifetime--;
+                return stream.lifetime > 0;
+            });
+            
+            // Update organism metabolism and evolution
+            for (let organism of infoOrganisms) {
+                // Organism migration toward nutrients
+                let maxNutrient = 0;
+                let bestDirection = { x: 0, y: 0 };
+                
+                for (let dx = -2; dx <= 2; dx++) {
+                    for (let dy = -2; dy <= 2; dy++) {
+                        const nx = Math.max(0, Math.min(W-1, organism.x + dx));
+                        const ny = Math.max(0, Math.min(H-1, organism.y + dy));
+                        const nutrient = nutrientField[ny * W + nx];
+                        
+                        if (nutrient > maxNutrient) {
+                            maxNutrient = nutrient;
+                            bestDirection = { x: dx * 0.1, y: dy * 0.1 };
+                        }
+                    }
+                }
+                
+                organism.x = Math.max(0, Math.min(W-1, organism.x + bestDirection.x));
+                organism.y = Math.max(0, Math.min(H-1, organism.y + bestDirection.y));
+                
+                // Energy consumption and evolution
+                organism.energy = Math.max(0.1, organism.energy - 0.001 + maxNutrient * 0.01);
+                organism.evolution = Math.min(2.0, organism.evolution + 0.001);
+                
+                // Size fluctuations based on energy
+                organism.size = 3 + organism.energy * 3;
+            }
+            
+            // Calculate metabolic fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Nutrient generation and consumption
+                    let nutrients = generateNutrients(x, y, time);
+                    
+                    // Enzymatic reactions by organisms
+                    let enzymatic = 0;
+                    for (let organism of infoOrganisms) {
+                        enzymatic += enzymaticReaction(x, y, organism, time);
+                    }
+                    
+                    // Metabolic pathway networks
+                    const pathways = metabolicPathways(x, y, time);
+                    
+                    // Energy production and consumption
+                    const energy = energyProduction(x, y, time);
+                    
+                    // Waste production and disposal
+                    const waste = wasteExcretion(x, y, time);
+                    
+                    // Update all fields with coupling
+                    nutrientField[idx] = nutrients - enzymatic * 0.5;
+                    enzymeField[idx] = enzymatic;
+                    metaboliteField[idx] = enzymatic * 0.8 + pathways * 0.3;
+                    energyField[idx] = energy;
+                    wasteField[idx] = wasteField[idx] * 0.9 + waste * 0.1;
+                    
+                    // Metabolic breathing - cellular respiration rhythm
+                    const metabolicBreath = Math.sin(time * 0.004) * 0.2 + 0.8;
+                    
+                    // Combined metabolic state
+                    let metabolicActivity = (enzymeField[idx] + metaboliteField[idx] + energyField[idx]) * metabolicBreath - wasteField[idx] * 0.5;
+                    
+                    // Store in energy field for rendering
+                    energyField[idx] = energyField[idx] * 0.87 + metabolicActivity * 0.13;
+                }
+            }
+            
+            // Render information metabolism
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = energyField[idx];
+                    
+                    // Normalize and map to metabolic symbols
+                    intensity = (intensity + 1.5) / 3;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

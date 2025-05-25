@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #4af;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 10px;
+            letter-spacing: 0px;
+            width: 120ch;
+            height: 55em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 120, H = 55;
+        const symbols = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■';
+        
+        let time = 0;
+        let field = new Array(W * H).fill(0);
+        let harmony = new Array(W * H).fill(0);
+        let memory = new Array(W * H).fill(0);
+        
+        // Natural frequency ratios - musical harmony
+        const ratios = [1, 9/8, 5/4, 4/3, 3/2, 5/3, 15/8, 2]; // Just intonation
+        const fundamental = 0.1;
+        
+        // Resonant oscillators with evolving frequencies
+        let oscillators = [];
+        for (let i = 0; i < 8; i++) {
+            oscillators.push({
+                freq: fundamental * ratios[i % ratios.length],
+                phase: Math.random() * Math.PI * 2,
+                amplitude: 0.7 + Math.random() * 0.3,
+                coupling: 0.05,
+                naturalFreq: fundamental * ratios[i % ratios.length],
+                x: W * (0.1 + 0.8 * i / 7),
+                y: H * (0.2 + 0.6 * Math.sin(i * Math.PI / 4))
+            });
+        }
+        
+        function findResonance(osc1, osc2) {
+            // Calculate frequency ratio
+            const ratio = osc1.freq / osc2.freq;
+            
+            // Check for simple harmonic ratios (1:1, 2:1, 3:2, etc.)
+            const simpleRatios = [1, 2, 1.5, 4/3, 5/4, 3, 0.5, 2/3, 4/5, 1/3];
+            
+            for (let target of simpleRatios) {
+                if (Math.abs(ratio - target) < 0.1) {
+                    return Math.exp(-Math.abs(ratio - target) * 10) * 0.3;
+                }
+            }
+            return 0;
+        }
+        
+        function updateOscillators() {
+            // Mutual coupling - oscillators influence each other
+            for (let i = 0; i < oscillators.length; i++) {
+                let coupling_force = 0;
+                let harmonic_pull = 0;
+                
+                for (let j = 0; j < oscillators.length; j++) {
+                    if (i === j) continue;
+                    
+                    const osc1 = oscillators[i];
+                    const osc2 = oscillators[j];
+                    
+                    // Distance-based coupling strength
+                    const dx = osc1.x - osc2.x;
+                    const dy = osc1.y - osc2.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const coupling_strength = Math.exp(-dist / 30) * 0.1;
+                    
+                    // Frequency pulling toward resonance
+                    const resonance_strength = findResonance(osc1, osc2);
+                    if (resonance_strength > 0.01) {
+                        const freq_diff = osc2.freq - osc1.freq;
+                        coupling_force += freq_diff * coupling_strength * resonance_strength;
+                        harmonic_pull += resonance_strength;
+                    }
+                }
+                
+                // Update frequency with coupling
+                oscillators[i].freq += coupling_force * oscillators[i].coupling;
+                
+                // Gentle drift back toward natural frequency
+                const natural_pull = (oscillators[i].naturalFreq - oscillators[i].freq) * 0.001;
+                oscillators[i].freq += natural_pull;
+                
+                // Amplitude modulation based on harmony
+                oscillators[i].amplitude = 0.7 + harmonic_pull * 0.3;
+            }
+        }
+        
+        function calculateField(x, y) {
+            let total = 0;
+            let beats = 0;
+            let harmonic_resonance = 0;
+            
+            // Contribution from each oscillator
+            for (let osc of oscillators) {
+                const dx = x - osc.x;
+                const dy = y - osc.y;
+                const dist = Math.sqrt(dx*dx + dy*dy) + 1;
+                
+                // Wave from this oscillator
+                const wave = Math.sin(dist * osc.freq + osc.phase + time * osc.freq * 0.5);
+                const amplitude = osc.amplitude / Math.sqrt(dist / 10 + 1);
+                
+                total += wave * amplitude;
+            }
+            
+            // Calculate beat frequencies (interference patterns)
+            for (let i = 0; i < oscillators.length - 1; i++) {
+                for (let j = i + 1; j < oscillators.length; j++) {
+                    const osc1 = oscillators[i];
+                    const osc2 = oscillators[j];
+                    
+                    const freq_diff = Math.abs(osc1.freq - osc2.freq);
+                    const beat_wave = Math.cos(time * freq_diff * 0.5) * 0.3;
+                    
+                    // Spatial beat pattern
+                    const d1 = Math.sqrt((x - osc1.x)*(x - osc1.x) + (y - osc1.y)*(y - osc1.y));
+                    const d2 = Math.sqrt((x - osc2.x)*(x - osc2.x) + (y - osc2.y)*(y - osc2.y));
+                    const beat_spatial = Math.sin((d1 - d2) * 0.2) * beat_wave;
+                    
+                    beats += beat_spatial;
+                    
+                    // Harmonic resonance enhancement
+                    const resonance = findResonance(osc1, osc2);
+                    harmonic_resonance += resonance * Math.sin(time * 0.1 + (d1 + d2) * 0.1);
+                }
+            }
+            
+            return total + beats * 0.5 + harmonic_resonance;
+        }
+        
+        function render() {
+            updateOscillators();
+            
+            // Calculate field values
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    const field_value = calculateField(x, y);
+                    
+                    // Global breathing based on harmonic convergence
+                    let total_harmony = 0;
+                    for (let i = 0; i < oscillators.length - 1; i++) {
+                        for (let j = i + 1; j < oscillators.length; j++) {
+                            total_harmony += findResonance(oscillators[i], oscillators[j]);
+                        }
+                    }
+                    
+                    const breath = Math.sin(time * 0.02) * 0.2 + 0.8;
+                    const harmonic_breath = total_harmony * 0.1 + 0.9;
+                    
+                    let intensity = field_value * breath * harmonic_breath;
+                    
+                    // Memory creates trails of resonance
+                    memory[idx] = memory[idx] * 0.88 + intensity * 0.12;
+                    field[idx] = memory[idx];
+                    
+                    // Track harmony levels
+                    harmony[idx] = harmony[idx] * 0.9 + total_harmony * 0.1;
+                }
+            }
+            
+            // Render to screen
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    const intensity = field[idx];
+                    const harmonic_level = harmony[idx];
+                    
+                    // Combine field intensity with harmonic resonance
+                    const total_intensity = intensity + harmonic_level * 0.5;
+                    const normalized = Math.max(0, Math.min(0.99, (total_intensity + 2) / 4));
+                    const level = Math.floor(normalized * symbols.length);
+                    output += symbols[level];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

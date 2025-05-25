@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>meta genesis</title>
+    <style>
+        body {
+            background: black;
+            color: #ffaa44;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.0;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+        }
+        #info {
+            position: fixed;
+            top: 5px;
+            right: 20px;
+            font-size: 8px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">generating pattern...</div>
+    <script>
+        const W = 120, H = 55;
+        let time = 0;
+        
+        // Meta-field where new patterns emerge
+        let metaField = new Array(W * H).fill(0);
+        let evolutionField = new Array(W * H).fill(0);
+        
+        // Pattern genomes - mathematical DNA that defines simulations
+        let currentGenome = null;
+        let nextGenome = null;
+        let transitionProgress = 0;
+        let transitionDuration = 300;
+        
+        // Symbol libraries for different pattern types
+        const symbolSets = {
+            wave: ' ·∘○◯●◉█',
+            particle: ' .·°○●◉█',
+            flow: ' ·•◦○◯●◉',
+            quantum: ' ▫▪▫▪○●◉',
+            organic: ' ·∴∵○◯●◉',
+            geometric: ' ·□▢○◯●◉'
+        };
+        
+        function createRandomGenome() {
+            const types = ['wave', 'particle', 'flow', 'quantum', 'organic', 'geometric'];
+            return {
+                type: types[Math.floor(Math.random() * types.length)],
+                symbols: symbolSets[types[Math.floor(Math.random() * types.length)]],
+                
+                // Mathematical parameters that define the pattern
+                params: {
+                    freq1: 0.02 + Math.random() * 0.15,
+                    freq2: 0.01 + Math.random() * 0.08,
+                    freq3: 0.005 + Math.random() * 0.05,
+                    
+                    phase1: Math.random() * Math.PI * 2,
+                    phase2: Math.random() * Math.PI * 2,
+                    phase3: Math.random() * Math.PI * 2,
+                    
+                    amplitude1: 0.3 + Math.random() * 0.7,
+                    amplitude2: 0.2 + Math.random() * 0.5,
+                    amplitude3: 0.1 + Math.random() * 0.3,
+                    
+                    speed1: 0.001 + Math.random() * 0.01,
+                    speed2: 0.0005 + Math.random() * 0.008,
+                    speed3: 0.0002 + Math.random() * 0.005,
+                    
+                    interaction: 0.1 + Math.random() * 0.9,
+                    nonlinearity: Math.random() * 2,
+                    chaos: Math.random() * 0.3
+                }
+            };
+        }
+        
+        function interpolateGenomes(genome1, genome2, t) {
+            // Smoothly blend between two pattern genomes
+            if (!genome1 || !genome2) return genome1 || genome2;
+            
+            const result = {
+                type: t < 0.5 ? genome1.type : genome2.type,
+                symbols: t < 0.5 ? genome1.symbols : genome2.symbols,
+                params: {}
+            };
+            
+            // Interpolate all parameters
+            for (let key in genome1.params) {
+                result.params[key] = genome1.params[key] * (1 - t) + genome2.params[key] * t;
+            }
+            
+            return result;
+        }
+        
+        function evaluatePattern(x, y, genome, time) {
+            if (!genome) return 0;
+            
+            const p = genome.params;
+            const px = x / W;
+            const py = y / H;
+            
+            // Base mathematical functions
+            let value = 0;
+            
+            // Layer 1: Primary wave/pattern
+            switch (genome.type) {
+                case 'wave':
+                    value += Math.sin(px * W * p.freq1 + time * p.speed1 + p.phase1) * p.amplitude1;
+                    value += Math.cos(py * H * p.freq2 + time * p.speed2 + p.phase2) * p.amplitude2;
+                    break;
+                    
+                case 'particle':
+                    const dist1 = Math.sqrt((px - 0.3) * (px - 0.3) + (py - 0.4) * (py - 0.4));
+                    const dist2 = Math.sqrt((px - 0.7) * (px - 0.7) + (py - 0.6) * (py - 0.6));
+                    value += Math.exp(-dist1 * 20) * Math.sin(time * p.speed1 + p.phase1) * p.amplitude1;
+                    value += Math.exp(-dist2 * 15) * Math.cos(time * p.speed2 + p.phase2) * p.amplitude2;
+                    break;
+                    
+                case 'flow':
+                    value += Math.sin(px * W * p.freq1 + py * H * p.freq2 + time * p.speed1) * p.amplitude1;
+                    value += Math.cos((px + py) * 50 * p.freq3 + time * p.speed2) * p.amplitude2;
+                    break;
+                    
+                case 'quantum':
+                    value += Math.sin(px * W * p.freq1) * Math.cos(py * H * p.freq2) * p.amplitude1;
+                    value *= (1 + Math.sin(time * p.speed1 + p.phase1) * p.amplitude2);
+                    break;
+                    
+                case 'organic':
+                    const spiral = Math.atan2(py - 0.5, px - 0.5) + Math.sqrt((px - 0.5) * (px - 0.5) + (py - 0.5) * (py - 0.5)) * 10;
+                    value += Math.sin(spiral * p.freq1 + time * p.speed1) * p.amplitude1;
+                    break;
+                    
+                case 'geometric':
+                    value += Math.sin(Math.floor(px * 10) * p.freq1 + time * p.speed1) * p.amplitude1;
+                    value += Math.cos(Math.floor(py * 8) * p.freq2 + time * p.speed2) * p.amplitude2;
+                    break;
+            }
+            
+            // Layer 2: Interaction and interference
+            const interference = Math.sin(px * W * p.freq1 + py * H * p.freq2 + time * p.speed3) * p.amplitude3;
+            value = value * (1 + interference * p.interaction);
+            
+            // Layer 3: Nonlinearity
+            if (p.nonlinearity > 1) {
+                value = Math.sign(value) * Math.pow(Math.abs(value), p.nonlinearity);
+            }
+            
+            // Layer 4: Chaos
+            value += (Math.random() - 0.5) * p.chaos * 0.1;
+            
+            return value;
+        }
+        
+        function render() {
+            // Initialize or transition to new pattern
+            if (!currentGenome) {
+                currentGenome = createRandomGenome();
+                nextGenome = createRandomGenome();
+            }
+            
+            // Periodic evolution to new patterns
+            if (time % transitionDuration === 0) {
+                currentGenome = nextGenome;
+                nextGenome = createRandomGenome();
+                transitionProgress = 0;
+                
+                // Update info display
+                document.getElementById('info').textContent = `evolving: ${currentGenome.type} → ${nextGenome.type}`;
+            }
+            
+            // Calculate transition parameter
+            const t = (time % transitionDuration) / transitionDuration;
+            const smoothT = 0.5 - 0.5 * Math.cos(t * Math.PI); // Smooth S-curve
+            
+            // Interpolate between current and next genome
+            const activeGenome = interpolateGenomes(currentGenome, nextGenome, smoothT);
+            
+            // Evaluate pattern across the field
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Generate current pattern value
+                    let value = evaluatePattern(x, y, activeGenome, time);
+                    
+                    // Meta-evolution breathing
+                    const metaBreath = Math.sin(time * 0.001) * 0.2 + 0.8;
+                    value *= metaBreath;
+                    
+                    // Persistence creates evolutionary memory
+                    evolutionField[idx] = evolutionField[idx] * 0.9 + value * 0.1;
+                    metaField[idx] = evolutionField[idx];
+                }
+            }
+            
+            // Render the evolving pattern
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = metaField[idx];
+                    
+                    // Normalize and map to current symbol set
+                    intensity = (intensity + 1) / 2; // Convert from [-1,1] to [0,1]
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbols = activeGenome.symbols;
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Start the meta-evolution
+        evolve();
+    </script>
+</body>
+</html> 

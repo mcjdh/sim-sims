@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>temporal crystals</title>
+    <style>
+        body {
+            background: black;
+            color: #88aaff;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 130, H = 60;
+        let time = 0;
+        
+        // Multi-dimensional temporal fields
+        let crystallineField = new Array(W * H).fill(0);
+        let temporalFlow = new Array(W * H).fill(0);
+        let memoryDecay = new Array(W * H).fill(0);
+        let futureEcho = new Array(W * H).fill(0);
+        
+        // Time crystal nucleation sites - points where temporal order emerges
+        let crystalSeeds = [
+            { x: 25, y: 15, growth: 0, symmetry: 6, frequency: 0.08, phase: 0 },
+            { x: 75, y: 35, growth: 0, symmetry: 4, frequency: 0.12, phase: Math.PI/4 },
+            { x: 105, y: 20, growth: 0, symmetry: 8, frequency: 0.06, phase: Math.PI/2 },
+            { x: 45, y: 45, growth: 0, symmetry: 3, frequency: 0.15, phase: Math.PI }
+        ];
+        
+        // Temporal defects - points where time breaks down
+        let temporalDefects = [];
+        
+        // Crystal formation symbols: void → nucleation → growth → perfect order
+        const symbols = ' ·∘○◯⬢⬡⬣⬢⟐⬟⊠⊡◉❋';
+        
+        function temporalCrystal(x, y, seed, time) {
+            const dx = x - seed.x;
+            const dy = y - seed.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Crystal growth over time
+            seed.growth = Math.min(seed.growth + 0.02, 30);
+            
+            if (dist > seed.growth) return 0;
+            
+            // Crystalline symmetry patterns
+            const angle = Math.atan2(dy, dx);
+            const symmetryWave = Math.cos(angle * seed.symmetry + time * seed.frequency + seed.phase);
+            
+            // Radial crystal structure with discrete layers
+            const radialOrder = Math.cos(dist * 0.4 + time * 0.01);
+            
+            // Perfect periodicity near center, chaos at edges
+            const orderParameter = Math.exp(-dist * 0.08);
+            const crystalOrder = symmetryWave * radialOrder * orderParameter;
+            
+            // Time crystal phase transition
+            const phaseTransition = Math.sin(time * 0.003 + dist * 0.1);
+            
+            return crystalOrder * (1 + phaseTransition * 0.5);
+        }
+        
+        function temporalEntropy(x, y, time) {
+            // Thermodynamic arrow of time - entropy always increases
+            const entropyGradient = Math.sin(x * 0.05 + time * 0.002) * Math.cos(y * 0.07 - time * 0.0015);
+            
+            // Local time dilation effects
+            const timeDilation = Math.sin(time * 0.001 + x * y * 0.0001);
+            
+            // Quantum temporal fluctuations
+            const quantumFlux = (Math.random() - 0.5) * 0.1 * Math.exp(-time * 0.0001);
+            
+            return entropyGradient + timeDilation * 0.7 + quantumFlux;
+        }
+        
+        function causalityWaves(x, y, time) {
+            // Information propagating at finite speed - creating light cones
+            let causality = 0;
+            
+            for (let defect of temporalDefects) {
+                const dx = x - defect.x;
+                const dy = y - defect.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const age = time - defect.birthTime;
+                
+                if (age > 0) {
+                    // Light cone propagation
+                    const lightSpeed = 0.5;
+                    const causalRadius = age * lightSpeed;
+                    
+                    if (dist <= causalRadius) {
+                        // Inside light cone - causally connected
+                        const causalIntensity = Math.cos((dist - causalRadius) * 2) * 
+                                              Math.exp(-age * 0.01) * defect.strength;
+                        causality += causalIntensity;
+                    }
+                }
+            }
+            
+            return causality;
+        }
+        
+        function render() {
+            // Spontaneous temporal defect formation - rare events
+            if (Math.random() < 0.005) {
+                temporalDefects.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    birthTime: time,
+                    strength: 0.5 + Math.random() * 0.5
+                });
+            }
+            
+            // Remove old defects (they heal over time)
+            temporalDefects = temporalDefects.filter(defect => 
+                time - defect.birthTime < 200
+            );
+            
+            // Calculate temporal crystal fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Crystalline order from all seed points
+                    let crystalSum = 0;
+                    for (let seed of crystalSeeds) {
+                        crystalSum += temporalCrystal(x, y, seed, time);
+                    }
+                    crystallineField[idx] = crystalSum;
+                    
+                    // Entropic disorder competing with crystal order
+                    const entropy = temporalEntropy(x, y, time);
+                    temporalFlow[idx] = entropy;
+                    
+                    // Causal wave propagation
+                    const causality = causalityWaves(x, y, time);
+                    futureEcho[idx] = causality;
+                    
+                    // Combined temporal state
+                    let temporalOrder = crystallineField[idx] - temporalFlow[idx] * 0.3 + futureEcho[idx];
+                    
+                    // Temporal breathing - time itself pulsing
+                    const temporalBreath = Math.sin(time * 0.0015) * 0.25 + 0.75;
+                    temporalOrder *= temporalBreath;
+                    
+                    // Memory with temporal decay - past influencing present
+                    const decayRate = 0.89 + Math.sin(time * 0.001) * 0.05;
+                    memoryDecay[idx] = memoryDecay[idx] * decayRate + temporalOrder * (1 - decayRate);
+                }
+            }
+            
+            // Render temporal crystallization
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = memoryDecay[idx];
+                    
+                    // Normalize and map to crystal symbols
+                    intensity = (intensity + 2) / 4;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

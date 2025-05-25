@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #fa4;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 9px;
+            letter-spacing: 0px;
+            width: 140ch;
+            height: 60em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 140, H = 60;
+        const symbols = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡⬢⬣⬡⬠⬟⬞⬝⬜⬛█';
+        
+        let time = 0;
+        
+        // Three different mathematical systems
+        let cellular = new Array(W * H).fill(0);     // Cellular automata
+        let fluid = new Array(W * H).fill(0);        // Fluid dynamics
+        let fractal = new Array(W * H).fill(0);      // Fractal growth
+        
+        // Synthesis fields
+        let synthesis = new Array(W * H).fill(0);    // Combined system
+        let memory = new Array(W * H).fill(0);       // Memory traces
+        let coupling = new Array(W * H).fill(0);     // Inter-system coupling
+        
+        // Initialize cellular automata with random seeds
+        for (let i = 0; i < W * H; i++) {
+            if (Math.random() < 0.15) {
+                cellular[i] = Math.random();
+            }
+        }
+        
+        // Fluid velocity fields
+        let velocityX = new Array(W * H).fill(0);
+        let velocityY = new Array(W * H).fill(0);
+        
+        function updateCellular() {
+            let newCellular = new Array(W * H);
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let neighbors = 0;
+                    let total = 0;
+                    
+                    // Count neighbors (Moore neighborhood)
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            if (dx === 0 && dy === 0) continue;
+                            
+                            const nx = (x + dx + W) % W;
+                            const ny = (y + dy + H) % H;
+                            const nidx = ny * W + nx;
+                            
+                            if (cellular[nidx] > 0.1) {
+                                neighbors++;
+                                total += cellular[nidx];
+                            }
+                        }
+                    }
+                    
+                    const current = cellular[idx];
+                    const avg = neighbors > 0 ? total / neighbors : 0;
+                    
+                    // Modified Conway rules with continuous values
+                    if (current > 0.1) {
+                        // Alive cell
+                        if (neighbors === 2 || neighbors === 3) {
+                            newCellular[idx] = Math.min(1, current + avg * 0.1);
+                        } else {
+                            newCellular[idx] = Math.max(0, current - 0.1);
+                        }
+                    } else {
+                        // Dead cell
+                        if (neighbors === 3) {
+                            newCellular[idx] = avg * 0.7;
+                        } else {
+                            newCellular[idx] = current * 0.95;
+                        }
+                    }
+                    
+                    // Influenced by other systems
+                    const fluid_influence = fluid[idx] * 0.05;
+                    const fractal_influence = fractal[idx] * 0.03;
+                    newCellular[idx] += fluid_influence + fractal_influence;
+                    newCellular[idx] = Math.max(0, Math.min(1, newCellular[idx]));
+                }
+            }
+            
+            cellular = newCellular;
+        }
+        
+        function updateFluid() {
+            let newFluid = new Array(W * H);
+            let newVelX = new Array(W * H);
+            let newVelY = new Array(W * H);
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Simple fluid simulation - density advection
+                    const vx = velocityX[idx];
+                    const vy = velocityY[idx];
+                    
+                    // Advect density
+                    const srcX = x - vx;
+                    const srcY = y - vy;
+                    
+                    // Bilinear sampling
+                    const x0 = Math.floor(srcX);
+                    const x1 = x0 + 1;
+                    const y0 = Math.floor(srcY);
+                    const y1 = y0 + 1;
+                    
+                    const wx = srcX - x0;
+                    const wy = srcY - y0;
+                    
+                    let density = 0;
+                    if (x0 >= 0 && x0 < W && y0 >= 0 && y0 < H) {
+                        density += fluid[y0 * W + x0] * (1 - wx) * (1 - wy);
+                    }
+                    if (x1 >= 0 && x1 < W && y0 >= 0 && y0 < H) {
+                        density += fluid[y0 * W + x1] * wx * (1 - wy);
+                    }
+                    if (x0 >= 0 && x0 < W && y1 >= 0 && y1 < H) {
+                        density += fluid[y1 * W + x0] * (1 - wx) * wy;
+                    }
+                    if (x1 >= 0 && x1 < W && y1 >= 0 && y1 < H) {
+                        density += fluid[y1 * W + x1] * wx * wy;
+                    }
+                    
+                    newFluid[idx] = density * 0.98; // Slight decay
+                    
+                    // Update velocity field
+                    const centerX = W / 2, centerY = H / 2;
+                    const dx = x - centerX, dy = y - centerY;
+                    const dist = Math.sqrt(dx * dx + dy * dy) + 1;
+                    
+                    // Circular flow with time evolution
+                    const angle = Math.atan2(dy, dx) + time * 0.01;
+                    const speed = Math.sin(dist * 0.1 + time * 0.02) * 0.5;
+                    
+                    newVelX[idx] = -Math.sin(angle) * speed;
+                    newVelY[idx] = Math.cos(angle) * speed;
+                    
+                    // Influenced by cellular patterns
+                    if (cellular[idx] > 0.5) {
+                        newFluid[idx] += 0.1;
+                        newVelX[idx] *= 1.2;
+                        newVelY[idx] *= 1.2;
+                    }
+                    
+                    // Add fractal sources
+                    if (fractal[idx] > 0.3) {
+                        newFluid[idx] += fractal[idx] * 0.2;
+                    }
+                    
+                    newFluid[idx] = Math.max(0, Math.min(1, newFluid[idx]));
+                }
+            }
+            
+            fluid = newFluid;
+            velocityX = newVelX;
+            velocityY = newVelY;
+        }
+        
+        function updateFractal() {
+            let newFractal = new Array(W * H);
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Julia set variation with evolving parameters
+                    const zx = (x - W/2) / (W/6);
+                    const zy = (y - H/2) / (H/6);
+                    
+                    // Time-evolving complex constant
+                    const cx = 0.7269 * Math.cos(time * 0.003) - 0.2;
+                    const cy = 0.1889 * Math.sin(time * 0.002) + 0.3;
+                    
+                    let x0 = zx, y0 = zy;
+                    let iteration = 0;
+                    const maxIter = 20;
+                    
+                    while (x0*x0 + y0*y0 <= 4 && iteration < maxIter) {
+                        const xtemp = x0*x0 - y0*y0 + cx;
+                        y0 = 2*x0*y0 + cy;
+                        x0 = xtemp;
+                        iteration++;
+                    }
+                    
+                    let fractal_value = iteration / maxIter;
+                    
+                    // Growth influenced by other systems
+                    if (cellular[idx] > 0.3) {
+                        fractal_value *= 1.3; // Cellular seeds enhance growth
+                    }
+                    
+                    if (fluid[idx] > 0.2) {
+                        fractal_value *= (1 + fluid[idx] * 0.5); // Fluid carries growth
+                    }
+                    
+                    // Smooth evolution
+                    newFractal[idx] = fractal[idx] * 0.9 + fractal_value * 0.1;
+                    newFractal[idx] = Math.max(0, Math.min(1, newFractal[idx]));
+                }
+            }
+            
+            fractal = newFractal;
+        }
+        
+        function calculateSynthesis() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    const c = cellular[idx];
+                    const f = fluid[idx];
+                    const r = fractal[idx];
+                    
+                    // Calculate coupling strength between systems
+                    const cf_coupling = Math.min(c, f) * 2;      // cellular-fluid
+                    const cr_coupling = Math.min(c, r) * 2;      // cellular-fractal
+                    const fr_coupling = Math.min(f, r) * 2;      // fluid-fractal
+                    const cfr_coupling = Math.min(c, Math.min(f, r)) * 3; // all three
+                    
+                    coupling[idx] = cf_coupling + cr_coupling + fr_coupling + cfr_coupling;
+                    
+                    // Synthesis modes based on coupling strength
+                    let synth_value = 0;
+                    
+                    if (coupling[idx] > 0.1) {
+                        // Harmonic synthesis
+                        synth_value = Math.sqrt(c * c + f * f + r * r) / Math.sqrt(3);
+                        
+                        // Multiplicative enhancement
+                        synth_value += c * f * r * 2;
+                        
+                        // Emergent properties
+                        const phase = Math.sin(time * 0.05 + x * 0.1 + y * 0.1);
+                        synth_value += coupling[idx] * phase * 0.3;
+                    } else {
+                        // Simple additive when no strong coupling
+                        synth_value = (c + f + r) / 3;
+                    }
+                    
+                    // Global breathing
+                    const breath = Math.sin(time * 0.004) * 0.2 + 0.8;
+                    synth_value *= breath;
+                    
+                    // Memory creates persistent trails
+                    memory[idx] = memory[idx] * 0.92 + synth_value * 0.08;
+                    synthesis[idx] = memory[idx];
+                }
+            }
+        }
+        
+        function render() {
+            updateCellular();
+            updateFluid();
+            updateFractal();
+            calculateSynthesis();
+            
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine synthesis with coupling visualization
+                    const total_intensity = synthesis[idx] + coupling[idx] * 0.3;
+                    const normalized = Math.max(0, Math.min(0.99, total_intensity));
+                    const level = Math.floor(normalized * symbols.length);
+                    output += symbols[level];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

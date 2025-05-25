@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>quantum thoughts</title>
+    <style>
+        body {
+            background: black;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.0;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 120, H = 55;
+        let time = 0;
+        
+        // Multi-layer quantum field
+        let waveField = new Array(W * H).fill(0);
+        let uncertaintyField = new Array(W * H).fill(0);
+        let memoryField = new Array(W * H).fill(0);
+        let collapseField = new Array(W * H).fill(0);
+        
+        // Quantum thought sources - moving consciousness centers
+        let thoughtSources = [
+            { x: 30, y: 20, freq: 0.08, phase: 0, vx: 0.02, vy: 0.01 },
+            { x: 70, y: 30, freq: 0.12, phase: Math.PI/3, vx: -0.015, vy: 0.025 },
+            { x: 90, y: 15, freq: 0.06, phase: Math.PI/2, vx: 0.01, vy: -0.02 },
+            { x: 50, y: 40, freq: 0.15, phase: Math.PI, vx: -0.025, vy: 0.005 }
+        ];
+        
+        // Quantum collapse events - moments of clarity
+        let collapseEvents = [];
+        
+        // Symbols representing quantum states: uncertainty → partial collapse → full thought
+        const symbols = ' ·∘○◯●◉█';
+        
+        function quantumWave(x, y, source, time) {
+            const dx = x - source.x;
+            const dy = y - source.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Quantum wave with frequency modulation
+            const wave = Math.sin(dist * source.freq + time * 0.005 + source.phase);
+            
+            // Distance attenuation with quantum spread
+            const attenuation = Math.exp(-dist * 0.02) * (1 + Math.sin(time * 0.003) * 0.3);
+            
+            return wave * attenuation;
+        }
+        
+        function heisenbergUncertainty(x, y, time) {
+            // Uncertainty principle: position and momentum cannot both be precisely known
+            const positionUncertainty = Math.sin(x * 0.1 + time * 0.002);
+            const momentumUncertainty = Math.cos(y * 0.15 + time * 0.0025);
+            
+            // The more precisely we know position, the less we know momentum
+            return Math.abs(positionUncertainty * momentumUncertainty) * 0.5;
+        }
+        
+        function quantumCollapse(x, y, time) {
+            // Spontaneous collapse events where uncertainty reduces
+            let collapse = 0;
+            
+            for (let event of collapseEvents) {
+                const dx = x - event.x;
+                const dy = y - event.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const age = time - event.birthTime;
+                
+                if (age > 0 && age < event.lifetime) {
+                    // Gaussian collapse wave expanding outward
+                    const radius = age * event.speed;
+                    const intensity = Math.exp(-((dist - radius) ** 2) / (2 * event.width ** 2));
+                    collapse += intensity * event.strength * Math.exp(-age / event.lifetime);
+                }
+            }
+            
+            return Math.min(collapse, 1.0);
+        }
+        
+        function render() {
+            // Update thought source positions (consciousness wandering)
+            for (let source of thoughtSources) {
+                source.x += source.vx;
+                source.y += source.vy;
+                
+                // Quantum tunneling - occasionally jump to new location
+                if (Math.random() < 0.002) {
+                    source.x = Math.random() * W;
+                    source.y = Math.random() * H;
+                }
+                
+                // Bounce off boundaries
+                if (source.x < 0 || source.x >= W) source.vx *= -1;
+                if (source.y < 0 || source.y >= H) source.vy *= -1;
+                source.x = Math.max(0, Math.min(W-1, source.x));
+                source.y = Math.max(0, Math.min(H-1, source.y));
+            }
+            
+            // Spontaneous collapse events (moments of insight)
+            if (Math.random() < 0.008) {
+                collapseEvents.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    birthTime: time,
+                    lifetime: 50 + Math.random() * 100,
+                    speed: 0.3 + Math.random() * 0.7,
+                    width: 5 + Math.random() * 15,
+                    strength: 0.3 + Math.random() * 0.7
+                });
+            }
+            
+            // Remove expired collapse events
+            collapseEvents = collapseEvents.filter(event => 
+                time - event.birthTime < event.lifetime
+            );
+            
+            // Calculate quantum fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Superposition of all thought waves
+                    let waveSum = 0;
+                    for (let source of thoughtSources) {
+                        waveSum += quantumWave(x, y, source, time);
+                    }
+                    
+                    // Interference creates complex patterns
+                    waveField[idx] = waveSum;
+                    
+                    // Heisenberg uncertainty modulates the waves
+                    uncertaintyField[idx] = heisenbergUncertainty(x, y, time);
+                    
+                    // Quantum collapse reduces uncertainty locally
+                    const collapse = quantumCollapse(x, y, time);
+                    collapseField[idx] = collapse;
+                    
+                    // Combined quantum state
+                    let quantumState = waveField[idx] * (1 - uncertaintyField[idx] * 0.7);
+                    
+                    // Collapse events create moments of clarity
+                    quantumState = quantumState * (1 + collapse * 2);
+                    
+                    // Quantum breathing - universal consciousness pulse
+                    const quantumBreath = Math.sin(time * 0.002) * 0.2 + 0.8;
+                    quantumState *= quantumBreath;
+                    
+                    // Memory persistence - quantum decoherence
+                    memoryField[idx] = memoryField[idx] * 0.88 + quantumState * 0.12;
+                }
+            }
+            
+            // Render quantum consciousness
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = memoryField[idx];
+                    
+                    // Normalize and map to symbols
+                    intensity = (intensity + 1) / 2; // Convert from [-1,1] to [0,1]
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #8f8;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 10px;
+            letter-spacing: 0px;
+            width: 110ch;
+            height: 50em;
+            overflow: hidden;
+            font-weight: normal;
+            text-align: left;
+            font-variant-ligatures: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 110, H = 50;
+        const symbols = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡■□▪▫▬▭▮▯▰▱';
+        
+        let time = 0;
+        
+        // Multi-layered observation system
+        let field = new Array(W * H).fill(0);           // Primary field
+        let observation = new Array(W * H).fill(0);     // What the system sees
+        let reflection = new Array(W * H).fill(0);      // How it responds
+        let meta_observation = new Array(W * H).fill(0); // Observing the observation
+        let memory = new Array(W * H).fill(0);          // Memory of past states
+        let self_awareness = new Array(W * H).fill(0);  // Recognition of self-patterns
+        
+        // Recursive mirrors at different scales
+        let mirror_scales = [1, 2, 4, 8];
+        let mirror_fields = mirror_scales.map(() => new Array(W * H).fill(0));
+        
+        function observe(source_field, observer_x, observer_y, observation_radius) {
+            let observations = [];
+            
+            for (let r = 1; r <= observation_radius; r++) {
+                let ring_total = 0;
+                let ring_count = 0;
+                
+                // Sample points in a ring
+                const points = Math.max(8, Math.floor(2 * Math.PI * r));
+                for (let i = 0; i < points; i++) {
+                    const angle = (i / points) * 2 * Math.PI;
+                    const x = Math.floor(observer_x + r * Math.cos(angle));
+                    const y = Math.floor(observer_y + r * Math.sin(angle));
+                    
+                    if (x >= 0 && x < W && y >= 0 && y < H) {
+                        ring_total += source_field[y * W + x];
+                        ring_count++;
+                    }
+                }
+                
+                observations.push(ring_count > 0 ? ring_total / ring_count : 0);
+            }
+            
+            return observations;
+        }
+        
+        function detectPattern(observations) {
+            // Look for patterns in the observation data
+            let pattern_strength = 0;
+            
+            // Oscillation detection
+            for (let i = 2; i < observations.length; i++) {
+                const diff1 = observations[i] - observations[i-1];
+                const diff2 = observations[i-1] - observations[i-2];
+                if (diff1 * diff2 < 0) { // Sign change indicates oscillation
+                    pattern_strength += Math.abs(diff1) * 0.3;
+                }
+            }
+            
+            // Spiral detection
+            for (let i = 1; i < observations.length; i++) {
+                const gradient = observations[i] - observations[i-1];
+                pattern_strength += Math.abs(gradient) * (i / observations.length) * 0.2;
+            }
+            
+            // Symmetry detection
+            const mid = Math.floor(observations.length / 2);
+            for (let i = 0; i < mid; i++) {
+                const symmetry = 1 - Math.abs(observations[i] - observations[observations.length - 1 - i]);
+                pattern_strength += symmetry * 0.1;
+            }
+            
+            return Math.min(1, pattern_strength);
+        }
+        
+        function generateReflection(x, y, pattern_strength, observations) {
+            // Generate response based on what was observed
+            let response = 0;
+            
+            // Mirror the pattern back
+            const center_intensity = observations[0] || 0;
+            response += center_intensity * 0.5;
+            
+            // Amplify interesting patterns
+            response += pattern_strength * 0.7;
+            
+            // Add recursive element
+            const recursive_phase = Math.sin(time * 0.03 + x * 0.1 + y * 0.1);
+            response += pattern_strength * recursive_phase * 0.3;
+            
+            // Self-reinforcement based on local reflection strength
+            const idx = y * W + x;
+            const local_reflection = reflection[idx];
+            response += local_reflection * local_reflection * 0.2; // Quadratic self-reinforcement
+            
+            return response;
+        }
+        
+        function updateMirrors() {
+            // Create recursive mirrors at different scales
+            for (let scale_idx = 0; scale_idx < mirror_scales.length; scale_idx++) {
+                const scale = mirror_scales[scale_idx];
+                let mirror = mirror_fields[scale_idx];
+                
+                for (let y = 0; y < H; y += scale) {
+                    for (let x = 0; x < W; x += scale) {
+                        // Average the field over this scale
+                        let total = 0;
+                        let count = 0;
+                        
+                        for (let dy = 0; dy < scale && y + dy < H; dy++) {
+                            for (let dx = 0; dx < scale && x + dx < W; dx++) {
+                                total += field[(y + dy) * W + (x + dx)];
+                                count++;
+                            }
+                        }
+                        
+                        const avg = count > 0 ? total / count : 0;
+                        
+                        // Fill the scaled region
+                        for (let dy = 0; dy < scale && y + dy < H; dy++) {
+                            for (let dx = 0; dx < scale && x + dx < W; dx++) {
+                                mirror[(y + dy) * W + (x + dx)] = avg;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        function calculateSelfAwareness() {
+            // Detect when the system recognizes its own patterns
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Compare current state with memory
+                    const current = field[idx];
+                    const remembered = memory[idx];
+                    const similarity = 1 - Math.abs(current - remembered);
+                    
+                    // Look for self-similar patterns in mirrors
+                    let mirror_similarity = 0;
+                    for (let mirror of mirror_fields) {
+                        const mirror_value = mirror[idx];
+                        mirror_similarity += 1 - Math.abs(current - mirror_value);
+                    }
+                    mirror_similarity /= mirror_fields.length;
+                    
+                    // Recognition based on recursive patterns
+                    const observations_here = observe(field, x, y, 5);
+                    const pattern_strength = detectPattern(observations_here);
+                    
+                    // Self-awareness emerges from recognition of self-patterns
+                    const awareness = similarity * 0.3 + mirror_similarity * 0.4 + pattern_strength * 0.3;
+                    
+                    self_awareness[idx] = self_awareness[idx] * 0.9 + awareness * 0.1;
+                }
+            }
+        }
+        
+        function render() {
+            updateMirrors();
+            
+            // Observation phase
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Observe the current field
+                    const observations_local = observe(field, x, y, 8);
+                    const pattern_strength = detectPattern(observations_local);
+                    
+                    observation[idx] = pattern_strength;
+                    
+                    // Meta-observation: observe the observation
+                    const meta_obs = observe(observation, x, y, 4);
+                    const meta_pattern = detectPattern(meta_obs);
+                    meta_observation[idx] = meta_pattern;
+                }
+            }
+            
+            // Reflection phase
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    const observations_local = observe(field, x, y, 6);
+                    const pattern_strength = observation[idx];
+                    
+                    // Generate reflection based on observations
+                    const new_reflection = generateReflection(x, y, pattern_strength, observations_local);
+                    
+                    // Add meta-reflection: responding to observing itself observe
+                    const meta_response = meta_observation[idx] * 0.3;
+                    
+                    reflection[idx] = new_reflection + meta_response;
+                }
+            }
+            
+            // Self-awareness calculation
+            calculateSelfAwareness();
+            
+            // Field evolution: influenced by its own reflection
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Base wave patterns
+                    const wave1 = Math.sin(x * 0.2 + time * 0.02);
+                    const wave2 = Math.cos(y * 0.15 + time * 0.025);
+                    const base = (wave1 + wave2) * 0.3;
+                    
+                    // Self-reflection influence
+                    const self_influence = reflection[idx] * 0.4;
+                    
+                    // Mirror influence from different scales
+                    let mirror_influence = 0;
+                    for (let mirror of mirror_fields) {
+                        mirror_influence += mirror[idx] * 0.1;
+                    }
+                    
+                    // Self-awareness modulation
+                    const awareness_mod = 1 + self_awareness[idx] * 0.5;
+                    
+                    // Global breathing
+                    const breath = Math.sin(time * 0.005) * 0.2 + 0.8;
+                    
+                    let new_value = (base + self_influence + mirror_influence) * awareness_mod * breath;
+                    
+                    // Memory update
+                    memory[idx] = memory[idx] * 0.95 + field[idx] * 0.05;
+                    
+                    // Field update with memory of reflection
+                    field[idx] = field[idx] * 0.8 + new_value * 0.2;
+                    field[idx] = Math.max(-1, Math.min(1, field[idx]));
+                }
+            }
+            
+            // Render
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine field with self-awareness visualization
+                    const total_intensity = field[idx] + self_awareness[idx] * 0.5 + reflection[idx] * 0.3;
+                    const normalized = Math.max(0, Math.min(0.99, (total_intensity + 2) / 4));
+                    const level = Math.floor(normalized * symbols.length);
+                    output += symbols[level];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 
