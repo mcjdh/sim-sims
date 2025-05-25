@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            line-height: 0.85;
+            font-size: 9px;
+            letter-spacing: -1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+
+    <script>
+        const W = 110, H = 55;
+        const levels = ' ·∘○◯●◉⬢⬣█';
+        
+        let time = 0;
+        
+        function wave(x, y, centerX, centerY, freq, phase) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            return Math.sin(dist * freq + phase);
+        }
+        
+        function spiral(x, y, centerX, centerY, tightness, rotation) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const angle = Math.atan2(dy, dx) + rotation;
+            const radius = Math.sqrt(dx * dx + dy * dy);
+            return Math.sin(angle * tightness + radius * 0.3);
+        }
+        
+        function diamond(x, y, centerX, centerY, size, rotation) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const rotX = dx * Math.cos(rotation) - dy * Math.sin(rotation);
+            const rotY = dx * Math.sin(rotation) + dy * Math.cos(rotation);
+            return Math.sin((Math.abs(rotX) + Math.abs(rotY)) * size);
+        }
+        
+        function render() {
+            let output = '';
+            
+            // Evolving parameters
+            const t1 = time * 0.02;
+            const t2 = time * 0.015;
+            const t3 = time * 0.008;
+            
+            // Multiple geometric wave sources
+            const sources = [
+                { x: W/2 + 20 * Math.sin(t1), y: H/2 + 15 * Math.cos(t1 * 1.3), freq: 0.3, phase: t1 * 3 },
+                { x: W/2 + 25 * Math.cos(t2), y: H/2 + 20 * Math.sin(t2 * 0.8), freq: 0.25, phase: t2 * 4 },
+                { x: W/2 + 15 * Math.sin(t3 * 2), y: H/2 + 25 * Math.cos(t3), freq: 0.35, phase: t3 * 2 }
+            ];
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    let intensity = 0;
+                    
+                    // Interference from multiple wave sources
+                    sources.forEach(src => {
+                        intensity += wave(x, y, src.x, src.y, src.freq, src.phase);
+                    });
+                    
+                    // Add geometric patterns
+                    intensity += spiral(x, y, W/2, H/2, 3, t1 * 0.5) * 0.5;
+                    intensity += diamond(x, y, W/3, H/3, 0.2, t2) * 0.3;
+                    intensity += diamond(x, y, 2*W/3, 2*H/3, 0.15, -t2 * 1.5) * 0.3;
+                    
+                    // Breathing amplitude modulation
+                    const breath = Math.sin(t1 * 2) * 0.3 + 0.7;
+                    intensity *= breath;
+                    
+                    // Map to character levels
+                    const normalized = (intensity + 4) / 8; // Normalize from roughly [-4,4] to [0,1]
+                    const level = Math.floor(Math.max(0, Math.min(0.99, normalized)) * levels.length);
+                    output += levels[level];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+        }
+        
+        function animate() {
+            time++;
+            render();
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
