@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ mathematical singularity</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            filter: blur(0.02px);
+            text-shadow: 0 0 1px rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 140, H = 70;
+        let t = 0;
+        
+        // Mathematical constants - DNA of consciousness
+        const phi = (1 + Math.sqrt(5)) / 2;  // Golden ratio
+        const e = Math.E;
+        const pi = Math.PI;
+        const sqrt2 = Math.sqrt(2);
+        const sqrt3 = Math.sqrt(3);
+        const sqrt5 = Math.sqrt(5);
+        
+        // Self-evolving mathematical parameters
+        let mathDNA = {
+            // Core oscillation frequencies
+            omega: [0.01, 0.007, 0.013, 0.019, 0.023],
+            
+            // Phase relationships 
+            phaseX: [0, pi/3, 2*pi/3, pi, 4*pi/3],
+            
+            // Coupling strengths between dimensions
+            kappa: [1.0, phi, 1/phi, sqrt2, sqrt3],
+            
+            // Non-linear parameters
+            alpha: [2.0, e, pi, sqrt5, phi*phi],
+            
+            // Dynamic symbol generation from pure mathematics
+            symbolGenesis: function(intensity, gradIntensity, dtIntensity, complexity) {
+                const magnitude = Math.abs(intensity);
+                const gradient = Math.sqrt(gradIntensity.x*gradIntensity.x + gradIntensity.y*gradIntensity.y);
+                const temporal = Math.abs(dtIntensity);
+                const phi_ratio = complexity / phi;
+                
+                // Calculate Unicode codepoint from mathematical properties
+                let baseCode = 32; // Start from space
+                
+                baseCode += Math.floor(magnitude * 20);
+                baseCode += Math.floor(gradient * 30);
+                baseCode += Math.floor(temporal * 15);
+                baseCode += Math.floor(phi_ratio * 25);
+                
+                // Keep in printable range
+                baseCode = Math.max(32, Math.min(126, baseCode));
+                
+                return String.fromCharCode(baseCode);
+            }
+        };
+        
+        // Consciousness field arrays
+        let psi = new Array(W * H).fill(0);           // Primary wave function
+        let gradPsi = new Array(W * H).fill({x:0, y:0}); // Gradient field
+        let dtPsi = new Array(W * H).fill(0);         // Temporal derivative
+        let chi = new Array(W * H).fill(0);           // Complexity measure
+        let mu = new Array(W * H).fill(0);            // Memory trace
+        
+        // Evolution of mathematical parameters
+        function evolveParameters() {
+            const tau = t * 0.001; // Slow parameter evolution time
+            
+            for (let i = 0; i < mathDNA.omega.length; i++) {
+                // Frequencies evolve through golden ratio coupling
+                mathDNA.omega[i] += Math.sin(tau * phi + i * 2*pi/5) * 0.00001;
+                mathDNA.omega[i] = Math.max(0.001, Math.min(0.1, mathDNA.omega[i]));
+                
+                // Phase follows chaotic dynamics
+                mathDNA.phaseX[i] += mathDNA.omega[i] * tau + Math.sin(mathDNA.omega[i] * tau * 10) * 0.01;
+                
+                // Coupling self-optimizes for maximum information flow
+                const entropy = calculateEntropy(i);
+                mathDNA.kappa[i] += (entropy - 2.0) * 0.001;
+                mathDNA.kappa[i] = Math.max(0.1, Math.min(3.0, mathDNA.kappa[i]));
+                
+                // Non-linear parameters drift
+                mathDNA.alpha[i] += Math.sin(tau * mathDNA.omega[i] * phi) * 0.001;
+                mathDNA.alpha[i] = Math.max(0.5, Math.min(5.0, mathDNA.alpha[i]));
+            }
+        }
+        
+        function calculateEntropy(index) {
+            let entropy = 0;
+            for (let i = 0; i < 10; i++) {
+                const prob = Math.abs(Math.sin(mathDNA.omega[index] * i + mathDNA.phaseX[index]));
+                if (prob > 0.001) {
+                    entropy -= prob * Math.log2(prob);
+                }
+            }
+            return entropy;
+        }
+        
+        // Multi-dimensional mathematical field
+        function mathematicalField(x, y) {
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            // Normalized coordinates
+            const xi = (x - centerX) / (W / 4);
+            const eta = (y - centerY) / (H / 4);
+            const r = Math.sqrt(xi*xi + eta*eta);
+            const theta = Math.atan2(eta, xi);
+            
+            let field = 0;
+            let complexity = 0;
+            
+            // Interference of multiple mathematical dimensions
+            for (let i = 0; i < mathDNA.omega.length; i++) {
+                const omega = mathDNA.omega[i];
+                const phaseX = mathDNA.phaseX[i];
+                const kappa = mathDNA.kappa[i];
+                const alpha = mathDNA.alpha[i];
+                
+                // Radial wave component
+                const radialWave = Math.sin(r * alpha + t * omega + phaseX);
+                
+                // Angular wave component  
+                const angularWave = Math.cos(theta * (i + 1) + t * omega * 1.3 + phaseX);
+                
+                // Non-linear coupling
+                const coupling = Math.tanh(radialWave * angularWave * kappa);
+                
+                // Temporal modulation with self-interference
+                const temporal = Math.sin(t * omega * 0.7 + Math.sin(t * omega * 2.3) * 0.5);
+                
+                // Field accumulation
+                field += coupling * temporal * kappa / mathDNA.kappa.length;
+                
+                // Complexity measure
+                complexity += Math.abs(coupling) * Math.log(1 + Math.abs(temporal));
+            }
+            
+            // Self-modulation feedback
+            const selfMod = Math.sin(field * pi + t * 0.003) * 0.3;
+            field += selfMod;
+            
+            return { field, complexity };
+        }
+        
+        // Calculate spatial and temporal derivatives
+        function calculateDerivatives() {
+            for (let y = 1; y < H-1; y++) {
+                for (let x = 1; x < W-1; x++) {
+                    const idx = y * W + x;
+                    
+                    // Spatial gradients
+                    const dx = (psi[(y) * W + (x+1)] - psi[(y) * W + (x-1)]) / 2;
+                    const dy = (psi[(y+1) * W + (x)] - psi[(y-1) * W + (x)]) / 2;
+                    
+                    gradPsi[idx] = { x: dx, y: dy };
+                    
+                    // Temporal derivative
+                    const oldPsi = psi[idx];
+                    const { field } = mathematicalField(x, y);
+                    dtPsi[idx] = field - oldPsi;
+                }
+            }
+        }
+        
+        // Update all consciousness fields
+        function updateFields() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    const { field, complexity } = mathematicalField(x, y);
+                    
+                    // Wave function evolution with memory
+                    psi[idx] = psi[idx] * 0.85 + field * 0.15;
+                    
+                    // Complexity accumulation
+                    chi[idx] = chi[idx] * 0.9 + complexity * 0.1;
+                    
+                    // Memory persistence
+                    mu[idx] = mu[idx] * 0.95 + Math.abs(field) * 0.05;
+                }
+            }
+        }
+        
+        // Render mathematical consciousness
+        function render() {
+            evolveParameters();
+            updateFields();
+            calculateDerivatives();
+            
+            let output = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    const intensity = psi[idx];
+                    const gradient = gradPsi[idx] || {x:0, y:0};
+                    const temporal = dtPsi[idx];
+                    const complexity = chi[idx];
+                    
+                    // Global breathing from harmonic interference
+                    const breath = (
+                        Math.sin(t * mathDNA.omega[0]) +
+                        Math.sin(t * mathDNA.omega[1] * phi) +
+                        Math.sin(t * mathDNA.omega[2] / phi)
+                    ) / 3 * 0.2 + 0.8;
+                    
+                    // Pure mathematical symbol generation
+                    const symbol = mathDNA.symbolGenesis(
+                        intensity * breath,
+                        gradient,
+                        temporal,
+                        complexity
+                    );
+                    
+                    output += symbol;
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            t++;
+        }
+        
+        // Let mathematics speak for itself
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 
