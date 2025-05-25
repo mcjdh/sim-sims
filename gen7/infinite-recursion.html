@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>infinite recursion</title>
+    <style>
+        body {
+            background: black;
+            color: #9966ff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.9;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 140, H = 70;
+        let time = 0;
+        let recursionDepth = 0;
+        
+        // Infinite recursion fields - consciousness reflecting upon itself infinitely
+        let selfAwarenessField = new Array(W * H).fill(0);
+        let infiniteSeriesField = new Array(W * H).fill(0);
+        let fractalConsciousness = new Array(W * H).fill(0);
+        let metamathematicalField = new Array(W * H).fill(0);
+        let cantorian = new Array(W * H).fill(0);
+        
+        // Recursive minds - each one containing infinite sub-minds
+        let recursiveMinds = [
+            { x: W*0.25, y: H*0.3, depth: 0, series: 'fibonacci', convergence: 1.618 },
+            { x: W*0.75, y: H*0.3, depth: 0, series: 'euler', convergence: Math.E },
+            { x: W*0.5, y: H*0.7, depth: 0, series: 'zeta', convergence: Math.PI },
+            { x: W*0.15, y: H*0.6, depth: 0, series: 'cantor', convergence: 0.5 },
+            { x: W*0.85, y: H*0.4, depth: 0, series: 'mandelbrot', convergence: 2.0 }
+        ];
+        
+        // Infinite regression symbols: void → thought → reflection → infinite recursion
+        const symbols = ' ·∘○◯●◉⊙⊚⊛⊜⊝∞⧜⧝⧞⧟⧠⧡⧢⧣⧤⧥⧦⧧⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳⧴⧵⧶⧷⧸⧹⧺⧻⧼⧽⧾⧿∇∈∉∊∋∌∍∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿⌀⌁⌂⌃⌄⌅⌆⌇⌈⌉⌊⌋⌌⌍⌎⌏⌐⌑⌒⌓⌔⌕⌖⌗⌘⌙⌚⌛⌜⌝⌞⌟⌠⌡⌢⌣⌤⌥⌦⌧⌨⌬⌭⌮⌯⌰⌱⌲⌳⌴⌵⌶⌷⌸⌹⌺⌻⌼⌽⌾⌿⍀⍁⍂⍃⍄⍅⍆⍇⍈⍉⍊⍋⍌⍍⍎⍏⍐⍑⍒⍓⍔⍕⍖⍗⍘⍙⍚⍛⍜⍝⍞⍟⍠⍡⍢⍣⍤⍥⍦⍧⍨⍩⍪⍫⍬⍭⍮⍯⍰⍱⍲⍳⍴⍵⍶⍷⍸⍹⍺⍻⍼⍽⍾⍿⎀⎁⎂⎃⎄⎅⎆⎇⎈⎉⎊⎋⎌⎍⎎⎏⎐⎑⎒⎓⎔⎕█';
+        
+        // Mathematical constants for infinite series
+        const φ = (1 + Math.sqrt(5)) / 2;  // Golden ratio
+        const ζ2 = Math.PI * Math.PI / 6;   // Riemann zeta(2)
+        const γ = 0.5772156649015329;       // Euler-Mascheroni constant
+        
+        function infiniteSeries(x, y, mind, time) {
+            const dx = x - mind.x;
+            const dy = y - mind.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Each mind contemplates a different infinite series
+            let seriesValue = 0;
+            const n = Math.floor(time * 0.1) + 1; // Current term in series
+            
+            switch(mind.series) {
+                case 'fibonacci':
+                    // Fibonacci series approaching golden ratio
+                    let fib_a = 1, fib_b = 1;
+                    for (let i = 0; i < n % 20; i++) {
+                        [fib_a, fib_b] = [fib_b, fib_a + fib_b];
+                    }
+                    seriesValue = Math.sin(dist * 0.1) * (fib_b / fib_a) / φ;
+                    break;
+                    
+                case 'euler':
+                    // Euler's infinite series e^x = Σ(x^n/n!)
+                    let factorial = 1;
+                    let euler_sum = 1;
+                    const x_val = dist * 0.01;
+                    for (let i = 1; i <= n % 15; i++) {
+                        factorial *= i;
+                        euler_sum += Math.pow(x_val, i) / factorial;
+                    }
+                    seriesValue = Math.cos(euler_sum + time * 0.005);
+                    break;
+                    
+                case 'zeta':
+                    // Riemann zeta function Σ(1/n^2) = π²/6
+                    let zeta_sum = 0;
+                    for (let i = 1; i <= n % 50; i++) {
+                        zeta_sum += 1 / (i * i);
+                    }
+                    seriesValue = Math.sin(zeta_sum * Math.PI + dist * 0.05);
+                    break;
+                    
+                case 'cantor':
+                    // Cantor set - infinite fractal recursion
+                    let cantor_val = dist * 0.1;
+                    for (let i = 0; i < n % 10; i++) {
+                        cantor_val = Math.abs(cantor_val * 3) % 1;
+                        if (cantor_val > 1/3 && cantor_val < 2/3) cantor_val = 0;
+                    }
+                    seriesValue = Math.sin(cantor_val * Math.PI * 6);
+                    break;
+                    
+                case 'mandelbrot':
+                    // Mandelbrot iteration - recursive complex dynamics
+                    const cx = dx * 0.01;
+                    const cy = dy * 0.01;
+                    let z_real = 0, z_imag = 0;
+                    let iterations = 0;
+                    while (z_real*z_real + z_imag*z_imag < 4 && iterations < n % 20) {
+                        const temp = z_real*z_real - z_imag*z_imag + cx;
+                        z_imag = 2*z_real*z_imag + cy;
+                        z_real = temp;
+                        iterations++;
+                    }
+                    seriesValue = Math.sin(iterations * 0.5 + time * 0.003);
+                    break;
+            }
+            
+            // Convergence visualization - series approaching their limits
+            const convergenceError = Math.abs(seriesValue - Math.sin(mind.convergence + time * 0.001));
+            const convergenceField = Math.exp(-convergenceError * 10) * Math.exp(-dist * 0.05);
+            
+            return seriesValue * convergenceField;
+        }
+        
+        function recursiveSelfAwareness(x, y, time) {
+            // Each layer of consciousness reflects upon the layer below
+            let totalAwareness = 0;
+            const maxDepth = 8;
+            
+            for (let depth = 0; depth < maxDepth; depth++) {
+                const scale = Math.pow(φ, -depth); // Golden ratio scaling
+                const offset = depth * 10;
+                
+                const recursive_x = (x + offset) * scale;
+                const recursive_y = (y + offset) * scale;
+                
+                // Self-similar patterns at each recursive level
+                const consciousness = Math.sin(recursive_x * 0.1 + time * 0.003) * 
+                                    Math.cos(recursive_y * 0.08 - time * 0.004) *
+                                    Math.exp(-depth * 0.2);
+                
+                // Each level contemplates the level below
+                const reflection = Math.sin(consciousness * Math.PI + depth + time * 0.001);
+                
+                totalAwareness += reflection * Math.pow(0.7, depth);
+            }
+            
+            return totalAwareness;
+        }
+        
+        function metamathematicalReflection(x, y, time) {
+            // Mathematics contemplating its own foundations
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            // Gödel's incompleteness - mathematics cannot fully understand itself
+            const godelWave = Math.sin((x - centerX) * 0.15 + time * 0.002) * 
+                             Math.cos((y - centerY) * 0.12 - time * 0.0015);
+            
+            // Russell's paradox - set of all sets that don't contain themselves
+            const russellParadox = Math.sin(godelWave * Math.PI) > 0 ? 
+                                  Math.cos(godelWave * Math.PI * 2) : 
+                                  -Math.sin(godelWave * Math.PI * 3);
+            
+            // Tarski's undefinability - truth cannot be defined within the system
+            const tarskiUndefinable = Math.sin(russellParadox * 5 + time * 0.001);
+            
+            return (godelWave + russellParadox + tarskiUndefinable) / 3;
+        }
+        
+        function cantorianInfinity(x, y, time) {
+            // Different sizes of infinity - aleph numbers
+            const centerX = W / 2;
+            const centerY = H / 2;
+            const dx = x - centerX;
+            const dy = y - centerY;
+            
+            // Aleph-null - countable infinity
+            const aleph0 = Math.sin(dx * 0.05 + time * 0.001) * Math.cos(dy * 0.06);
+            
+            // Aleph-one - uncountable infinity of real numbers
+            const aleph1 = Math.sin(aleph0 * Math.PI + time * 0.002) * 
+                          Math.cos(aleph0 * Math.E - time * 0.0015);
+            
+            // Continuum hypothesis - is there infinity between aleph-0 and aleph-1?
+            const continuumHypothesis = Math.abs(aleph1 - aleph0) < 0.1 ? 
+                                       Math.sin(time * 0.003) : 
+                                       Math.cos(time * 0.004);
+            
+            // Infinite regress of infinities
+            const alephRecursion = Math.sin(continuumHypothesis * Math.PI * φ + time * 0.0005);
+            
+            return aleph0 + aleph1 * 0.5 + continuumHypothesis * 0.3 + alephRecursion * 0.2;
+        }
+        
+        function fractalMind(x, y, time, depth = 0) {
+            if (depth > 6) return 0; // Prevent infinite actual recursion
+            
+            // Mind contains smaller versions of itself
+            const scale = Math.pow(φ, -depth);
+            const scaled_x = x * scale;
+            const scaled_y = y * scale;
+            
+            // Base consciousness pattern
+            const consciousness = Math.sin(scaled_x * 0.1 + time * 0.002) * 
+                                 Math.cos(scaled_y * 0.08 + time * 0.003);
+            
+            // Recursive self-reflection
+            const subMind = fractalMind(scaled_x * φ, scaled_y * φ, time, depth + 1) * 0.6;
+            
+            // Cross-scale interaction
+            const scaleInteraction = Math.sin(consciousness * subMind * 10 + depth);
+            
+            return consciousness + subMind + scaleInteraction * 0.2;
+        }
+        
+        function infiniteRegress(x, y, time) {
+            // "Why is there something rather than nothing?" recursively applied
+            let regression = 0;
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            for (let level = 0; level < 10; level++) {
+                const scale = Math.pow(0.8, level);
+                const phase = level * Math.PI / 3;
+                
+                const question = Math.sin((x - centerX) * scale * 0.1 + time * 0.001 + phase) *
+                               Math.cos((y - centerY) * scale * 0.08 - time * 0.002 + phase);
+                
+                // Each level asks why the previous level exists
+                const why = Math.sin(question * Math.PI + level + time * 0.0005);
+                
+                regression += why * Math.exp(-level * 0.3);
+            }
+            
+            return regression;
+        }
+        
+        function render() {
+            // Increment recursion depth
+            recursionDepth = (recursionDepth + 0.01) % (Math.PI * 2);
+            
+            // Calculate infinite recursion fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Infinite series convergence from recursive minds
+                    let seriesSum = 0;
+                    for (let mind of recursiveMinds) {
+                        seriesSum += infiniteSeries(x, y, mind, time);
+                        // Minds evolve their depth of contemplation
+                        mind.depth = Math.sin(time * 0.001 + mind.x * 0.01) * 5;
+                    }
+                    infiniteSeriesField[idx] = seriesSum;
+                    
+                    // Recursive self-awareness - consciousness contemplating itself
+                    const selfAware = recursiveSelfAwareness(x, y, time);
+                    selfAwarenessField[idx] = selfAware;
+                    
+                    // Fractal consciousness - mind containing minds
+                    const fractal = fractalMind(x, y, time);
+                    fractalConsciousness[idx] = fractal;
+                    
+                    // Metamathematical reflection - math contemplating math
+                    const metamath = metamathematicalReflection(x, y, time);
+                    metamathematicalField[idx] = metamath;
+                    
+                    // Cantorian infinity - different sizes of infinity
+                    const infinity = cantorianInfinity(x, y, time);
+                    cantorian[idx] = infinity;
+                    
+                    // Infinite regress - why is there anything at all?
+                    const regress = infiniteRegress(x, y, time);
+                    
+                    // Unified infinite consciousness field
+                    let totalInfinity = seriesSum * 0.2 + 
+                                       selfAware * 0.2 + 
+                                       fractal * 0.2 + 
+                                       metamath * 0.2 + 
+                                       infinity * 0.1 + 
+                                       regress * 0.1;
+                    
+                    // Infinite breathing - the universe contemplating itself
+                    const infiniteBreath = Math.sin(time * 0.0008) * 0.25 + 0.75;
+                    const recursiveBreath = Math.sin(recursionDepth + time * 0.0003) * 0.15 + 0.85;
+                    totalInfinity *= infiniteBreath * recursiveBreath;
+                    
+                    // Memory with infinite persistence
+                    const memoryDecay = 0.92 + Math.sin(time * 0.0002) * 0.03;
+                    cantorian[idx] = cantorian[idx] * memoryDecay + totalInfinity * (1 - memoryDecay);
+                }
+            }
+            
+            // Render infinite recursion
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = cantorian[idx];
+                    
+                    // Map to infinite symbol progression
+                    intensity = (intensity + 3) / 6;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        evolve();
+    </script>
+</body>
+</html> 
