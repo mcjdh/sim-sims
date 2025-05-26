@@ -38,6 +38,7 @@
             border: 1px solid #333;
             border-radius: 5px;
             display: none;
+            z-index: 10;
         }
         
         #toggle-controls {
@@ -213,6 +214,9 @@
                 valueDisplay.textContent = value.toFixed(2).replace(/\.?0+$/, '') + valueSuffix;
                 updateFunction(value);
             });
+            
+            // Initialize value display
+            valueDisplay.textContent = parseFloat(control.value).toFixed(2).replace(/\.?0+$/, '') + valueSuffix;
             
             return control;
         }
