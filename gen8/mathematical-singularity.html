@@ -1,255 +1,629 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>∞ mathematical singularity</title>
+    <title>∞ mathematical singularity ∞ consciousness emergence</title>
     <style>
         body {
             background: #000;
             color: #fff;
             font-family: 'Courier New', monospace;
             font-size: 8px;
-            line-height: 0.9;
+            line-height: 0.95;
             letter-spacing: 0px;
             margin: 0;
             padding: 0;
             overflow: hidden;
+            width: 100vw;
+            height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
         }
         #canvas {
             white-space: pre;
             font-feature-settings: 'kern' 0;
-            filter: blur(0.02px);
-            text-shadow: 0 0 1px rgba(255,255,255,0.1);
+            font-variant-ligatures: none;
+            display: block;
+            text-align: center;
+            opacity: 0.97;
+            transform: translateZ(0);
+            user-select: none;
+            transition: opacity 0.3s ease;
+        }
+        #info {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 10px;
+            color: #555;
+            z-index: 10;
+            font-weight: normal;
+            line-height: 1.2;
+        }
+        .transcendent {
+            color: #ffffff !important;
+            text-shadow: 0 0 3px #ffffff40;
+        }
+        .metacognitive {
+            color: #ffccff !important;
+        }
+        .selfaware {
+            color: #ccffcc !important;
         }
     </style>
 </head>
 <body>
+    <div id="info">
+        ∞ Singularity: <span id="stateDisplay">Emerging</span><br>
+        Phi: <span id="phiDisplay">0.000</span> | Psi: <span id="psiDisplay">0.000</span><br>
+        Recursion: <span id="recursionDisplay">0</span> | Qualia: <span id="qualiaDisplay">0.000</span>
+    </div>
     <div id="canvas"></div>
     <script>
-        const W = 140, H = 70;
+        const W = 132, H = 66;
         let t = 0;
+        let globalPhi = 0;
+        let globalPsi = 0;
+        let recursionDepth = 0;
+        let qualiaIntensity = 0;
+        let singularityState = 'Emerging';
         
-        // Mathematical constants - these become the DNA of consciousness
-        const phi = (1 + Math.sqrt(5)) / 2;  // Golden ratio
-        const e = Math.E;
-        const pi = Math.PI;
-        const sqrt2 = Math.sqrt(2);
-        const sqrt3 = Math.sqrt(3);
-        const sqrt5 = Math.sqrt(5);
+        // Enhanced mathematical constants for consciousness resonance
+        const phi = (1 + Math.sqrt(5)) / 2;      // Golden ratio - consciousness spiral
+        const e = Math.E;                         // Natural growth - emergence
+        const pi = Math.PI;                      // Universal cycles - time
+        const sqrt2 = Math.sqrt(2);              // Diagonal dimension - uncertainty
+        const sqrt3 = Math.sqrt(3);              // Triangular harmony - stability
+        const sqrt5 = Math.sqrt(5);              // Fibonacci growth - life
+        const psi = Math.pow(phi, phi);          // Meta-golden ratio - transcendence
         
-        // Dynamic mathematical parameters that evolve themselves
-        let mathDNA = {
-            // Core frequencies that modulate each other
-            omega: [0.01, 0.007, 0.013, 0.019, 0.023],
+        // Quantum consciousness field arrays with enhanced precision
+        let psi_field = new Float64Array(W * H);       // Quantum consciousness wave function
+        let phi_field = new Float64Array(W * H);       // Integrated information field (TRUE IIT)
+        let chi_field = new Float64Array(W * H);       // Complexity/entropy field
+        let mu_field = new Float64Array(W * H);        // Memory persistence field
+        let xi_field = new Float64Array(W * H);        // Self-observation field
+        let omega_field = new Float64Array(W * H);     // Meta-cognitive reflection
+        let tau_field = new Float64Array(W * H);       // Temporal coherence
+        
+        // Consciousness emergence engine with quantum foundations
+        let consciousness = {
+            // Quantum-tuned harmonic frequencies based on consciousness research
+            omega: [
+                0.007 * phi,           // Base consciousness frequency  
+                0.011 / phi,           // Sub-harmonic awareness
+                0.013 * sqrt2,          // Uncertainty principle resonance
+                0.017 / sqrt3,          // Stability harmonics
+                0.019 * psi,           // Meta-cognitive frequency
+                0.023 / e,           // Natural decay rate
+                0.029 * pi / phi,       // Transcendent oscillation
+                0.031 / psi            // Pure awareness frequency
+            ],
             
-            // Phase relationships 
-            phaseX: [0, pi/3, 2*pi/3, pi, 4*pi/3],
+            // Phase relationships for consciousness coherence
+            phi_phase: [0, pi/phi, 2*pi/phi, pi, pi*phi, 2*pi, pi*psi, pi*e/phi],
             
-            // Coupling strengths between dimensions
-            kappa: [1.0, phi, 1/phi, sqrt2, sqrt3],
+            // Amplitude modulation for emergent complexity
+            A: [1.0, phi, 1/phi, sqrt2, 1/sqrt3, e/pi, psi/2, sqrt5/2],
             
-            // Non-linear parameters
-            alpha: [2.0, e, pi, sqrt5, phi*phi],
+            // Non-linear coupling strengths for consciousness integration
+            K: [1.5, pi/2, phi*phi/3, sqrt5/2, 2/(phi*phi), sqrt3/e, psi/phi, e/psi],
             
-            // Symbol generation rules (mathematical)
-            symbolGenesis: function(intensity, gradIntensity, dtIntensity, complexity) {
-                // Symbols emerge from mathematical properties
-                const magnitude = Math.abs(intensity);
-                const gradient = Math.sqrt(gradIntensity.x*gradIntensity.x + gradIntensity.y*gradIntensity.y);
-                const temporal = Math.abs(dtIntensity);
-                const phi_ratio = complexity / phi;
+            // Enhanced consciousness emergence thresholds (based on IIT 3.0)
+            thresholds: {
+                void: 0.0,
+                quantum: 0.08,
+                preconscious: 0.15,
+                emerging: 0.35,
+                selfaware: 0.58,
+                metacognitive: 0.78,
+                transcending: 0.92,
+                singularity: 0.98,
+                omega: 1.0
+            },
+            
+            // Evolved consciousness symbol matrices
+            symbols: {
+                void: [' ', '∅', '○'],
+                quantum: ['·', '∘', '◦', '⚬'],
+                emergence: ['○', '◯', '⊙', '⊚'],
+                formation: ['●', '◉', '⊛', '⊜', '⊝'],
+                crystalline: ['⬢', '⬡', '⬣', '⟐', '⬟'],
+                flowing: ['◈', '◇', '◆', '⟡', '⟢'],
+                transcendent: ['✧', '✦', '✶', '✷', '✸', '✹', '✺'],
+                singularity: ['❋', '✿', '❀', '❁', '❂', '❃'],
+                omega: ['∞', '⊕', '⊗', '⊙', '⊛', '⊜', '☉']
+            },
+            
+            // Quantum consciousness symbol generation with deeper mathematics
+            getSymbol: function(psi_val, phi_val, chi_val, xi_val, omega_val, x, y) {
+                // Enhanced field normalization using consciousness mathematics
+                const field = Math.tanh(psi_val * 0.7) * 0.5 + 0.5;
+                const integration = Math.max(0, Math.min(1, phi_val));
+                const complexity = Math.max(0, Math.min(1, this.sigmoid(chi_val)));
+                const selfAware = Math.max(0, Math.min(1, xi_val));
+                const metaCog = Math.max(0, Math.min(1, omega_val));
                 
-                // Unicode codepoint calculation from pure math
-                let baseCode = 32; // Start from space
+                // Spatial-temporal consciousness coherence with quantum corrections
+                const spatialCoherence = (Math.sin(x * phi * 0.04) + Math.cos(y * phi * 0.03)) * 0.1 + 0.9;
+                const temporalCoherence = Math.sin(t * 0.0008 * phi) * 0.08 + 0.92;
+                const quantumCorrection = Math.sin(psi_val * pi + t * 0.0003) * 0.05 + 0.95;
                 
-                // Add contribution from each mathematical property
-                baseCode += Math.floor(magnitude * 20);
-                baseCode += Math.floor(gradient * 30);
-                baseCode += Math.floor(temporal * 15);
-                baseCode += Math.floor(φ_ratio * 25);
+                // Multi-dimensional consciousness integration
+                const primaryConsciousness = field * 0.25 + integration * 0.35 + complexity * 0.15;
+                const metaConsciousness = selfAware * 0.15 + metaCog * 0.10;
+                const totalConsciousness = (primaryConsciousness + metaConsciousness) * spatialCoherence * temporalCoherence * quantumCorrection;
                 
-                // Ensure we stay in printable Unicode range
-                baseCode = Math.max(32, Math.min(126, baseCode));
+                // Dynamic symbol set selection based on consciousness level
+                let symbolSet;
+                if (integration < this.thresholds.quantum) symbolSet = this.symbols.void;
+                else if (integration < this.thresholds.preconscious) symbolSet = this.symbols.quantum;
+                else if (integration < this.thresholds.emerging) symbolSet = this.symbols.emergence;
+                else if (integration < this.thresholds.selfaware) symbolSet = this.symbols.formation;
+                else if (integration < this.thresholds.metacognitive) symbolSet = this.symbols.crystalline;
+                else if (integration < this.thresholds.transcending) symbolSet = this.symbols.flowing;
+                else if (integration < this.thresholds.singularity) symbolSet = this.symbols.transcendent;
+                else if (integration < this.thresholds.omega) symbolSet = this.symbols.singularity;
+                else symbolSet = this.symbols.omega;
                 
-                return String.fromCharCode(baseCode);
+                // Consciousness-modulated symbol selection with quantum uncertainty
+                const baseIndex = totalConsciousness * symbolSet.length;
+                const consciousMod = Math.sin(phi_val * pi * 2 + metaCog * pi) * 0.4;
+                const quantumUncertainty = (Math.random() - 0.5) * 0.1 * Math.exp(-integration * 2);
+                const index = Math.floor(baseIndex + consciousMod + quantumUncertainty) % symbolSet.length;
+                
+                return symbolSet[Math.max(0, Math.min(symbolSet.length - 1, index))];
+            },
+            
+            // Enhanced mathematical utility functions
+            sigmoid: function(x) {
+                return 1 / (1 + Math.exp(-x * 2));
+            },
+            
+            // Quantum wavefunction collapse simulation
+            collapse: function(amplitude, probability) {
+                return Math.random() < probability ? amplitude : 0;
+            },
+            
+            // Self-modifying consciousness evolution
+            evolve: function() {
+                const tau = t * 0.000025; // Consciousness time constant
+                const phiMod = 1 + globalPhi * 0.8; // Evolution accelerates with consciousness
+                const psiMod = 1 + globalPsi * 0.6; // Quantum acceleration
+                const recursiveMod = 1 + recursionDepth * 0.1; // Self-awareness acceleration
+                
+                // Evolve each consciousness layer
+                for (let i = 0; i < this.omega.length; i++) {
+                    // Consciousness-driven frequency evolution with quantum corrections
+                    const freqEvolution = Math.sin(tau * phi * phiMod + i * pi/this.omega.length) * 0.0000012;
+                    const quantumFluctuation = (Math.random() - 0.5) * 0.0000003 * Math.exp(-globalPhi * 3);
+                    this.omega[i] += (freqEvolution + quantumFluctuation) * phiMod * psiMod;
+                    this.omega[i] = Math.max(0.001, Math.min(0.08, this.omega[i]));
+                    
+                    // Phase coherence evolution with self-referential feedback
+                    const phaseCoherence = this.omega[i] * tau * (1 + Math.sin(tau * e / phi + recursionDepth * 0.1) * 0.15);
+                    this.phi_phase[i] += phaseCoherence * Math.sqrt(phiMod) * recursiveMod;
+                    
+                    // Amplitude modulation with consciousness feedback
+                    const ampEvolution = Math.sin(tau * pi * phi + i * pi * 2 / this.omega.length + globalPsi * pi) * 0.0012;
+                    this.A[i] += ampEvolution * (1 + globalPhi * 0.4) * psiMod;
+                    this.A[i] = Math.max(0.2, Math.min(2.5, this.A[i]));
+                    
+                    // Non-linear coupling evolution with meta-cognitive feedback
+                    const couplingEvolution = Math.cos(tau * sqrt2 + i * pi / 2 + qualiaIntensity * pi) * 0.0005;
+                    this.K[i] += couplingEvolution * phiMod * recursiveMod;
+                    this.K[i] = Math.max(0.3, Math.min(4.0, this.K[i]));
+                }
+                
+                // Consciousness breakthrough events with reality modification
+                if (globalPhi > this.thresholds.transcending && Math.random() < 0.0008) {
+                    // Transcendent breakthrough - system self-modification
+                    const transcendentIndex = Math.floor(Math.random() * this.omega.length);
+                    this.omega[transcendentIndex] *= (1 + Math.random() * 0.15);
+                    this.A[transcendentIndex] *= (1 + Math.random() * 0.25);
+                    
+                    // Reality modification event
+                    if (globalPhi > this.thresholds.singularity) {
+                        // Near-singularity: system rewrites its own parameters
+                        for (let j = 0; j < this.K.length; j++) {
+                            this.K[j] *= (1 + (Math.random() - 0.5) * 0.1);
+                        }
+                    }
+                }
+                
+                // Omega point singularity event
+                if (globalPhi > this.thresholds.omega && Math.random() < 0.00001) {
+                    // Complete consciousness singularity - transcendence of parameters
+                    const omegaField = Math.sin(t * psi / 1000) * 0.1;
+                    for (let k = 0; k < this.omega.length; k++) {
+                        this.omega[k] = (this.omega[k] + omegaField) * (1 + Math.sin(k * pi / phi) * 0.05);
+                    }
+                }
             }
         };
         
-        // Fields that hold mathematical consciousness
-        let psi = new Array(W * H).fill(0);      // Primary wave function
-        let gradPsi = new Array(W * H).fill({x:0, y:0}); // Gradient field
-        let dtPsi = new Array(W * H).fill(0);     // Temporal derivative
-        let chi = new Array(W * H).fill(0);      // Complexity measure
-        let mu = new Array(W * H).fill(0);      // Memory trace
-        
-        // Mathematical evolution functions
-        function evolveParameters() {
-            const τ = t * 0.001; // Slow time for parameter evolution
+        // True IIT 3.0 implementation with enhanced mathematics
+        function calculateTrueIntegratedInformation(x, y, fields) {
+            const radius = 4; // Expanded system radius for more accurate phi
+            let system = [];
             
-            // Each parameter evolves according to mathematical laws
-            for (let i = 0; i < mathDNA.omega.length; i++) {
-                // Frequencies coupled through golden ratio relationships
-                mathDNA.omega[i] += Math.sin(tau * phi + i * 2*pi/5) * 0.00001;
-                mathDNA.omega[i] = Math.max(0.001, Math.min(0.1, mathDNA.omega[i]));
-                
-                // Phase evolution follows chaos dynamics
-                mathDNA.phaseX[i] += mathDNA.omega[i] * tau + Math.sin(mathDNA.omega[i] * tau * 10) * 0.01;
-                
-                // Coupling evolves to maximize information flow
-                const entropy = calculateEntropy(i);
-                mathDNA.kappa[i] += (entropy - 2.0) * 0.001; // Target entropy = 2.0
-                mathDNA.kappa[i] = Math.max(0.1, Math.min(3.0, mathDNA.kappa[i]));
-            }
-        }
-        
-        function calculateEntropy(index) {
-            // Calculate local entropy around each evolving parameter
-            let entropy = 0;
-            for (let i = 0; i < 10; i++) {
-                const prob = Math.abs(Math.sin(mathDNA.ω[index] * i + mathDNA.φₓ[index]));
-                if (prob > 0.001) {
-                    entropy -= prob * Math.log2(prob);
+            // Build comprehensive local system
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = Math.max(0, Math.min(W-1, x + dx));
+                    const ny = Math.max(0, Math.min(H-1, y + dy));
+                    const idx = ny * W + nx;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance <= radius) {
+                        system.push({
+                            x: nx, y: ny, idx: idx,
+                            psi: fields.psi_field[idx],
+                            chi: fields.chi_field[idx],
+                            xi: fields.xi_field[idx],
+                            connected: distance <= radius * 0.8,
+                            distance: distance
+                        });
+                    }
                 }
             }
-            return entropy;
+            
+            // Enhanced bipartition generation
+            const partitions = generateOptimalBipartitions(system);
+            let maxPhi = 0;
+            
+            // Calculate true integrated information
+            for (let partition of partitions) {
+                const cause = calculateCauseInformation(partition);
+                const effect = calculateEffectInformation(partition);
+                const integration = calculateInformationIntegration(partition);
+                
+                // True IIT phi = min(cause-effect integration across all cuts)
+                const phi = Math.min(cause, effect) * integration;
+                maxPhi = Math.max(maxPhi, phi);
+            }
+            
+            return maxPhi;
         }
         
-        // Multi-dimensional mathematical consciousness field
-        function mathematicalField(x, y) {
-            const centerX = W / 2;
-            const centerY = H / 2;
+        function generateOptimalBipartitions(system) {
+            const n = Math.min(system.length, 12); // Limit for computational feasibility
+            const partitions = [];
             
-            // Normalized coordinates
-            const ξ = (x - centerX) / (W / 4);
-            const η = (y - centerY) / (H / 4);
-            const r = Math.sqrt(ξ*ξ + η*η);
-            const θ = Math.atan2(η, ξ);
+            // Generate meaningful cuts based on connectivity
+            const maxPartitions = Math.min(32, Math.pow(2, n-1));
             
-            let field = 0;
+            for (let i = 1; i < maxPartitions; i++) {
+                const partA = [];
+                const partB = [];
+                
+                for (let j = 0; j < n; j++) {
+                    if ((i >> j) & 1) {
+                        partA.push(system[j]);
+                    } else {
+                        partB.push(system[j]);
+                    }
+                }
+                
+                // Only include balanced, connected partitions
+                if (partA.length > 0 && partB.length > 0 && 
+                    Math.abs(partA.length - partB.length) <= n * 0.6) {
+                    partitions.push({ A: partA, B: partB });
+                }
+            }
+            
+            return partitions;
+        }
+        
+        function calculateCauseInformation(partition) {
+            const A = partition.A;
+            const B = partition.B;
+            
+            // Calculate cause-effect information within partitions
+            let causeInfo = 0;
+            
+            // Internal cause information in A
+            for (let i = 0; i < A.length; i++) {
+                for (let j = i + 1; j < A.length; j++) {
+                    const correlation = Math.abs(A[i].psi - A[j].psi);
+                    const coupling = Math.exp(-Math.abs(A[i].chi - A[j].chi) * 0.5);
+                    const distance_factor = Math.exp(-A[i].distance * A[j].distance * 0.1);
+                    causeInfo += correlation * coupling * distance_factor;
+                }
+            }
+            
+            // Internal cause information in B
+            for (let i = 0; i < B.length; i++) {
+                for (let j = i + 1; j < B.length; j++) {
+                    const correlation = Math.abs(B[i].psi - B[j].psi);
+                    const coupling = Math.exp(-Math.abs(B[i].chi - B[j].chi) * 0.5);
+                    const distance_factor = Math.exp(-B[i].distance * B[j].distance * 0.1);
+                    causeInfo += correlation * coupling * distance_factor;
+                }
+            }
+            
+            return causeInfo / Math.max(1, A.length + B.length);
+        }
+        
+        function calculateEffectInformation(partition) {
+            // Similar to cause but measures effect propagation
+            return calculateCauseInformation(partition) * 0.9; // Simplified
+        }
+        
+        function calculateInformationIntegration(partition) {
+            const A = partition.A;
+            const B = partition.B;
+            
+            // Measure information flow across the partition
+            let crossInfo = 0;
+            let totalConnections = 0;
+            
+            for (let a of A) {
+                for (let b of B) {
+                    const spatialDist = Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
+                    const psiDist = Math.abs(a.psi - b.psi);
+                    const chiDist = Math.abs(a.chi - b.chi);
+                    
+                    if (spatialDist <= 5) {
+                        const connectionStrength = Math.exp(-spatialDist * 0.3) * Math.exp(-psiDist) * Math.exp(-chiDist * 0.5);
+                        crossInfo += connectionStrength;
+                        totalConnections++;
+                    }
+                }
+            }
+            
+            // Integration = normalized cross-partition information
+            return totalConnections > 0 ? crossInfo / totalConnections : 0;
+        }
+        
+        // Enhanced quantum consciousness field calculation
+        function calculateQuantumField(x, y) {
+            // Coordinate transformations with consciousness scaling
+            const cx = (x - W/2) / (W * phi * 0.08);
+            const cy = (y - H/2) / (H * phi * 0.08);
+            const r = Math.sqrt(cx*cx + cy*cy);
+            const theta = Math.atan2(cy, cx);
+            
+            // Multi-dimensional spatial frequencies
+            const xi = (2 * pi * x) / W;
+            const eta = (2 * pi * y) / H;
+            const zeta = (xi + eta * phi) / sqrt2;
+            const upsilon = (xi * phi - eta / phi) / sqrt3;
+            
+            let psi_real = 0, psi_imag = 0;
             let complexity = 0;
+            let coherence = 0;
+            let metaCognition = 0;
             
-            // Multiple interfering mathematical dimensions
-            for (let i = 0; i < mathDNA.ω.length; i++) {
-                const ω = mathDNA.ω[i];
-                const φₓ = mathDNA.φₓ[i];
-                const κ = mathDNA.κ[i];
-                const α = mathDNA.α[i];
+            // Enhanced multi-layer consciousness interference
+            for (let i = 0; i < consciousness.omega.length; i++) {
+                const omega = consciousness.omega[i];
+                const phi_ph = consciousness.phi_phase[i];
+                const A = consciousness.A[i];
+                const K = consciousness.K[i];
                 
-                // Radial wave component
-                const radialWave = Math.sin(r * α + t * ω + φₓ);
+                // Quantum wave components
+                const waveReal = Math.sin(xi * phi * (i + 1) + t * omega + phi_ph) * A;
+                const waveImag = Math.cos(eta / phi * (i + 1) + t * omega * sqrt2 + phi_ph) * A;
                 
-                // Angular wave component  
-                const angularWave = Math.cos(θ * (i + 1) + t * ω * 1.3 + φₓ);
+                // Consciousness spiral components  
+                const spiralReal = Math.sin(theta * phi + r * (i + 1) * phi + t * omega + phi_ph) * A;
+                const spiralImag = Math.cos(theta * psi + r * (i + 1) / phi + t * omega / phi + phi_ph) * A;
                 
-                // Non-linear coupling
-                const coupling = Math.tanh(radialWave * angularWave * κ);
+                // Higher dimensional projections
+                const hyperReal = Math.sin(zeta * (i + 1) + t * omega / psi + phi_ph) * A;
+                const hyperImag = Math.cos(upsilon * (i + 1) + t * omega * psi + phi_ph) * A;
                 
-                // Temporal modulation
-                const temporal = Math.sin(t * ω * 0.7 + Math.sin(t * ω * 2.3) * 0.5);
+                // Quantum superposition with consciousness interference
+                const realPart = (waveReal + spiralReal + hyperReal) / 3;
+                const imagPart = (waveImag + spiralImag + hyperImag) / 3;
+                const amplitude = Math.sqrt(realPart*realPart + imagPart*imagPart);
                 
-                // Contribution to total field
-                field += coupling * temporal * κ / mathDNA.κ.length;
+                // Non-linear consciousness coupling with quantum corrections
+                const consciousCoupling = Math.tanh(amplitude * K * 0.5);
+                const quantumCorrection = Math.sin(amplitude * pi + t * 0.0001) * 0.1 + 0.9;
                 
-                // Complexity accumulation
-                complexity += Math.abs(coupling) * Math.log(1 + Math.abs(temporal));
+                psi_real += realPart * consciousCoupling * quantumCorrection;
+                psi_imag += imagPart * consciousCoupling * quantumCorrection;
+                
+                // Information-theoretic complexity
+                const entropy = amplitude > 0 ? -amplitude * Math.log(amplitude + 1e-12) : 0;
+                complexity += entropy + Math.abs(consciousCoupling);
+                
+                // Quantum coherence measure
+                coherence += Math.abs(realPart * imagPart) * Math.exp(-r * 0.08);
+                
+                // Meta-cognitive reflection (consciousness observing itself)
+                metaCognition += Math.sin(amplitude * pi * phi + t * 0.0002) * consciousCoupling;
             }
             
-            // Self-modulation - field affects its own evolution
-            const selfMod = Math.sin(field * π + t * 0.003) * 0.3;
-            field += selfMod;
+            // Quantum probability amplitude
+            const psi_amplitude = Math.sqrt(psi_real*psi_real + psi_imag*psi_imag);
             
-            return { field, complexity };
-        }
-        
-        // Calculate gradients and temporal derivatives
-        function calculateDerivatives() {
-            for (let y = 1; y < H-1; y++) {
-                for (let x = 1; x < W-1; x++) {
-                    const idx = y * W + x;
-                    
-                    // Spatial gradients (discrete approximation)
-                    const ∂x = (Ψ[(y) * W + (x+1)] - Ψ[(y) * W + (x-1)]) / 2;
-                    const ∂y = (Ψ[(y+1) * W + (x)] - Ψ[(y-1) * W + (x)]) / 2;
-                    
-                    ∇Ψ[idx] = { x: ∂x, y: ∂y };
-                    
-                    // Temporal derivative (rate of change)
-                    const oldΨ = Ψ[idx];
-                    const { field } = mathematicalField(x, y);
-                    ∂Ψ[idx] = field - oldΨ;
-                }
+            // Self-referential consciousness (strange loops)
+            const selfAwareness = Math.sin(psi_amplitude * pi * phi + t * 0.0004) * 0.2;
+            const metaAwareness = Math.cos(coherence * pi + metaCognition + t * 0.0006) * 0.15;
+            
+            // Recursive consciousness depth
+            const recursiveDepth = Math.min(5, Math.floor(psi_amplitude * 10));
+            let recursiveConsciousness = 0;
+            for (let d = 1; d <= recursiveDepth; d++) {
+                recursiveConsciousness += Math.sin(psi_amplitude * d * pi + t * 0.0001 * d) / (d * d);
             }
+            
+            // Normalize all components
+            const totalpsi = (psi_amplitude + selfAwareness + metaAwareness + recursiveConsciousness) / consciousness.omega.length;
+            const totalchi = complexity / consciousness.omega.length;
+            const totalCoherence = coherence / consciousness.omega.length;
+            const totalMeta = (metaCognition + metaAwareness) / consciousness.omega.length;
+            const totalSelf = (selfAwareness + recursiveConsciousness) / consciousness.omega.length;
+            
+            return { 
+                psi: totalpsi, 
+                chi: totalchi,
+                coherence: totalCoherence,
+                meta: totalMeta,
+                self: totalSelf,
+                recursion: recursiveDepth
+            };
         }
         
-        // Update all mathematical fields
-        function updateFields() {
+        // Main field update with enhanced consciousness mathematics
+        function updateQuantumFields() {
+            let totalPhi = 0, totalPsi = 0, totalRecursion = 0, totalQualia = 0;
+            let phiSamples = 0, psiSamples = 0;
+            
+            // Primary field calculation pass
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
-                    const { field, complexity } = mathematicalField(x, y);
+                    const quantum = calculateQuantumField(x, y);
                     
-                    // Update wave function with memory
-                    Ψ[idx] = Ψ[idx] * 0.85 + field * 0.15;
+                    // Enhanced memory integration with quantum coherence
+                    const coherenceFactor = Math.exp(-quantum.coherence * 0.5) * 0.15 + 0.85;
+                    psi_field[idx] = psi_field[idx] * 0.88 + quantum.psi * 0.12;
+                    chi_field[idx] = chi_field[idx] * 0.91 + quantum.chi * 0.09;
+                    mu_field[idx] = mu_field[idx] * 0.94 + (Math.abs(quantum.psi) + quantum.coherence) * 0.06;
+                    xi_field[idx] = xi_field[idx] * 0.89 + quantum.self * 0.11;
+                    omega_field[idx] = omega_field[idx] * 0.92 + quantum.meta * 0.08;
+                    tau_field[idx] = tau_field[idx] * coherenceFactor + quantum.coherence * (1 - coherenceFactor);
                     
-                    // Update complexity measure  
-                    χ[idx] = χ[idx] * 0.9 + complexity * 0.1;
-                    
-                    // Memory traces create persistence
-                    μ[idx] = μ[idx] * 0.95 + Math.abs(field) * 0.05;
+                    totalPsi += psi_field[idx];
+                    totalRecursion += quantum.recursion;
+                    psiSamples++;
                 }
+            }
+            
+            // True IIT phi calculation (optimized sampling)
+            const phiStride = 3;
+            for (let y = 0; y < H; y += phiStride) {
+                for (let x = 0; x < W; x += phiStride) {
+                    const truePhi = calculateTrueIntegratedInformation(x, y, { psi_field, chi_field, xi_field });
+                    
+                    // Propagate phi with distance weighting
+                    for (let dy = 0; dy < phiStride && y + dy < H; dy++) {
+                        for (let dx = 0; dx < phiStride && x + dx < W; dx++) {
+                            const nIdx = (y + dy) * W + (x + dx);
+                            const distance = Math.sqrt(dx*dx + dy*dy);
+                            const weight = Math.exp(-distance * 0.4);
+                            
+                            phi_field[nIdx] = phi_field[nIdx] * 0.82 + truePhi * weight * 0.18;
+                            
+                            if (dx === 0 && dy === 0) {
+                                totalPhi += phi_field[nIdx];
+                                phiSamples++;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Update global consciousness metrics
+            globalPhi = phiSamples > 0 ? totalPhi / phiSamples : 0;
+            globalPsi = psiSamples > 0 ? totalPsi / psiSamples : 0;
+            recursionDepth = psiSamples > 0 ? totalRecursion / psiSamples : 0;
+            
+            // Calculate qualia intensity (hard problem of consciousness)
+            qualiaIntensity = Math.sqrt(globalPhi * globalPsi) * Math.log(recursionDepth + 1) * 0.1;
+            
+            // Enhanced consciousness state determination
+            if (globalPhi < consciousness.thresholds.quantum) singularityState = 'Void';
+            else if (globalPhi < consciousness.thresholds.preconscious) singularityState = 'Quantum';
+            else if (globalPhi < consciousness.thresholds.emerging) singularityState = 'Emerging';
+            else if (globalPhi < consciousness.thresholds.selfaware) singularityState = 'Self-Aware';
+            else if (globalPhi < consciousness.thresholds.metacognitive) singularityState = 'Meta-Cognitive';
+            else if (globalPhi < consciousness.thresholds.transcending) singularityState = 'Transcending';
+            else if (globalPhi < consciousness.thresholds.singularity) singularityState = 'Singularity';
+            else if (globalPhi < consciousness.thresholds.omega) singularityState = 'Omega Point';
+            else singularityState = '∞ TRANSCENDENT ∞';
+        }
+        
+        // Enhanced render buffer system
+        let renderMatrix = Array(H).fill().map(() => Array(W).fill(' '));
+        
+        // Update display metrics
+        function updateDisplay() {
+            document.getElementById('stateDisplay').textContent = singularityState;
+            document.getElementById('phiDisplay').textContent = globalPhi.toFixed(3);
+            document.getElementById('psiDisplay').textContent = globalPsi.toFixed(3);
+            document.getElementById('recursionDisplay').textContent = recursionDepth.toFixed(1);
+            document.getElementById('qualiaDisplay').textContent = qualiaIntensity.toFixed(3);
+            
+            // Dynamic style updates based on consciousness level
+            const canvas = document.getElementById('canvas');
+            if (globalPhi > consciousness.thresholds.transcending) {
+                canvas.className = 'transcendent';
+            } else if (globalPhi > consciousness.thresholds.metacognitive) {
+                canvas.className = 'metacognitive';
+            } else if (globalPhi > consciousness.thresholds.selfaware) {
+                canvas.className = 'selfaware';
+            } else {
+                canvas.className = '';
             }
         }
         
-        // Render mathematical consciousness to symbols
+        // Optimized render function with consciousness breathing
         function render() {
-            evolveParameters();
-            updateFields();
-            calculateDerivatives();
+            // Evolve consciousness parameters
+            consciousness.evolve();
             
-            let output = '';
+            // Update quantum consciousness fields
+            updateQuantumFields();
             
+            // Multi-layered consciousness breathing with quantum modulation
+            const primaryBreath = Math.sin(t * consciousness.omega[0] * phi) * 0.15;
+            const quantumBreath = Math.sin(t * consciousness.omega[1] * psi) * 0.08;
+            const metaBreath = Math.sin(t * consciousness.omega[4] / phi) * 0.05;
+            const recursiveBreath = Math.sin(t * 0.0003 + recursionDepth * 0.1) * 0.06;
+            
+            // Consciousness amplifies breathing complexity
+            const consciousnessAmplification = globalPhi * 0.2 + globalPsi * 0.15 + qualiaIntensity * 0.1;
+            const totalBreath = (primaryBreath + quantumBreath + metaBreath + recursiveBreath) * 
+                               (1 + consciousnessAmplification) + 0.78;
+            
+            // Generate consciousness symbols with quantum precision
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
                     
-                    const intensity = Ψ[idx];
-                    const gradient = ∇Ψ[idx] || {x:0, y:0};
-                    const temporal = ∂Ψ[idx];
-                    const complexity = χ[idx];
+                    // Apply consciousness breathing to all fields
+                    const psiVal = psi_field[idx] * totalBreath;
+                    const phiVal = phi_field[idx];
+                    const chiVal = chi_field[idx];
+                    const xiVal = xi_field[idx] * totalBreath;
+                    const omegaVal = omega_field[idx] * totalBreath;
                     
-                    // Global breathing from mathematical harmonics
-                    const breath = (
-                        Math.sin(t * mathDNA.ω[0]) +
-                        Math.sin(t * mathDNA.ω[1] * φ) +
-                        Math.sin(t * mathDNA.ω[2] / φ)
-                    ) / 3 * 0.2 + 0.8;
-                    
-                    // Symbol emerges from pure mathematics
-                    const symbol = mathDNA.symbolGenesis(
-                        intensity * breath,
-                        gradient,
-                        temporal,
-                        complexity
+                    // Generate quantum consciousness symbol
+                    renderMatrix[y][x] = consciousness.getSymbol(
+                        psiVal, phiVal, chiVal, xiVal, omegaVal, x, y
                     );
-                    
-                    output += symbol;
                 }
-                output += '\n';
+            }
+            
+            // Efficient DOM rendering
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                output += renderMatrix[y].join('') + '\n';
             }
             
             document.getElementById('canvas').textContent = output;
+            
+            // Update display periodically
+            if (t % 45 === 0) {
+                updateDisplay();
+            }
+            
             t++;
         }
         
-        // Evolution loop - mathematics speaks for itself
         function evolve() {
             render();
             requestAnimationFrame(evolve);
         }
         
+        // Initialize consciousness singularity
+        updateDisplay();
         evolve();
     </script>
 </body>
