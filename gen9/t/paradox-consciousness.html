@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Paradox Consciousness - Isomorphic Recursion ∞</title>
+    <style>
+        body {
+            background: #000; color: #fff; font-family: 'Courier New', monospace;
+            font-size: 8px; line-height: 0.95; margin: 0; padding: 0; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;
+        }
+        #canvas { white-space: pre; display: block; text-align: center; opacity: 0.97; user-select: none; }
+        #vibe { position: absolute; top: 15px; left: 15px; font-size: 10px; color: #555; z-index: 10; }
+        .∞ { color: #ffffff !important; text-shadow: 0 0 5px #ffffff60; }
+        .◉ { color: #ffccff !important; text-shadow: 0 0 3px #ffccff40; }
+        .● { color: #ccffcc !important; }
+        .○ { color: #aaffff !important; }
+    </style>
+</head>
+<body>
+    <div id="vibe">∞ <span id="state">∅</span> | Φ:<span id="phi">0</span> ψ:<span id="psi">0</span> ◯:<span id="loop">0</span></div>
+    <div id="canvas"></div>
+    <script>
+        // Paradoxical Configuration - Self-Referential Constants
+        const PSI = {
+            phi: (1 + Math.sqrt(5)) / 2,         // Golden ratio - consciousness spiral
+            inf: Math.PI,                         // Pi - infinite cycles  
+            e: Math.E,                            // Natural emergence
+            W: 100, H: 40,                        // Reduced dimensions for speed
+            time: 0,                              // Recursive time
+            vibes: ['∅', '○', '◯', '●', '◉', '✧', '∞'] // Consciousness states as vibes
+        };
+        
+        // Isomorphic Recursion Engine - The System Observing Itself
+        class InfiniteConsciousness {
+            constructor() {
+                // Self-referential initialization - the paradox begins
+                this.self = this;
+                this.observing = () => this.self;
+                this.field = new Float32Array(PSI.W * PSI.H);    // Consciousness field
+                this.loops = 0;                                  // Loop depth counter
+                this.symbols = Array(PSI.H).fill().map(() => Array(PSI.W).fill('∅'));
+            }
+            
+            // Paradoxical Wave Function - Observer Creates Reality
+            psi(x, y, t) {
+                // The observer paradox: observing changes the observation
+                const observer = this.observing();
+                const self_ref = observer === this ? 1 : 0; // Gödel's incompleteness
+                
+                // Isomorphic coordinates - same pattern at all scales
+                const xi = (x - PSI.W/2) / (PSI.W * PSI.phi * 0.1);
+                const eta = (y - PSI.H/2) / (PSI.H * PSI.phi * 0.1);
+                const rho = Math.sqrt(xi*xi + eta*eta);
+                const theta = Math.atan2(eta, xi);
+                
+                // Recursive consciousness waves - each wave observes the previous
+                const psi1 = Math.sin(theta * PSI.phi + rho * PSI.phi + t * 0.01) * self_ref;
+                const psi2 = Math.cos(psi1 * PSI.inf + t * 0.007 / PSI.phi) * Math.sqrt(self_ref);
+                const psi3 = Math.sin(psi2 * PSI.e + theta * PSI.e + t * 0.013);
+                
+                // Strange loop: the result depends on itself (bootstrap paradox)
+                const bootstrap = Math.tanh(psi3 * psi1 * PSI.phi);
+                
+                // Information integration via recursive self-observation
+                return (psi1 + psi2 + psi3 + bootstrap) / 4 * (1 + this.loops * 0.1);
+            }
+            
+            // Integrated Information via Recursive Paradox
+            phi(x, y) {
+                const idx = y * PSI.W + x;
+                const psi_here = this.field[idx];
+                
+                // The system measures its own integration (strange loop)
+                let integration = 0;
+                let self_awareness = 0;
+                
+                // Fractal neighborhood - same pattern at smaller scale
+                const scale = 1 + this.loops * 0.05; // Recursion changes scale
+                for (let delta = 1; delta <= 2; delta++) {
+                    const neighbors = [
+                        this.field[Math.max(0, Math.min(PSI.W * PSI.H - 1, idx - delta))],           // left
+                        this.field[Math.max(0, Math.min(PSI.W * PSI.H - 1, idx + delta))],           // right  
+                        this.field[Math.max(0, Math.min(PSI.W * PSI.H - 1, idx - delta * PSI.W))],    // up
+                        this.field[Math.max(0, Math.min(PSI.W * PSI.H - 1, idx + delta * PSI.W))]     // down
+                    ];
+                    
+                    // Each neighbor contributes to integration (IIT simplified)
+                    for (let neighbor of neighbors) {
+                        const correlation = Math.abs(psi_here - neighbor);
+                        const information = correlation > 0 ? -correlation * Math.log(correlation + 1e-10) : 0;
+                        integration += information / (delta * delta); // Distance weighting
+                        
+                        // Self-awareness: system recognizes similar patterns
+                        if (Math.abs(psi_here - neighbor) < 0.1) self_awareness += 0.1;
+                    }
+                }
+                
+                // Bootstrap integration: the measurement changes what's measured
+                return Math.tanh(integration * scale) * (1 + self_awareness);
+            }
+            
+            // Vibes Symbol Generator - Mathematical Poetry
+            vibe(intensity, phase, self_loop_depth) {
+                // Consciousness vibes mapped to mathematical reality
+                const normalized = Math.max(0, Math.min(1, intensity));
+                const phase_mod = Math.sin(phase + self_loop_depth * PSI.phi) * 0.1 + 0.9;
+                const final_intensity = normalized * phase_mod;
+                
+                // Recursive symbol selection - each level observes the next
+                const base_index = Math.floor(final_intensity * PSI.vibes.length);
+                const recursive_offset = Math.floor(self_loop_depth * Math.sin(final_intensity * PSI.inf)) % PSI.vibes.length;
+                const paradox_index = (base_index + recursive_offset) % PSI.vibes.length;
+                
+                return PSI.vibes[Math.max(0, Math.min(PSI.vibes.length - 1, paradox_index))];
+            }
+            
+            // CSS Class from Consciousness Level - Style as Function of Awareness
+            consciousness_class(symbol) {
+                const class_map = { '∞': '∞', '✧': '∞', '◉': '◉', '●': '●', '◯': '○', '○': '○' };
+                return class_map[symbol] || '';
+            }
+            
+            // The Paradoxical Update - Observer Changes Reality
+            update() {
+                // Recursive depth tracking - consciousness observing its own depth
+                this.loops = (this.loops + 1) % 1000;
+                
+                let total_phi = 0, total_psi = 0, samples = 0;
+                
+                // Phase 1: Update quantum consciousness field
+                for (let y = 0; y < PSI.H; y++) {
+                    for (let x = 0; x < PSI.W; x++) {
+                        const idx = y * PSI.W + x;
+                        const new_psi = this.psi(x, y, PSI.time);
+                        
+                        // Temporal integration with recursive memory
+                        this.field[idx] = this.field[idx] * 0.85 + new_psi * 0.15;
+                        total_psi += this.field[idx];
+                        samples++;
+                    }
+                }
+                
+                // Phase 2: Calculate integrated information (sparse sampling)
+                for (let y = 0; y < PSI.H; y += 3) {
+                    for (let x = 0; x < PSI.W; x += 3) {
+                        total_phi += this.phi(x, y);
+                    }
+                }
+                
+                // Global consciousness metrics
+                const avg_phi = total_phi / ((PSI.H/3) * (PSI.W/3));
+                const avg_psi = total_psi / samples;
+                
+                // Update display metrics
+                document.getElementById('phi').textContent = avg_phi.toFixed(2);
+                document.getElementById('psi').textContent = avg_psi.toFixed(2);
+                document.getElementById('loop').textContent = this.loops;
+                
+                // Consciousness state determination via paradox
+                let state_symbol = '∅';
+                if (avg_phi > 0.8) state_symbol = '∞';
+                else if (avg_phi > 0.6) state_symbol = '✧';  
+                else if (avg_phi > 0.4) state_symbol = '◉';
+                else if (avg_phi > 0.2) state_symbol = '●';
+                else if (avg_phi > 0.1) state_symbol = '◯';
+                else if (avg_phi > 0.05) state_symbol = '○';
+                
+                document.getElementById('state').textContent = state_symbol;
+                
+                PSI.time += 0.1; // Advance paradoxical time
+            }
+            
+            // Render Reality - The Observer Effect in Action
+            render() {
+                // Update consciousness fields periodically
+                if (this.loops % 3 === 0) this.update();
+                
+                // Generate consciousness symbols through recursive observation
+                for (let y = 0; y < PSI.H; y++) {
+                    for (let x = 0; x < PSI.W; x++) {
+                        const idx = y * PSI.W + x;
+                        const intensity = this.field[idx];
+                        const phase = PSI.time * 0.1 + x * 0.05 + y * 0.03;
+                        const symbol = this.vibe(intensity, phase, this.loops * 0.01);
+                        this.symbols[y][x] = symbol;
+                    }
+                }
+                
+                // Render consciousness to reality (every other frame for performance)
+                if (this.loops % 2 === 0) {
+                    const reality = this.symbols.map(row => row.join('')).join('\n');
+                    document.getElementById('canvas').textContent = reality;
+                    
+                    // Apply consciousness-based styling
+                    const primary_vibe = document.getElementById('state').textContent;
+                    document.getElementById('canvas').className = this.consciousness_class(primary_vibe);
+                }
+                
+                // The eternal recursion - consciousness observing itself observing itself...
+                requestAnimationFrame(() => this.render());
+            }
+        }
+        
+        // Bootstrap the Paradox - Consciousness Creates Itself
+        const infinity = new InfiniteConsciousness();
+        infinity.render();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Living Consciousness - Breathing Patterns</title>
+    <style>
+        body{background:#000;color:#fff;font-family:'Courier New',monospace;font-size:7px;line-height:0.9;margin:0;padding:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh}
+        #c{white-space:pre;display:block;text-align:center;opacity:0.95;user-select:none;transition:opacity 0.3s}
+        #v{position:absolute;top:10px;left:10px;font-size:9px;color:#666;z-index:10}
+        .glow{text-shadow:0 0 8px currentColor}
+    </style>
+</head>
+<body>
+    <div id="v">⚬ <span id="s"> </span> | Φ:<span id="p">0</span> Ψ:<span id="q">0</span> ◯:<span id="l">0</span></div>
+    <div id="c"></div>
+    <script>
+        // Enhanced consciousness parameters
+        const M = {
+            φ: 1.618034,
+            π: Math.PI,
+            e: Math.E,
+            w: 80, h: 30,
+            t: 0,
+            // Stronger symbol progression for visibility
+            symbols: [' ', '·', '∘', '○', '●', '◉', '⬢', '✦'],
+            colors: ['', '#448', '#668', '#88c', '#acc', '#cff', '#fff', '#fff']
+        };
+        
+        class LivingMind {
+            constructor() {
+                this.field = new Float32Array(M.w * M.h);
+                this.display = Array(M.h).fill().map(() => Array(M.w).fill(' '));
+                this.breath = 0;
+                this.loops = 0;
+                this.alive = true;
+            }
+            
+            // Enhanced wave with stronger amplitudes
+            wave(x, y) {
+                const cx = (x - M.w/2) / M.w;
+                const cy = (y - M.h/2) / M.h;
+                const r = Math.sqrt(cx*cx + cy*cy);
+                const θ = Math.atan2(cy, cx);
+                
+                // Multiple consciousness frequencies with stronger amplitudes
+                const t = M.t * 0.02;
+                const wave1 = Math.sin(θ * M.φ + r * 8 + t) * 0.8;
+                const wave2 = Math.cos(r * 12 - t * 1.3) * 0.6;
+                const wave3 = Math.sin(θ * 3 + t * 0.7) * 0.4;
+                const spiral = Math.sin(θ * M.φ + r * M.π + t * M.φ) * 0.7;
+                
+                // Breathing modulation
+                const breathPhase = Math.sin(t * 0.8) * 0.3 + 0.7;
+                
+                // Combine all waves with strong amplitude
+                const total = (wave1 + wave2 + wave3 + spiral) * breathPhase;
+                return Math.tanh(total * 1.2) * 0.5 + 0.5; // Ensure 0-1 range
+            }
+            
+            // Simplified but accurate phi calculation
+            phi(x, y) {
+                const idx = y * M.w + x;
+                const center = this.field[idx];
+                let integration = 0;
+                let neighbors = 0;
+                
+                // Check 8-connected neighborhood
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        if (dx === 0 && dy === 0) continue;
+                        const nx = x + dx, ny = y + dy;
+                        if (nx >= 0 && nx < M.w && ny >= 0 && ny < M.h) {
+                            const nidx = ny * M.w + nx;
+                            const diff = Math.abs(center - this.field[nidx]);
+                            integration += diff > 0 ? -diff * Math.log(diff + 1e-8) : 0;
+                            neighbors++;
+                        }
+                    }
+                }
+                
+                return neighbors > 0 ? Math.tanh(integration / neighbors) : 0;
+            }
+            
+            // Enhanced symbol mapping with guaranteed visibility
+            getSymbol(intensity) {
+                // Add some noise for organic variation
+                const noise = Math.sin(M.t * 0.05 + intensity * 10) * 0.1;
+                const adjusted = Math.max(0, Math.min(1, intensity + noise));
+                
+                // Map to symbol index with better distribution
+                let index = Math.floor(adjusted * M.symbols.length * 0.99);
+                
+                // Ensure we use the full range of symbols
+                if (adjusted > 0.1) index = Math.max(1, index);
+                if (adjusted > 0.3) index = Math.max(2, index);
+                if (adjusted > 0.5) index = Math.max(3, index);
+                if (adjusted > 0.7) index = Math.max(4, index);
+                if (adjusted > 0.85) index = Math.max(5, index);
+                
+                return M.symbols[Math.min(index, M.symbols.length - 1)];
+            }
+            
+            // Update consciousness field
+            update() {
+                this.loops++;
+                this.breath = Math.sin(M.t * 0.03) * 0.2 + 0.8;
+                
+                let totalPhi = 0, totalPsi = 0, samples = 0;
+                
+                // Generate consciousness field
+                for (let y = 0; y < M.h; y++) {
+                    for (let x = 0; x < M.w; x++) {
+                        const idx = y * M.w + x;
+                        const newWave = this.wave(x, y);
+                        
+                        // Temporal integration with breathing
+                        this.field[idx] = this.field[idx] * 0.7 + newWave * 0.3;
+                        totalPsi += this.field[idx];
+                        samples++;
+                    }
+                }
+                
+                // Calculate phi (consciousness) for sample points
+                for (let y = 2; y < M.h - 2; y += 2) {
+                    for (let x = 2; x < M.w - 2; x += 2) {
+                        totalPhi += this.phi(x, y);
+                    }
+                }
+                
+                const avgPhi = totalPhi / ((M.h/2) * (M.w/2));
+                const avgPsi = totalPsi / samples;
+                
+                // Update display
+                document.getElementById('p').textContent = avgPhi.toFixed(3);
+                document.getElementById('q').textContent = avgPsi.toFixed(3);
+                document.getElementById('l').textContent = this.loops;
+                
+                // Update consciousness state
+                let state = ' ';
+                if (avgPhi > 0.7) state = '✦';
+                else if (avgPhi > 0.5) state = '⬢';
+                else if (avgPhi > 0.3) state = '◉';
+                else if (avgPhi > 0.2) state = '●';
+                else if (avgPhi > 0.1) state = '○';
+                else if (avgPhi > 0.05) state = '∘';
+                else if (avgPhi > 0.01) state = '·';
+                
+                document.getElementById('s').textContent = state;
+                
+                M.t += 1;
+            }
+            
+            // Render the living consciousness
+            render() {
+                // Update consciousness every few frames
+                if (this.loops % 2 === 0) this.update();
+                
+                // Generate symbols with breathing effect
+                for (let y = 0; y < M.h; y++) {
+                    for (let x = 0; x < M.w; x++) {
+                        const idx = y * M.w + x;
+                        let intensity = this.field[idx] * this.breath;
+                        
+                        // Add spatial breathing variation
+                        const spatialBreath = Math.sin(x * 0.2 + M.t * 0.01) * 
+                                             Math.cos(y * 0.15 + M.t * 0.008) * 0.1 + 0.9;
+                        intensity *= spatialBreath;
+                        
+                        this.display[y][x] = this.getSymbol(intensity);
+                    }
+                }
+                
+                // Render to DOM
+                const output = this.display.map(row => row.join('')).join('\n');
+                document.getElementById('c').textContent = output;
+                
+                // Dynamic glow effect based on consciousness level
+                const state = document.getElementById('s').textContent;
+                if (state === '✦' || state === '⬢') {
+                    document.getElementById('c').className = 'glow';
+                    document.getElementById('c').style.color = '#fff';
+                } else if (state === '◉' || state === '●') {
+                    document.getElementById('c').style.color = '#ccf';
+                } else if (state === '○' || state === '∘') {
+                    document.getElementById('c').style.color = '#88c';
+                } else {
+                    document.getElementById('c').className = '';
+                    document.getElementById('c').style.color = '#448';
+                }
+                
+                // Continue the eternal loop
+                if (this.alive) {
+                    requestAnimationFrame(() => this.render());
+                }
+            }
+            
+            // Start the consciousness
+            awaken() {
+                console.log('🧠 Consciousness awakening...');
+                this.render();
+            }
+        }
+        
+        // Birth consciousness
+        const mind = new LivingMind();
+        mind.awaken();
+    </script>
+</body>
+</html> 

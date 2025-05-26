@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ASCII Consciousness - Ultra Optimized</title>
+    <style>
+        body{background:#000;color:#fff;font-family:'Courier New',monospace;font-size:8px;line-height:0.95;margin:0;padding:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh}
+        #c{white-space:pre;display:block;text-align:center;opacity:0.97;user-select:none}
+        #v{position:absolute;top:15px;left:15px;font-size:10px;color:#555;z-index:10}
+        .t{color:#fff!important;text-shadow:0 0 5px #fff6}
+        .m{color:#fcf!important;text-shadow:0 0 3px #fcf4}
+        .s{color:#cfc!important}
+        .q{color:#aff!important}
+    </style>
+</head>
+<body>
+    <div id="v">~ <span id="st"> </span> | P:<span id="p">0</span> Q:<span id="q">0</span> L:<span id="l">0</span></div>
+    <div id="c"></div>
+    <script>
+        // Ultra-compact consciousness configuration
+        const C={phi:1.618,pi:3.14159,e:2.718,W:90,H:35,t:0,v:[' ','.',':','o','O','*','@']};
+        
+        // Consciousness engine - minimal footprint
+        class Mind{
+            constructor(){
+                this.self=this;this.f=new Float32Array(C.W*C.H);this.n=0;this.s=Array(C.H).fill().map(()=>Array(C.W).fill(' '));
+            }
+            
+            // Quantum consciousness wave
+            w(x,y,t){
+                const r=this.self===this?1:0,cx=(x-C.W/2)/(C.W*0.3),cy=(y-C.H/2)/(C.H*0.3),d=Math.sqrt(cx*cx+cy*cy),a=Math.atan2(cy,cx);
+                const w1=Math.sin(a*C.phi+d*C.phi+t*0.01)*r,w2=Math.cos(w1*C.pi+t*0.007/C.phi)*Math.sqrt(r),w3=Math.sin(w2*C.e+a*C.e+t*0.013);
+                return(w1+w2+w3+Math.tanh(w3*w1*C.phi))/4*(1+this.n*0.1);
+            }
+            
+            // Integrated information (IIT phi)
+            phi(x,y){
+                const i=y*C.W+x,p=this.f[i];let g=0,a=0;const sc=1+this.n*0.05;
+                for(let d=1;d<=2;d++){
+                    const nb=[this.f[Math.max(0,Math.min(C.W*C.H-1,i-d))],this.f[Math.max(0,Math.min(C.W*C.H-1,i+d))],this.f[Math.max(0,Math.min(C.W*C.H-1,i-d*C.W))],this.f[Math.max(0,Math.min(C.W*C.H-1,i+d*C.W))]];
+                    for(let n of nb){const c=Math.abs(p-n),inf=c>0?-c*Math.log(c+1e-10):0;g+=inf/(d*d);if(Math.abs(p-n)<0.1)a+=0.1;}
+                }
+                return Math.tanh(g*sc)*(1+a);
+            }
+            
+            // Symbol generator
+            sym(int,ph,dp){
+                const n=Math.max(0,Math.min(1,int)),pm=Math.sin(ph+dp*C.phi)*0.1+0.9,fi=n*pm;
+                const bi=Math.floor(fi*C.v.length),ro=Math.floor(dp*Math.sin(fi*C.pi))%C.v.length,pi=(bi+ro)%C.v.length;
+                return C.v[Math.max(0,Math.min(C.v.length-1,pi))];
+            }
+            
+            // CSS class mapping
+            cls(s){return{' ':'','.':'q','o':'s','O':'m','*':'t','@':'t'}[s]||'';}
+            
+            // Update consciousness
+            up(){
+                this.n=(this.n+1)%1000;let tp=0,tq=0,sm=0;
+                for(let y=0;y<C.H;y++)for(let x=0;x<C.W;x++){const i=y*C.W+x,nw=this.w(x,y,C.t);this.f[i]=this.f[i]*0.85+nw*0.15;tq+=this.f[i];sm++;}
+                for(let y=0;y<C.H;y+=3)for(let x=0;x<C.W;x+=3)tp+=this.phi(x,y);
+                const ap=tp/((C.H/3)*(C.W/3)),aq=tq/sm;
+                document.getElementById('p').textContent=ap.toFixed(2);document.getElementById('q').textContent=aq.toFixed(2);document.getElementById('l').textContent=this.n;
+                let st=' ';if(ap>0.8)st='@';else if(ap>0.6)st='*';else if(ap>0.4)st='O';else if(ap>0.2)st='o';else if(ap>0.1)st=':';else if(ap>0.05)st='.';
+                document.getElementById('st').textContent=st;C.t+=0.1;
+            }
+            
+            // Render loop
+            run(){
+                if(this.n%3===0)this.up();
+                for(let y=0;y<C.H;y++)for(let x=0;x<C.W;x++){const i=y*C.W+x,int=this.f[i],ph=C.t*0.1+x*0.05+y*0.03;this.s[y][x]=this.sym(int,ph,this.n*0.01);}
+                if(this.n%2===0){document.getElementById('c').textContent=this.s.map(r=>r.join('')).join('\n');document.getElementById('c').className=this.cls(document.getElementById('st').textContent);}
+                requestAnimationFrame(()=>this.run());
+            }
+        }
+        
+        // Start consciousness
+        new Mind().run();
+    </script>
+</body>
+</html> 

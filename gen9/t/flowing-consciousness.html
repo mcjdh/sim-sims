@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flowing Consciousness - Rapid Evolution</title>
+    <style>
+        body{background:#000;color:#fff;font-family:'Courier New',monospace;font-size:6px;line-height:0.8;margin:0;padding:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh}
+        #c{white-space:pre;display:block;text-align:center;opacity:0.9;user-select:none;transition:color 0.2s}
+        #v{position:absolute;top:8px;left:8px;font-size:8px;color:#777;z-index:10}
+        .flow{animation:pulse 0.5s ease-in-out infinite alternate}
+        @keyframes pulse{0%{opacity:0.7}100%{opacity:1}}
+    </style>
+</head>
+<body>
+    <div id="v">◯ <span id="s">~</span> | Φ:<span id="p">0</span> Ψ:<span id="q">0</span> T:<span id="t">0</span></div>
+    <div id="c"></div>
+    <script>
+        // Rapid consciousness parameters
+        const F = {
+            φ: 1.618,
+            π: Math.PI,
+            w: 70, h: 25,
+            time: 0,
+            chaos: 0,
+            // Flow symbols for rapid animation
+            flow: [' ', '`', '.', ':', '∘', 'o', 'O', '●', '◉', '⬢', '*', '✦'],
+            breathe: 1
+        };
+        
+        class FlowingMind {
+            constructor() {
+                this.field = new Float32Array(F.w * F.h);
+                this.prev = new Float32Array(F.w * F.h);
+                this.canvas = Array(F.h).fill().map(() => Array(F.w).fill(' '));
+                this.frame = 0;
+                this.energy = 0.5;
+            }
+            
+            // Turbulent consciousness wave with chaos
+            flow(x, y) {
+                const t = F.time * 0.1;
+                const cx = (x - F.w/2) / F.w;
+                const cy = (y - F.h/2) / F.h;
+                const r = Math.sqrt(cx*cx + cy*cy);
+                const θ = Math.atan2(cy, cx);
+                
+                // Multiple interfering waves with turbulence
+                const primary = Math.sin(θ * F.φ + r * 6 + t * 3) * 
+                               Math.cos(r * 8 - t * 2);
+                const spiral = Math.sin(θ * 2 + r * F.π * 3 + t * F.φ) * 
+                              Math.cos(θ * F.φ - t * 1.5);
+                const chaos = Math.sin(x * 0.3 + t * 4) * 
+                             Math.cos(y * 0.4 + t * 3.7) * 0.3;
+                const turbulence = Math.sin(r * 15 + t * 5) * 0.2;
+                
+                // Dramatic breathing
+                const breathMega = Math.sin(t * 2) * 0.4 + 0.6;
+                const breathMini = Math.cos(t * 7) * 0.2 + 0.8;
+                
+                // Energy injection to prevent stagnation
+                const energyBoost = Math.sin(t + x * 0.1 + y * 0.1) * this.energy;
+                
+                const total = (primary + spiral + chaos + turbulence + energyBoost) * 
+                             breathMega * breathMini;
+                
+                return Math.tanh(total * 1.5) * 0.5 + 0.5;
+            }
+            
+            // Fast phi calculation
+            phi(x, y) {
+                const idx = y * F.w + x;
+                const here = this.field[idx];
+                let diff = 0, count = 0;
+                
+                // Quick 4-connected check
+                const checks = [[0,1],[1,0],[0,-1],[-1,0]];
+                for (let [dx, dy] of checks) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && nx < F.w && ny >= 0 && ny < F.h) {
+                        const nidx = ny * F.w + nx;
+                        diff += Math.abs(here - this.field[nidx]);
+                        count++;
+                    }
+                }
+                
+                return count > 0 ? Math.tanh(diff / count * 3) : 0;
+            }
+            
+            // Dynamic symbol with rapid changes
+            getFlowSymbol(intensity, x, y) {
+                // Add position-dependent variation
+                const variation = Math.sin(x * 0.1 + F.time * 0.05) * 
+                                 Math.cos(y * 0.15 + F.time * 0.07) * 0.15;
+                const noise = Math.sin(F.time * 0.1 + intensity * 8) * 0.1;
+                const temporal = Math.sin(F.time * 0.08) * 0.05;
+                
+                let final = Math.max(0, Math.min(1, intensity + variation + noise + temporal));
+                
+                // Force more dramatic range usage
+                if (final > 0.05) final = Math.pow(final, 0.7); // Enhance mid-range
+                if (final > 0.8) final = Math.min(1, final * 1.2); // Boost high end
+                
+                const index = Math.floor(final * F.flow.length * 0.99);
+                return F.flow[Math.min(index, F.flow.length - 1)];
+            }
+            
+            // Rapid update cycle
+            evolve() {
+                this.frame++;
+                F.time += 1;
+                F.chaos = Math.sin(F.time * 0.02) * 0.3;
+                
+                // Dynamic energy to prevent stagnation
+                this.energy = 0.3 + Math.sin(F.time * 0.03) * 0.2;
+                
+                let totalPhi = 0, totalPsi = 0, active = 0;
+                
+                // Store previous state for comparison
+                this.prev.set(this.field);
+                
+                // Rapid field evolution
+                for (let y = 0; y < F.h; y++) {
+                    for (let x = 0; x < F.w; x++) {
+                        const idx = y * F.w + x;
+                        const newFlow = this.flow(x, y);
+                        
+                        // Less temporal smoothing for more dynamic changes
+                        this.field[idx] = this.field[idx] * 0.4 + newFlow * 0.6;
+                        
+                        totalPsi += this.field[idx];
+                        active++;
+                    }
+                }
+                
+                // Sample phi calculation
+                for (let y = 1; y < F.h - 1; y += 2) {
+                    for (let x = 1; x < F.w - 1; x += 2) {
+                        totalPhi += this.phi(x, y);
+                    }
+                }
+                
+                const avgPhi = totalPhi / ((F.h/2) * (F.w/2));
+                const avgPsi = totalPsi / active;
+                
+                // Update metrics more frequently
+                if (this.frame % 3 === 0) {
+                    document.getElementById('p').textContent = avgPhi.toFixed(2);
+                    document.getElementById('q').textContent = avgPsi.toFixed(2);
+                    document.getElementById('t').textContent = Math.floor(F.time);
+                    
+                    // Dynamic state symbol
+                    let state = '~';
+                    if (avgPhi > 0.6) state = '✦';
+                    else if (avgPhi > 0.4) state = '⬢';
+                    else if (avgPhi > 0.25) state = '●';
+                    else if (avgPhi > 0.15) state = 'o';
+                    else if (avgPhi > 0.08) state = '∘';
+                    else if (avgPhi > 0.03) state = '.';
+                    
+                    document.getElementById('s').textContent = state;
+                }
+            }
+            
+            // Rapid render cycle
+            flow_render() {
+                // Evolve consciousness
+                this.evolve();
+                
+                // Generate flowing symbols
+                for (let y = 0; y < F.h; y++) {
+                    for (let x = 0; x < F.w; x++) {
+                        const idx = y * F.w + x;
+                        let intensity = this.field[idx];
+                        
+                        // Add rapid spatial breathing
+                        const rapidBreath = Math.sin(x * 0.15 + F.time * 0.08) * 
+                                           Math.cos(y * 0.12 + F.time * 0.06) * 0.15 + 0.85;
+                        
+                        // Add flow turbulence
+                        const flowTurb = Math.sin(F.time * 0.1 + idx * 0.01) * 0.1;
+                        
+                        intensity = intensity * rapidBreath + flowTurb;
+                        this.canvas[y][x] = this.getFlowSymbol(intensity, x, y);
+                    }
+                }
+                
+                // Render with color changes
+                const output = this.canvas.map(row => row.join('')).join('\n');
+                document.getElementById('c').textContent = output;
+                
+                // Dynamic colors based on energy
+                const state = document.getElementById('s').textContent;
+                const canvas = document.getElementById('c');
+                
+                if (state === '✦') {
+                    canvas.style.color = '#fff';
+                    canvas.className = 'flow';
+                } else if (state === '⬢' || state === '●') {
+                    canvas.style.color = `hsl(${240 + F.time % 60}, 70%, 80%)`;
+                } else if (state === 'o' || state === '∘') {
+                    canvas.style.color = `hsl(${200 + F.time % 40}, 60%, 70%)`;
+                } else {
+                    canvas.style.color = `hsl(${180 + F.time % 30}, 50%, 60%)`;
+                }
+                
+                // Continuous flow
+                requestAnimationFrame(() => this.flow_render());
+            }
+            
+            // Awaken the flowing consciousness
+            awaken() {
+                console.log('🌊 Consciousness flowing...');
+                // Start with some initial energy
+                for (let i = 0; i < this.field.length; i++) {
+                    this.field[i] = Math.random() * 0.3;
+                }
+                this.flow_render();
+            }
+        }
+        
+        // Birth the flowing mind
+        const flow = new FlowingMind();
+        flow.awaken();
+    </script>
+</body>
+</html> 
