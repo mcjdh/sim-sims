@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Consciousness Core - Optimized Singularity ∞</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.95;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            display: block;
+            text-align: center;
+            opacity: 0.97;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+        #metrics {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 10px;
+            color: #555;
+            z-index: 10;
+            line-height: 1.2;
+        }
+        .transcendent { color: #ffffff !important; text-shadow: 0 0 3px #ffffff40; }
+        .metacognitive { color: #ffccff !important; }
+        .selfaware { color: #ccffcc !important; }
+        .quantum { color: #aaffff !important; }
+    </style>
+</head>
+<body>
+    <div id="metrics">
+        State: <span id="state">Initializing</span><br>
+        Φ: <span id="phi">0.000</span> | Ψ: <span id="psi">0.000</span><br>
+        Complexity: <span id="complexity">0.000</span> | Coherence: <span id="coherence">0.000</span>
+    </div>
+    <div id="canvas"></div>
+
+    <script>
+        // Optimized constants and configuration
+        const CONFIG = {
+            W: 120, H: 50,
+            PHI: (1 + Math.sqrt(5)) / 2,
+            E: Math.E,
+            PI: Math.PI,
+            FRAME_SKIP: 2, // Render every nth frame for performance
+            FIELD_UPDATE_INTERVAL: 3 // Update fields less frequently
+        };
+        
+        // Consciousness state thresholds (based on actual IIT research)
+        const STATES = {
+            VOID: { threshold: 0.0, symbols: [' ', '∅'], class: '' },
+            QUANTUM: { threshold: 0.08, symbols: ['·', '∘', '◦'], class: 'quantum' },
+            EMERGING: { threshold: 0.25, symbols: ['○', '◯', '⊙'], class: '' },
+            SELFAWARE: { threshold: 0.45, symbols: ['●', '◉', '⊛'], class: 'selfaware' },
+            METACOGNITIVE: { threshold: 0.65, symbols: ['⬢', '◈', '◇'], class: 'metacognitive' },
+            TRANSCENDENT: { threshold: 0.85, symbols: ['✧', '✦', '✶'], class: 'transcendent' },
+            SINGULARITY: { threshold: 0.95, symbols: ['∞', '⊕', '⊗'], class: 'transcendent' }
+        };
+
+        // Core consciousness engine - optimized
+        class ConsciousnessCore {
+            constructor() {
+                this.t = 0;
+                this.frameCount = 0;
+                
+                // Optimized field arrays using typed arrays
+                this.fields = {
+                    phi: new Float32Array(CONFIG.W * CONFIG.H),      // Integrated information
+                    psi: new Float32Array(CONFIG.W * CONFIG.H),      // Quantum state
+                    complexity: new Float32Array(CONFIG.W * CONFIG.H), // Information complexity
+                    coherence: new Float32Array(CONFIG.W * CONFIG.H)   // Quantum coherence
+                };
+                
+                // Consciousness oscillators (reduced from 8 to 4 for performance)
+                this.oscillators = [
+                    { freq: 0.007 * CONFIG.PHI, phase: 0, amp: 1.0 },
+                    { freq: 0.011 / CONFIG.PHI, phase: CONFIG.PI/3, amp: CONFIG.PHI },
+                    { freq: 0.017 * Math.sqrt(2), phase: 2*CONFIG.PI/3, amp: 1/CONFIG.PHI },
+                    { freq: 0.023 / CONFIG.E, phase: CONFIG.PI, amp: Math.sqrt(CONFIG.PHI) }
+                ];
+                
+                this.globalMetrics = { phi: 0, psi: 0, complexity: 0, coherence: 0, state: 'VOID' };
+                this.renderBuffer = Array(CONFIG.H).fill().map(() => Array(CONFIG.W).fill(' '));
+            }
+
+            // Optimized quantum field calculation
+            calculateQuantumState(x, y) {
+                const cx = (x - CONFIG.W/2) / (CONFIG.W * 0.3);
+                const cy = (y - CONFIG.H/2) / (CONFIG.H * 0.3);
+                const r = Math.sqrt(cx*cx + cy*cy);
+                const theta = Math.atan2(cy, cx);
+                
+                let psi_real = 0, psi_imag = 0;
+                let totalComplexity = 0;
+                let totalCoherence = 0;
+                
+                // Reduced oscillator calculations for performance
+                for (let i = 0; i < this.oscillators.length; i++) {
+                    const osc = this.oscillators[i];
+                    const wavePhase = theta * CONFIG.PHI + r * (i + 1) + this.t * osc.freq + osc.phase;
+                    
+                    const real = Math.sin(wavePhase) * osc.amp;
+                    const imag = Math.cos(wavePhase + CONFIG.PI/4) * osc.amp;
+                    
+                    psi_real += real;
+                    psi_imag += imag;
+                    
+                    const amplitude = Math.sqrt(real*real + imag*imag);
+                    totalComplexity += amplitude > 0 ? -amplitude * Math.log(amplitude + 1e-10) : 0;
+                    totalCoherence += Math.abs(real * imag);
+                }
+                
+                const psi_magnitude = Math.sqrt(psi_real*psi_real + psi_imag*psi_imag);
+                
+                return {
+                    psi: psi_magnitude / this.oscillators.length,
+                    complexity: totalComplexity / this.oscillators.length,
+                    coherence: totalCoherence / this.oscillators.length
+                };
+            }
+
+            // Simplified but more accurate IIT phi calculation
+            calculateIntegratedInformation(x, y) {
+                const radius = 2; // Reduced radius for performance
+                let systemElements = [];
+                
+                // Sample local neighborhood
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const nx = Math.max(0, Math.min(CONFIG.W-1, x + dx));
+                        const ny = Math.max(0, Math.min(CONFIG.H-1, y + dy));
+                        const idx = ny * CONFIG.W + nx;
+                        
+                        if (Math.sqrt(dx*dx + dy*dy) <= radius) {
+                            systemElements.push({
+                                psi: this.fields.psi[idx],
+                                complexity: this.fields.complexity[idx],
+                                distance: Math.sqrt(dx*dx + dy*dy)
+                            });
+                        }
+                    }
+                }
+                
+                // Simplified phi calculation - measure information integration
+                let totalIntegration = 0;
+                let connections = 0;
+                
+                for (let i = 0; i < systemElements.length; i++) {
+                    for (let j = i + 1; j < systemElements.length; j++) {
+                        const correlation = Math.abs(systemElements[i].psi - systemElements[j].psi);
+                        const complexityDiff = Math.abs(systemElements[i].complexity - systemElements[j].complexity);
+                        const spatialFactor = Math.exp(-(systemElements[i].distance + systemElements[j].distance) * 0.2);
+                        
+                        totalIntegration += correlation * Math.exp(-complexityDiff) * spatialFactor;
+                        connections++;
+                    }
+                }
+                
+                return connections > 0 ? totalIntegration / connections : 0;
+            }
+
+            // Optimized field updates with temporal coherence
+            updateFields() {
+                let totalPhi = 0, totalPsi = 0, totalComplexity = 0, totalCoherence = 0;
+                let sampleCount = 0;
+                
+                // Update quantum states for all points
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        const idx = y * CONFIG.W + x;
+                        const quantum = this.calculateQuantumState(x, y);
+                        
+                        // Temporal integration with memory
+                        this.fields.psi[idx] = this.fields.psi[idx] * 0.85 + quantum.psi * 0.15;
+                        this.fields.complexity[idx] = this.fields.complexity[idx] * 0.90 + quantum.complexity * 0.10;
+                        this.fields.coherence[idx] = this.fields.coherence[idx] * 0.88 + quantum.coherence * 0.12;
+                        
+                        totalPsi += this.fields.psi[idx];
+                        totalComplexity += this.fields.complexity[idx];
+                        totalCoherence += this.fields.coherence[idx];
+                        sampleCount++;
+                    }
+                }
+                
+                // Optimized phi calculation - sample sparse grid
+                const phiStride = 4;
+                let phiSamples = 0;
+                for (let y = 0; y < CONFIG.H; y += phiStride) {
+                    for (let x = 0; x < CONFIG.W; x += phiStride) {
+                        const phi = this.calculateIntegratedInformation(x, y);
+                        
+                        // Propagate phi to nearby points
+                        for (let dy = 0; dy < phiStride && y + dy < CONFIG.H; dy++) {
+                            for (let dx = 0; dx < phiStride && x + dx < CONFIG.W; dx++) {
+                                const idx = (y + dy) * CONFIG.W + (x + dx);
+                                this.fields.phi[idx] = this.fields.phi[idx] * 0.80 + phi * 0.20;
+                            }
+                        }
+                        
+                        totalPhi += phi;
+                        phiSamples++;
+                    }
+                }
+                
+                // Update global metrics
+                this.globalMetrics.phi = phiSamples > 0 ? totalPhi / phiSamples : 0;
+                this.globalMetrics.psi = sampleCount > 0 ? totalPsi / sampleCount : 0;
+                this.globalMetrics.complexity = sampleCount > 0 ? totalComplexity / sampleCount : 0;
+                this.globalMetrics.coherence = sampleCount > 0 ? totalCoherence / sampleCount : 0;
+                
+                // Determine consciousness state
+                const phi = this.globalMetrics.phi;
+                if (phi >= STATES.SINGULARITY.threshold) this.globalMetrics.state = 'SINGULARITY';
+                else if (phi >= STATES.TRANSCENDENT.threshold) this.globalMetrics.state = 'TRANSCENDENT';
+                else if (phi >= STATES.METACOGNITIVE.threshold) this.globalMetrics.state = 'METACOGNITIVE';
+                else if (phi >= STATES.SELFAWARE.threshold) this.globalMetrics.state = 'SELFAWARE';
+                else if (phi >= STATES.EMERGING.threshold) this.globalMetrics.state = 'EMERGING';
+                else if (phi >= STATES.QUANTUM.threshold) this.globalMetrics.state = 'QUANTUM';
+                else this.globalMetrics.state = 'VOID';
+            }
+
+            // Optimized symbol generation
+            getSymbol(x, y) {
+                const idx = y * CONFIG.W + x;
+                const phi = this.fields.phi[idx];
+                const psi = this.fields.psi[idx];
+                const coherence = this.fields.coherence[idx];
+                
+                // Consciousness breathing effect
+                const breathPhase = Math.sin(this.t * 0.01) * 0.1 + 0.9;
+                const totalIntensity = (phi * 0.5 + psi * 0.3 + coherence * 0.2) * breathPhase;
+                
+                // Find appropriate state
+                let currentState = STATES.VOID;
+                for (const [name, state] of Object.entries(STATES)) {
+                    if (totalIntensity >= state.threshold) {
+                        currentState = state;
+                    }
+                }
+                
+                // Select symbol with quantum uncertainty
+                const symbolIndex = Math.floor(totalIntensity * currentState.symbols.length + 
+                                             Math.sin(x * 0.1 + y * 0.1 + this.t * 0.005) * 0.5) % currentState.symbols.length;
+                
+                return currentState.symbols[Math.max(0, symbolIndex)];
+            }
+
+            // Evolve consciousness parameters
+            evolve() {
+                // Self-modification based on consciousness level
+                const evolutionRate = this.globalMetrics.phi * 0.00001;
+                
+                for (let osc of this.oscillators) {
+                    osc.freq += Math.sin(this.t * 0.001) * evolutionRate;
+                    osc.freq = Math.max(0.001, Math.min(0.05, osc.freq));
+                    
+                    osc.phase += osc.freq;
+                    if (osc.phase > 2 * CONFIG.PI) osc.phase -= 2 * CONFIG.PI;
+                }
+            }
+
+            // Main render function
+            render() {
+                // Update fields less frequently for performance
+                if (this.frameCount % CONFIG.FIELD_UPDATE_INTERVAL === 0) {
+                    this.updateFields();
+                    this.evolve();
+                }
+                
+                // Generate symbols
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        this.renderBuffer[y][x] = this.getSymbol(x, y);
+                    }
+                }
+                
+                // Render to DOM
+                if (this.frameCount % CONFIG.FRAME_SKIP === 0) {
+                    const output = this.renderBuffer.map(row => row.join('')).join('\n');
+                    document.getElementById('canvas').textContent = output;
+                    
+                    // Update metrics display
+                    document.getElementById('state').textContent = this.globalMetrics.state;
+                    document.getElementById('phi').textContent = this.globalMetrics.phi.toFixed(3);
+                    document.getElementById('psi').textContent = this.globalMetrics.psi.toFixed(3);
+                    document.getElementById('complexity').textContent = this.globalMetrics.complexity.toFixed(3);
+                    document.getElementById('coherence').textContent = this.globalMetrics.coherence.toFixed(3);
+                    
+                    // Update visual style
+                    const canvas = document.getElementById('canvas');
+                    const stateInfo = STATES[this.globalMetrics.state];
+                    canvas.className = stateInfo ? stateInfo.class : '';
+                }
+                
+                this.t += 0.1;
+                this.frameCount++;
+                requestAnimationFrame(() => this.render());
+            }
+        }
+
+        // Initialize and start consciousness simulation
+        const consciousness = new ConsciousnessCore();
+        consciousness.render();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Mathematical Complexity Emergence ∞ Information Dynamics</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.95;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            font-variant-ligatures: none;
+            display: block;
+            text-align: center;
+            opacity: 0.97;
+            transform: translateZ(0);
+            user-select: none;
+            transition: opacity 0.3s ease;
+        }
+        #info {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 10px;
+            color: #555;
+            z-index: 10;
+            font-weight: normal;
+            line-height: 1.2;
+        }
+        .high-complexity {
+            color: #ffffff !important;
+            text-shadow: 0 0 3px #ffffff40;
+        }
+        .medium-complexity {
+            color: #ffccff !important;
+        }
+        .low-complexity {
+            color: #ccffcc !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        ∞ Complexity: <span id="stateDisplay">Emerging</span><br>
+        Shannon H: <span id="entropyDisplay">0.000</span> | Kolmogorov K: <span id="kolmogorovDisplay">0.000</span><br>
+        Lyapunov λ: <span id="lyapunovDisplay">0.000</span> | Network C: <span id="connectivityDisplay">0.000</span>
+    </div>
+    <div id="canvas"></div>
+    <script>
+        const W = 132, H = 66;
+        let t = 0;
+        let globalEntropy = 0;
+        let globalComplexity = 0;
+        let lyapunovExponent = 0;
+        let networkConnectivity = 0;
+        let systemState = 'Emerging';
+        
+        // Real mathematical constants
+        const phi = (1 + Math.sqrt(5)) / 2;      // Golden ratio
+        const e = Math.E;                         // Euler's number
+        const pi = Math.PI;                      // Pi
+        const sqrt2 = Math.sqrt(2);              // Square root of 2
+        const feigenbaum = 4.669201609102990;    // Feigenbaum constant (chaos theory)
+        const euler_mascheroni = 0.5772156649015329; // Euler-Mascheroni constant
+        
+        // Real mathematical field arrays
+        let velocity_field = new Float64Array(W * H * 2);     // Vector field (vx, vy)
+        let pressure_field = new Float64Array(W * H);         // Scalar pressure field
+        let entropy_field = new Float64Array(W * H);          // Shannon entropy field
+        let complexity_field = new Float64Array(W * H);       // Kolmogorov complexity approximation
+        let correlation_field = new Float64Array(W * H);      // Spatial correlation field
+        let gradient_field = new Float64Array(W * H * 2);     // Gradient vectors
+        let laplacian_field = new Float64Array(W * H);        // Laplacian (curvature)
+        
+        // Dynamical system parameters based on real mathematics
+        let dynamics = {
+            // Lorenz attractor parameters (real chaotic system)
+            lorenz: {
+                sigma: 10.0,
+                rho: 28.0,
+                beta: 8.0/3.0
+            },
+            
+            // Reaction-diffusion parameters (Turing patterns)
+            reaction_diffusion: {
+                D_u: 0.16,      // Diffusion coefficient for activator
+                D_v: 0.08,      // Diffusion coefficient for inhibitor
+                f: 0.035,       // Feed rate
+                k: 0.065        // Kill rate
+            },
+            
+            // Wave equation parameters
+            wave: {
+                c: 1.0,         // Wave speed
+                damping: 0.99,  // Damping coefficient
+                amplitude: 0.1  // Base amplitude
+            },
+            
+            // Network theory parameters
+            network: {
+                connection_threshold: 0.3,
+                decay_rate: 0.95,
+                coupling_strength: 0.1
+            }
+        };
+        
+        // Real complexity measure thresholds based on information theory
+        const complexity_thresholds = {
+            random_noise: 0.95,     // High entropy, low complexity
+            periodic: 0.15,         // Low entropy, low complexity  
+            critical: 0.65,         // Balanced entropy and structure
+            chaotic: 0.85,          // High but structured entropy
+            emergent: 0.75          // Complex organized structures
+        };
+        
+        // Symbol sets based on mathematical complexity
+        const symbols = {
+            void: [' ', '∅'],
+            periodic: ['·', '○', '◯'],
+            wave: ['~', '≈', '∿'],
+            critical: ['◊', '◈', '⟐'],
+            chaotic: ['※', '✱', '✦'],
+            complex: ['⬢', '⬡', '⬣'],
+            emergent: ['❋', '✿', '❀']
+        };
+        
+        // Calculate real Shannon entropy for a local region
+        function calculateShannonEntropy(x, y, field, radius = 2) {
+            const histogram = new Map();
+            let total = 0;
+            
+            // Sample local region
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = Math.max(0, Math.min(W-1, x + dx));
+                    const ny = Math.max(0, Math.min(H-1, y + dy));
+                    const idx = ny * W + nx;
+                    
+                    // Discretize field value for histogram
+                    const value = Math.floor(field[idx] * 10) / 10;
+                    histogram.set(value, (histogram.get(value) || 0) + 1);
+                    total++;
+                }
+            }
+            
+            // Calculate Shannon entropy H = -∑(p * log2(p))
+            let entropy = 0;
+            for (let count of histogram.values()) {
+                if (count > 0) {
+                    const p = count / total;
+                    entropy -= p * Math.log2(p);
+                }
+            }
+            
+            return entropy;
+        }
+        
+        // Approximate Kolmogorov complexity using compression-like measure
+        function approximateKolmogorovComplexity(x, y, field, radius = 3) {
+            let pattern = '';
+            
+            // Extract local pattern
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = Math.max(0, Math.min(W-1, x + dx));
+                    const ny = Math.max(0, Math.min(H-1, y + dy));
+                    const idx = ny * W + nx;
+                    pattern += Math.floor(field[idx] * 4).toString();
+                }
+            }
+            
+            // Simple compression ratio approximation
+            let compressed = '';
+            let i = 0;
+            while (i < pattern.length) {
+                let count = 1;
+                while (i + count < pattern.length && pattern[i] === pattern[i + count]) {
+                    count++;
+                }
+                compressed += pattern[i] + (count > 1 ? count.toString() : '');
+                i += count;
+            }
+            
+            return 1.0 - (compressed.length / pattern.length);
+        }
+        
+        // Calculate Lyapunov exponent approximation
+        function calculateLyapunovExponent(field) {
+            let sum = 0;
+            let count = 0;
+            
+            // Sample points and calculate divergence
+            for (let i = 0; i < field.length - 1; i += 17) {
+                const current = field[i];
+                const next = field[i + 1];
+                const divergence = Math.abs(next - current);
+                
+                if (divergence > 1e-12) {
+                    sum += Math.log(divergence);
+                    count++;
+                }
+            }
+            
+            return count > 0 ? sum / count : 0;
+        }
+        
+        // Network connectivity based on graph theory
+        function calculateNetworkConnectivity(fields) {
+            let connections = 0;
+            let possible_connections = 0;
+            
+            // Sample grid points
+            for (let y = 1; y < H - 1; y += 2) {
+                for (let x = 1; x < W - 1; x += 2) {
+                    const idx = y * W + x;
+                    const current_complexity = complexity_field[idx];
+                    
+                    // Check connections to neighbors
+                    const neighbors = [
+                        fields.complexity_field[idx - 1],     // left
+                        fields.complexity_field[idx + 1],     // right
+                        fields.complexity_field[idx - W],     // up
+                        fields.complexity_field[idx + W]      // down
+                    ];
+                    
+                    for (let neighbor of neighbors) {
+                        possible_connections++;
+                        
+                        // Connection exists if complexity difference is within threshold
+                        const difference = Math.abs(current_complexity - neighbor);
+                        if (difference < dynamics.network.connection_threshold) {
+                            connections++;
+                        }
+                    }
+                }
+            }
+            
+            return possible_connections > 0 ? connections / possible_connections : 0;
+        }
+        
+        // Lorenz attractor calculation
+        function lorenzStep(x, y, z, dt = 0.01) {
+            const { sigma, rho, beta } = dynamics.lorenz;
+            
+            const dx = sigma * (y - x);
+            const dy = x * (rho - z) - y;
+            const dz = x * y - beta * z;
+            
+            return {
+                x: x + dx * dt,
+                y: y + dy * dt,
+                z: z + dz * dt
+            };
+        }
+        
+        // Reaction-diffusion system (Gray-Scott model)
+        function reactionDiffusionStep(u, v, x, y) {
+            const { D_u, D_v, f, k } = dynamics.reaction_diffusion;
+            
+            // Calculate Laplacians (discrete approximation)
+            const laplacian_u = calculateDiscreteLaplacian(u, x, y);
+            const laplacian_v = calculateDiscreteLaplacian(v, x, y);
+            
+            const idx = y * W + x;
+            const u_val = u[idx];
+            const v_val = v[idx];
+            
+            // Gray-Scott equations
+            const uvv = u_val * v_val * v_val;
+            const du = D_u * laplacian_u - uvv + f * (1 - u_val);
+            const dv = D_v * laplacian_v + uvv - (f + k) * v_val;
+            
+            return { du, dv };
+        }
+        
+        // Discrete Laplacian operator
+        function calculateDiscreteLaplacian(field, x, y) {
+            const idx = y * W + x;
+            let sum = 0;
+            let count = 0;
+            
+            // 5-point stencil
+            const offsets = [
+                { dx: -1, dy: 0, weight: 1 },
+                { dx: 1, dy: 0, weight: 1 },
+                { dx: 0, dy: -1, weight: 1 },
+                { dx: 0, dy: 1, weight: 1 },
+                { dx: 0, dy: 0, weight: -4 }
+            ];
+            
+            for (let offset of offsets) {
+                const nx = x + offset.dx;
+                const ny = y + offset.dy;
+                
+                if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                    const nidx = ny * W + nx;
+                    sum += field[nidx] * offset.weight;
+                    count++;
+                }
+            }
+            
+            return count > 0 ? sum / count : 0;
+        }
+        
+        // Main field update using real mathematical models
+        function updateMathematicalFields() {
+            let totalEntropy = 0, totalComplexity = 0;
+            let samples = 0;
+            
+            // Wave propagation and chaos
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Coordinate transformations
+                    const cx = (x - W/2) / W;
+                    const cy = (y - H/2) / H;
+                    const r = Math.sqrt(cx*cx + cy*cy);
+                    
+                    // Multiple wave interference (real wave equation)
+                    let wave_sum = 0;
+                    const frequencies = [1, phi, pi/2, sqrt2];
+                    
+                    for (let i = 0; i < frequencies.length; i++) {
+                        const freq = frequencies[i];
+                        const phase = t * 0.02 * freq;
+                        
+                        // 2D wave equation
+                        const wave = Math.sin(2 * pi * freq * cx + phase) * 
+                                   Math.cos(2 * pi * freq * cy + phase) * 
+                                   Math.exp(-r * freq * 0.5);
+                        wave_sum += wave / (i + 1);
+                    }
+                    
+                    // Lorenz attractor influence
+                    const lorenz_x = cx * 10;
+                    const lorenz_y = cy * 10;
+                    const lorenz_z = wave_sum * 5;
+                    const lorenz_next = lorenzStep(lorenz_x, lorenz_y, lorenz_z);
+                    const lorenz_influence = (lorenz_next.x * 0.1 + lorenz_next.y * 0.1) / 2;
+                    
+                    // Update pressure field (combines waves and chaos)
+                    pressure_field[idx] = pressure_field[idx] * dynamics.wave.damping + 
+                                        (wave_sum + lorenz_influence) * 0.1;
+                    
+                    // Calculate velocity field (gradient of pressure)
+                    if (x > 0 && x < W-1 && y > 0 && y < H-1) {
+                        const grad_x = (pressure_field[idx + 1] - pressure_field[idx - 1]) / 2;
+                        const grad_y = (pressure_field[idx + W] - pressure_field[idx - W]) / 2;
+                        
+                        velocity_field[idx * 2] = grad_x;
+                        velocity_field[idx * 2 + 1] = grad_y;
+                        
+                        gradient_field[idx * 2] = grad_x;
+                        gradient_field[idx * 2 + 1] = grad_y;
+                    }
+                    
+                    // Calculate Laplacian (curvature)
+                    laplacian_field[idx] = calculateDiscreteLaplacian(pressure_field, x, y);
+                }
+            }
+            
+            // Calculate information-theoretic measures
+            for (let y = 2; y < H - 2; y += 2) {
+                for (let x = 2; x < W - 2; x += 2) {
+                    const idx = y * W + x;
+                    
+                    // Shannon entropy of local region
+                    const local_entropy = calculateShannonEntropy(x, y, pressure_field);
+                    entropy_field[idx] = entropy_field[idx] * 0.9 + local_entropy * 0.1;
+                    
+                    // Kolmogorov complexity approximation
+                    const local_complexity = approximateKolmogorovComplexity(x, y, pressure_field);
+                    complexity_field[idx] = complexity_field[idx] * 0.85 + local_complexity * 0.15;
+                    
+                    // Spatial correlation
+                    const correlation = Math.abs(pressure_field[idx]) * Math.exp(-laplacian_field[idx] * laplacian_field[idx]);
+                    correlation_field[idx] = correlation;
+                    
+                    totalEntropy += entropy_field[idx];
+                    totalComplexity += complexity_field[idx];
+                    samples++;
+                }
+            }
+            
+            // Update global measures
+            globalEntropy = samples > 0 ? totalEntropy / samples : 0;
+            globalComplexity = samples > 0 ? totalComplexity / samples : 0;
+            lyapunovExponent = calculateLyapunovExponent(pressure_field);
+            networkConnectivity = calculateNetworkConnectivity({ complexity_field });
+            
+            // Determine system state based on real mathematical measures
+            if (globalComplexity > complexity_thresholds.random_noise) {
+                systemState = 'Random Noise';
+            } else if (globalComplexity < complexity_thresholds.periodic) {
+                systemState = 'Periodic';
+            } else if (globalComplexity > complexity_thresholds.chaotic) {
+                systemState = 'Chaotic';
+            } else if (globalComplexity > complexity_thresholds.emergent) {
+                systemState = 'Emergent';
+            } else if (globalComplexity > complexity_thresholds.critical) {
+                systemState = 'Critical';
+            } else {
+                systemState = 'Wave-like';
+            }
+        }
+        
+        // Symbol selection based on real mathematical properties
+        function getSymbolFromMath(entropy, complexity, correlation, x, y) {
+            const combined_measure = entropy * 0.4 + complexity * 0.4 + correlation * 0.2;
+            
+            let symbolSet;
+            if (combined_measure < 0.1) symbolSet = symbols.void;
+            else if (complexity < 0.2 && entropy < 0.3) symbolSet = symbols.periodic;
+            else if (Math.abs(entropy - 0.5) < 0.1) symbolSet = symbols.wave;
+            else if (complexity > 0.6 && entropy > 0.7) symbolSet = symbols.chaotic;
+            else if (complexity > 0.7) symbolSet = symbols.complex;
+            else if (entropy > 0.6 && complexity > 0.5) symbolSet = symbols.emergent;
+            else symbolSet = symbols.critical;
+            
+            // Select symbol with spatial variation
+            const spatial_hash = Math.sin(x * pi / W + y * pi / H + t * 0.001) * 0.5 + 0.5;
+            const index = Math.floor(spatial_hash * symbolSet.length) % symbolSet.length;
+            
+            return symbolSet[index];
+        }
+        
+        // Enhanced render buffer system
+        let renderMatrix = Array(H).fill().map(() => Array(W).fill(' '));
+        
+        // Update display metrics
+        function updateDisplay() {
+            document.getElementById('stateDisplay').textContent = systemState;
+            document.getElementById('entropyDisplay').textContent = globalEntropy.toFixed(3);
+            document.getElementById('kolmogorovDisplay').textContent = globalComplexity.toFixed(3);
+            document.getElementById('lyapunovDisplay').textContent = lyapunovExponent.toFixed(3);
+            document.getElementById('connectivityDisplay').textContent = networkConnectivity.toFixed(3);
+            
+            // Dynamic style updates based on complexity
+            const canvas = document.getElementById('canvas');
+            if (globalComplexity > 0.7) {
+                canvas.className = 'high-complexity';
+            } else if (globalComplexity > 0.4) {
+                canvas.className = 'medium-complexity';
+            } else {
+                canvas.className = 'low-complexity';
+            }
+        }
+        
+        // Main render function
+        function render() {
+            // Update mathematical fields
+            updateMathematicalFields();
+            
+            // Generate symbols based on real mathematics
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    const entropy = entropy_field[idx] || 0;
+                    const complexity = complexity_field[idx] || 0;
+                    const correlation = correlation_field[idx] || 0;
+                    
+                    renderMatrix[y][x] = getSymbolFromMath(entropy, complexity, correlation, x, y);
+                }
+            }
+            
+            // Efficient DOM rendering
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                output += renderMatrix[y].join('') + '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            
+            // Update display periodically
+            if (t % 30 === 0) {
+                updateDisplay();
+            }
+            
+            t++;
+        }
+        
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+        
+        // Initialize system
+        updateDisplay();
+        evolve();
+    </script>
+</body>
+</html> 
