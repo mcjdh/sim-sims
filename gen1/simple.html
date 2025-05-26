@@ -28,10 +28,85 @@
             text-align: left;
             font-variant-ligatures: none;
         }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        #toggle-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: 1px solid #444;
+            cursor: pointer;
+            padding: 3px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .control-label {
+            width: 90px;
+            font-size: 10px;
+        }
+        
+        .control-value {
+            margin-left: 5px;
+            width: 30px;
+            text-align: right;
+            font-size: 10px;
+        }
+        
+        input[type="range"] {
+            width: 100px;
+            background: #222;
+        }
     </style>
 </head>
 <body>
     <div id="canvas"></div>
+    <button id="toggle-controls">controls</button>
+    <div id="controls">
+        <div class="control-row">
+            <span class="control-label">Wave Freq:</span>
+            <input type="range" id="freq-control" min="0.1" max="2" step="0.05" value="1">
+            <span id="freq-value" class="control-value">1.00</span>
+        </div>
+        <div class="control-row">
+            <span class="control-label">Phase Speed:</span>
+            <input type="range" id="phase-control" min="0.1" max="2" step="0.05" value="1">
+            <span id="phase-value" class="control-value">1.00</span>
+        </div>
+        <div class="control-row">
+            <span class="control-label">Spiral:</span>
+            <input type="range" id="spiral-control" min="1" max="5" step="0.1" value="3">
+            <span id="spiral-value" class="control-value">3.0</span>
+        </div>
+        <div class="control-row">
+            <span class="control-label">Diamond:</span>
+            <input type="range" id="diamond-control" min="0.05" max="0.5" step="0.01" value="0.2">
+            <span id="diamond-value" class="control-value">0.20</span>
+        </div>
+        <div class="control-row">
+            <span class="control-label">Breath Amp:</span>
+            <input type="range" id="breath-control" min="0.1" max="0.7" step="0.05" value="0.3">
+            <span id="breath-value" class="control-value">0.30</span>
+        </div>
+    </div>
 
     <script>
         const W = 110, H = 55;
@@ -39,11 +114,18 @@
         
         let time = 0;
         
+        // Control parameters
+        let waveFreqMultiplier = 1;
+        let phaseSpeedMultiplier = 1;
+        let spiralTightness = 3;
+        let diamondSize = 0.2;
+        let breathAmplitude = 0.3;
+        
         function wave(x, y, centerX, centerY, freq, phase) {
             const dx = x - centerX;
             const dy = y - centerY;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            return Math.sin(dist * freq + phase);
+            return Math.sin(dist * freq * waveFreqMultiplier + phase);
         }
         
         function spiral(x, y, centerX, centerY, tightness, rotation) {
@@ -72,9 +154,9 @@
             
             // Multiple geometric wave sources
             const sources = [
-                { x: W/2 + 20 * Math.sin(t1), y: H/2 + 15 * Math.cos(t1 * 1.3), freq: 0.3, phase: t1 * 3 },
-                { x: W/2 + 25 * Math.cos(t2), y: H/2 + 20 * Math.sin(t2 * 0.8), freq: 0.25, phase: t2 * 4 },
-                { x: W/2 + 15 * Math.sin(t3 * 2), y: H/2 + 25 * Math.cos(t3), freq: 0.35, phase: t3 * 2 }
+                { x: W/2 + 20 * Math.sin(t1), y: H/2 + 15 * Math.cos(t1 * 1.3), freq: 0.3, phase: t1 * 3 * phaseSpeedMultiplier },
+                { x: W/2 + 25 * Math.cos(t2), y: H/2 + 20 * Math.sin(t2 * 0.8), freq: 0.25, phase: t2 * 4 * phaseSpeedMultiplier },
+                { x: W/2 + 15 * Math.sin(t3 * 2), y: H/2 + 25 * Math.cos(t3), freq: 0.35, phase: t3 * 2 * phaseSpeedMultiplier }
             ];
             
             for (let y = 0; y < H; y++) {
@@ -87,12 +169,12 @@
                     });
                     
                     // Add geometric patterns
-                    intensity += spiral(x, y, W/2, H/2, 3, t1 * 0.5) * 0.5;
-                    intensity += diamond(x, y, W/3, H/3, 0.2, t2) * 0.3;
-                    intensity += diamond(x, y, 2*W/3, 2*H/3, 0.15, -t2 * 1.5) * 0.3;
+                    intensity += spiral(x, y, W/2, H/2, spiralTightness, t1 * 0.5) * 0.5;
+                    intensity += diamond(x, y, W/3, H/3, diamondSize, t2) * 0.3;
+                    intensity += diamond(x, y, 2*W/3, 2*H/3, diamondSize * 0.75, -t2 * 1.5) * 0.3;
                     
                     // Breathing amplitude modulation
-                    const breath = Math.sin(t1 * 2) * 0.3 + 0.7;
+                    const breath = Math.sin(t1 * 2) * breathAmplitude + 0.7;
                     intensity *= breath;
                     
                     // Map to character levels
@@ -111,6 +193,36 @@
             render();
             requestAnimationFrame(animate);
         }
+        
+        // Set up UI controls
+        document.getElementById('toggle-controls').addEventListener('click', function() {
+            const controls = document.getElementById('controls');
+            if (controls.style.display === 'block') {
+                controls.style.display = 'none';
+            } else {
+                controls.style.display = 'block';
+            }
+        });
+        
+        function setupControl(id, valueSuffix, updateFunction) {
+            const control = document.getElementById(id);
+            const valueDisplay = document.getElementById(id + '-value');
+            
+            control.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                valueDisplay.textContent = value.toFixed(2).replace(/\.?0+$/, '') + valueSuffix;
+                updateFunction(value);
+            });
+            
+            return control;
+        }
+        
+        // Initialize controls
+        setupControl('freq-control', '', value => waveFreqMultiplier = value);
+        setupControl('phase-control', '', value => phaseSpeedMultiplier = value);
+        setupControl('spiral-control', '', value => spiralTightness = value);
+        setupControl('diamond-control', '', value => diamondSize = value);
+        setupControl('breath-control', '', value => breathAmplitude = value);
         
         animate();
     </script>
