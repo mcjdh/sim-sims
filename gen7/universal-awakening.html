@@ -74,6 +74,35 @@
         const feig = 4.669;                          // Feigenbaum constant
         const gamma = 0.577;                         // Euler-Mascheroni constant
         
+        // Seeded random number generator for deterministic patterns
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed % 2147483647;
+                if (this.seed <= 0) this.seed += 2147483646;
+            }
+            
+            next() {
+                this.seed = this.seed * 16807 % 2147483647;
+                return (this.seed - 1) / 2147483646;
+            }
+        }
+        
+        // Initialize seed from URL parameter or current time
+        function getSeedFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const seedParam = urlParams.get('seed');
+            if (seedParam) {
+                return parseInt(seedParam, 10);
+            }
+            return Date.now();
+        }
+        
+        const systemSeed = getSeedFromURL();
+        const seededRandom = new SeededRandom(systemSeed);
+        
+        // Display seed in console for debugging
+        console.log('Universal Awakening initialized with seed:', systemSeed);
+        
         function systemObserver(x, y, agent, time) {
             // System observation with feedback between agents and environment
             const dx = x - agent.x;
@@ -140,7 +169,7 @@
                                Math.cos(y * 0.015 + time * 0.00009);
             
             // Noise component - random fluctuations in the system
-            const noise = (Math.random() - 0.5) * 0.1 * Math.exp(-time * 0.000001);
+            const noise = (seededRandom.next() - 0.5) * 0.1 * Math.exp(-time * 0.000001);
             
             // State transition - bifurcation between system states
             const transition = Math.abs(information) > 0.5 ? 
