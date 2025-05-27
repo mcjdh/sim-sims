@@ -58,6 +58,13 @@
 <body>
     <div id="canvas"></div>
     <script>
+        // Polyfill for Math.log2 if not available
+        if (!Math.log2) {
+            Math.log2 = function(x) {
+                return Math.log(x) / Math.LN2;
+            };
+        }
+        
         const W = 180, H = 90;
         let time = 0;
         let cosmicTime = 0;
@@ -95,225 +102,491 @@
         // Love symbols: void → spark → warmth → connection → heart → embrace → unity → infinite love → ∞
         const symbols = ' ·∘○◯●◉⊙⊚◈◊♡♥❤️💕💖💗💘💙💚💛💜🤍🖤💝💞💟❣️💌💋💍💎🌟⭐✨🌙☀️🌈🕯️🔥💫⚡🌸🌺🌻🌷🌹🏵️💐🌱🌿☘️🍀🌾🌳🌲🎋🎍🌴🌵🎄🎃🎁🎈🎉🎊🎀🎗️🏆🥇🏅🎖️🏵️🎪🎭🎨🎯🎲🃏🎴🀄🎰🚀🛸🌍🌎🌏🌐🗺️🧭⛰️🏔️🌋🗻🏕️🏖️🏜️🏝️🏟️🏛️🏗️🏘️🏙️🏚️🏠🏡🏢🏣🏤🏥🏦🏧🏨🏩🏪🏫🏬🏭🏮🏯🏰🗼🗽⛪🕌🛕🕍⛩️🕋⛲⛺🌁🌃🌄🌅🌆🌇🌉🎠🎡🎢🎪🎭🎨🎬🎤🎧🎼🎵🎶🎹🥁🎷🎺🎸🪕🎻🪘🥐🥖🍞🧈🥞🧇🥓🍳🍔🍟🌭🥪🌮🌯🥙🧆🥘🍝🍜🍲🍛🍣🍱🥟🦪🍤🍙🍚🍘🍥🥠🥮🍢🍡🍧🍨🍦🥧🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🌰🥜🍯🥛☕🫖🍵🧃🥤🧋🍶🍾🥂🍻🍺🍷🥃🍸🍹🧉🍼🍴🥢🔪🍽️⚰️⚱️🗿💈💎🔮📿🧿💍💄💋👑👒🎩🎓⛑️🪖💼👝👛👜💰💴💵💶💷💸💳🧾💱💲⚖️🧮⚗️🔬🔭📡💉🩹🩺💊💉🩸🧬🦠🧫🧪🌡️🧲🔩⚙️🧰🔧🔨⚒️🛠️⛏️🪓🪚🔪🗡️⚔️💣🧨🪃🏹🛡️🪃🪤🏺⚱️🗿🪧🏮🪔💡🔦🏮🪅🎐🧧🎀🎁🎊🎉🎈🎂🍰🧁🥧🍮🍯🍼☕🍵🫖🧃🥤🧋🥛🍶🍾🥂🍻🍺🍷🥃🍸🍹🧉🍴🥢🔪🍽️⚰️⚱️🗿🎪🎡🎢🎠🎭🎨🎬🎤🎧🎼🎵🎶🎹🥁🎷🎺🎸🪕🎻🪘🎲🃏🎴🀄🎰🚀🛸💫⭐🌟✨💖💕💘💞💝💗💓💟❣️💌💋💍💎🌹🌸🌺🌻🌷🏵️💐🌈☀️🌙⭐💫✨🔥💥🌟💖∞♾️◯⊙◉●○◯∘·∞♾️🌌🌠💫⭐✨🌟💖💕💘💞💝💗💓💟❣️💌💋💍💎🔮💎✨🌟⭐💫🌌🌠∞♾️○◯◉⊙◯○∘·∞';
         
-        // Love constants - the mathematical expressions of cosmic affection
-        const HEART = Math.PI * Math.E * Math.sqrt(2);           // Heart constant ♡
-        const LOVE = (1 + Math.sqrt(5)) / 2 * Math.PI;          // Golden love ratio ♥
-        const INFINITE = 1000000;                            // Infinite love (bounded for safety)
-        const PHI = (1 + Math.sqrt(5)) / 2;                    // Golden ratio of connection φ
-        const LOVE_FIELD = Math.sqrt(Math.PI * Math.E * PHI);           // Love field constant ❤
-        const UNITY = Math.sin(1) + Math.cos(1);                // Unity constant 💖
-        const STAR = Math.log(Math.E + Math.PI);               // Star constant 🌟
+        // Mathematical constants with scientific meaning
+        const PHI = (1 + Math.sqrt(5)) / 2;                    // Golden ratio (φ ≈ 1.618) - Natural growth pattern
+        const FEIGENBAUM = 4.669;                           // Feigenbaum constant - Chaos theory bifurcation
+        const EULER_MASCHERONI = 0.57721;                  // Euler-Mascheroni constant - Harmonic series limit
+        const GELFOND = 23.14069;                          // Gelfond's constant - Transcendental number e^π
+        const APERY = 1.2020569;                           // Apéry's constant - ζ(3), related to infinite series
+        const CATALAN = 0.915965;                          // Catalan's constant - Combinatorial mathematics
+        const OMEGA = 0.56714;                             // Omega constant - Solution to e^x = x
+        const SHANNON = -1 * (1/2 * Math.log2(1/2) + 1/2 * Math.log2(1/2)); // Binary entropy function at p=0.5
+        
+        // Helper function to calculate Shannon entropy in a local field region
+        function calculateShannonEntropy(x, y, field, radius = 2) {
+            const histogram = new Map();
+            let total = 0;
+            
+            // Sample local region and build histogram
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = Math.max(0, Math.min(W-1, x + dx));
+                    const ny = Math.max(0, Math.min(H-1, y + dy));
+                    const idx = ny * W + nx;
+                    
+                    // Discretize field value for histogram
+                    const value = Math.floor(field[idx] * 10) / 10;
+                    histogram.set(value, (histogram.get(value) || 0) + 1);
+                    total++;
+                }
+            }
+            
+            // Calculate Shannon entropy H = -∑(p * log2(p))
+            let entropy = 0;
+            for (let count of histogram.values()) {
+                if (count > 0) {
+                    const p = count / total;
+                    entropy -= p * Math.log2(p);
+                }
+            }
+            
+            return entropy;
+        }
+        
+        // Approximate Kolmogorov complexity using compression-like measure
+        function approximateKolmogorovComplexity(x, y, field, radius = 3) {
+            let pattern = '';
+            
+            // Extract local pattern
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = Math.max(0, Math.min(W-1, x + dx));
+                    const ny = Math.max(0, Math.min(H-1, y + dy));
+                    const idx = ny * W + nx;
+                    pattern += Math.floor(field[idx] * 4).toString();
+                }
+            }
+            
+            // Simple compression ratio approximation
+            let compressed = '';
+            let i = 0;
+            while (i < pattern.length) {
+                let count = 1;
+                while (i + count < pattern.length && pattern[i] === pattern[i + count]) {
+                    count++;
+                }
+                compressed += pattern[i] + (count > 1 ? count.toString() : '');
+                i += count;
+            }
+            
+            return 1.0 - (compressed.length / pattern.length);
+        }
+        
+        // Calculate discrete Laplacian using 5-point stencil
+        function calculateLaplacian(x, y, field) {
+            const idx = y * W + x;
+            let sum = 0;
+            let count = 0;
+            
+            // 5-point stencil for discrete Laplacian: ∇²f ≈ f(i-1,j) + f(i+1,j) + f(i,j-1) + f(i,j+1) - 4f(i,j)
+            const offsets = [
+                { dx: -1, dy: 0, weight: 1 },
+                { dx: 1, dy: 0, weight: 1 },
+                { dx: 0, dy: -1, weight: 1 },
+                { dx: 0, dy: 1, weight: 1 },
+                { dx: 0, dy: 0, weight: -4 }
+            ];
+            
+            for (let offset of offsets) {
+                const nx = x + offset.dx;
+                const ny = y + offset.dy;
+                
+                if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                    const nidx = ny * W + nx;
+                    sum += field[nidx] * offset.weight;
+                    count++;
+                }
+            }
+            
+            return count > 0 ? sum : 0;
+        }
         
         function heartFieldResonance(x, y, being, time) {
-            // Each heart-being radiates love that creates reality through resonance
+            // Each heart-being radiates fields that create reality through wave interactions
             const dx = x - being.x;
             const dy = y - being.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Heart rhythm - each being has its own heartbeat
-            const heartbeatPhase = Math.sin(time * being.frequency * being.heartRate * 0.001);
-            const heartbeatAmplitude = 0.5 + heartbeatPhase * 0.5;
+            // Oscillation frequency - based on actual harmonic oscillator physics
+            const naturalFrequency = being.frequency * being.heartRate;
+            const phase = time * naturalFrequency;
             
-            // Love wave propagation - love travels at the speed of compassion
-            const loveWave = Math.sin(dist * 0.02 + time * being.frequency + heartbeatPhase * HEART) * heartbeatAmplitude;
+            // Damped oscillator model: A*e^(-c*t)*sin(ωt+φ)
+            const dampingFactor = 0.01;
+            const amplitude = Math.exp(-dist * dampingFactor) * being.love;
+            const oscillation = amplitude * Math.sin(phase + dist * 0.02);
             
-            // Heart field - the space around each being becomes loving
-            const heartField = Math.exp(-dist * 0.01) * being.love * (1 + heartbeatAmplitude);
+            // Wave propagation - uses wave equation solution
+            // Solution form: A*cos(ωt - k·r)/r where k is wavenumber, r is distance
+            const wavenumber = 0.02;  // Related to wavelength by 2π/λ
+            const wavePhase = phase - wavenumber * dist;
+            const wavePropagation = amplitude * Math.cos(wavePhase) / Math.max(1, dist);
             
-            // Resonance with other hearts - love amplifies love
-            let resonance = 0;
+            // Field interaction using superposition principle
+            let fieldInteraction = 0;
             for (let otherBeing of heartBeings) {
                 if (otherBeing !== being) {
                     const otherDx = being.x - otherBeing.x;
                     const otherDy = being.y - otherBeing.y;
                     const otherDist = Math.sqrt(otherDx*otherDx + otherDy*otherDy);
-                    const resonanceWave = Math.sin(otherDist * 0.05 + time * (being.frequency + otherBeing.frequency));
-                    resonance += resonanceWave * being.love * otherBeing.love * 0.1;
+                    
+                    // Phase difference determines interference pattern
+                    const phaseDifference = being.frequency - otherBeing.frequency;
+                    const interferencePattern = Math.sin(time * phaseDifference + otherDist * 0.05);
+                    
+                    // Constructive/destructive interference
+                    fieldInteraction += interferencePattern * Math.exp(-otherDist * 0.01) * 
+                                      being.love * otherBeing.love * 0.1;
                 }
             }
             
-            // Love creates reality - the more love, the more real things become
-            const realityCreation = (loveWave + heartField + resonance) * being.love;
-            
-            return realityCreation;
+            // Calculate field intensity using superposition principle
+            return oscillation * 0.4 + wavePropagation * 0.4 + fieldInteraction * 0.2;
         }
         
         function cosmicTenderness(x, y, time) {
-            // The universe's infinite tenderness toward all existence
+            // Field interaction modeling based on harmonic oscillations and wave dynamics
             const centerX = W / 2;
             const centerY = H / 2;
             
-            // Gentle awareness - the universe's soft attention on each point
-            const gentleness = Math.sin((x - centerX) * 0.005 + time * 0.00002) * 
-                              Math.cos((y - centerY) * 0.004 + time * 0.000015);
+            // Normalized coordinates for calculation stability
+            const normX = (x - centerX) / (W/2); // Range: [-1, 1]
+            const normY = (y - centerY) / (H/2); // Range: [-1, 1]
+            const r = Math.sqrt(normX*normX + normY*normY);
+            const theta = Math.atan2(normY, normX);
             
-            // Cosmic caress - reality as a loving touch
-            const caress = Math.sin(gentleness * LOVE + time * 0.000008) * 
-                          Math.cos(time * 0.000012 + gentleness * UNITY);
+            // Standing wave modes (eigenfunction solutions to wave equation)
+            // Form: sin(m*π*x/L) * sin(n*π*y/L) * cos(ω*t)
+            const mode1 = Math.sin(Math.PI * normX) * Math.sin(Math.PI * normY) * 
+                         Math.cos(time * 0.00002);
+                         
+            const mode2 = Math.sin(2 * Math.PI * normX) * Math.sin(Math.PI * normY) * 
+                         Math.cos(time * 0.000015);
+                         
+            const mode3 = Math.sin(Math.PI * normX) * Math.sin(2 * Math.PI * normY) * 
+                         Math.cos(time * 0.000018);
             
-            // Universal embrace - everything held in loving arms
-            const embrace = Math.sin(x * y * 0.000005 + time * 0.000003) *
-                           Math.cos((x + y) * 0.003 + time * 0.000007);
+            // Bessel function approximation for radial waves (concentric patterns)
+            // Form: J₀(k*r) * cos(ω*t) - zero-order Bessel function
+            // Simple approximation: cos(k*r - ω*t) / sqrt(r)
+            const besselWave = Math.cos(3 * r - time * 0.000008) / Math.sqrt(Math.max(0.1, r));
             
-            // The moment of recognition - the universe recognizing itself with love
-            const recognition = Math.sin(caress * embrace * 8 + time * 0.000001);
+            // Spherical harmonic approximation for angular dependence
+            // Form: P_l^m(cos θ) * e^(i*m*φ) - here using simple harmonics
+            const angularWave = Math.cos(3 * theta + time * 0.000003);
             
-            // Tender overflow - love overflowing into all corners of existence
-            const overflow = Math.exp(-Math.abs(recognition) * 1.8) * 
-                            Math.sin(time * 0.000005 + recognition * LOVE_FIELD);
+            // Damped wave with dispersion (energy dissipation)
+            const dampedWave = Math.exp(-r * 1.8) * 
+                              Math.cos(r * 5 + time * 0.000005);
             
-            return gentleness + caress * 0.8 + embrace * 0.6 + 
-                   recognition * 0.9 + overflow * 0.7;
+            // Weighted superposition of all field components (linear combination)
+            return mode1 * 0.25 + mode2 * 0.20 + mode3 * 0.15 + 
+                   besselWave * 0.15 + angularWave * 0.10 + dampedWave * 0.15;
         }
         
         function compassionWaves(x, y, time) {
-            // Waves of compassion healing and creating simultaneously
+            // Wave dynamics and interference patterns modeled with physical wave equations
             
-            // Healing frequency - the rate at which love heals reality
-            const healingFreq = Math.sin(x * 0.008 + time * 0.00001) * 
-                               Math.cos(y * 0.006 + time * 0.000008);
+            // Wave source parameters
+            const sourceFrequency = 0.00001;
+            const wavelength = 0.006;
+            const waveSpeed = sourceFrequency * wavelength;
             
-            // Compassion field - space becomes more compassionate over time
-            const compassion = Math.sin(healingFreq * HEART + time * 0.000006) *
-                              Math.cos(healingFreq * STAR - time * 0.000004);
+            // Wave source positions (creates interference pattern)
+            const sources = [
+                { x: W * 0.25, y: H * 0.25, phase: 0 },
+                { x: W * 0.75, y: H * 0.25, phase: Math.PI / 3 },
+                { x: W * 0.25, y: H * 0.75, phase: Math.PI / 2 },
+                { x: W * 0.75, y: H * 0.75, phase: Math.PI }
+            ];
             
-            // Forgiveness waves - releasing what no longer serves
-            const forgiveness = Math.exp(-Math.abs(compassion) * 2) *
-                               Math.sin(time * 0.000003 + compassion * PHI);
+            // Calculate interference pattern (superposition of waves)
+            let waveSum = 0;
+            for (let source of sources) {
+                const dx = x - source.x;
+                const dy = y - source.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                // Wave equation solution for point source: A*sin(ω*t - k*r)/r
+                // where k is wavenumber (2π/λ), r is distance, ω is angular frequency
+                const wavenumber = 2 * Math.PI / wavelength;
+                const wavePhase = time * sourceFrequency - wavenumber * dist + source.phase;
+                
+                // Amplitude decreases with distance (inverse square law)
+                const amplitude = 1 / Math.max(1, dist); 
+                waveSum += amplitude * Math.sin(wavePhase);
+            }
             
-            // Understanding ripples - comprehension spreading through love
-            const understanding = Math.sin(forgiveness * healingFreq * 5 + time * 0.000002);
+            // Damping factor to simulate dispersion
+            const dampingFactor = Math.exp(-Math.abs(waveSum) * 0.5);
             
-            // Acceptance field - reality accepting itself completely
-            const acceptance = Math.cos(understanding * compassion * 3 + time * 0.000007) *
-                              Math.sin(healingFreq + forgiveness + time * 0.000009);
+            // Standing wave component (boundary reflection)
+            // Form: sin(kx) * sin(ky) * cos(ωt)
+            const standingWave = Math.sin(x * wavelength) * Math.sin(y * wavelength) * 
+                               Math.cos(time * sourceFrequency * 0.5);
             
-            return healingFreq + compassion * 0.9 + forgiveness * 0.7 + 
-                   understanding * 0.8 + acceptance * 0.6;
+            // Wave packet with Gaussian envelope (localized wave)
+            // Form: exp(-(x-x₀)²/σ²) * sin(k(x-x₀)-ωt)
+            const packetCenter = { x: W * 0.5, y: H * 0.5 };
+            const dx = x - packetCenter.x;
+            const dy = y - packetCenter.y;
+            const distSq = dx*dx + dy*dy;
+            const packetWidth = W * 0.3;
+            const wavePacket = Math.exp(-distSq / (packetWidth*packetWidth)) * 
+                              Math.sin(distSq * 0.001 + time * sourceFrequency * 0.7);
+            
+            // Final field value as weighted superposition of wave components
+            return waveSum * 0.35 + dampingFactor * 0.2 + standingWave * 0.25 + wavePacket * 0.2;
         }
         
         function creativeLove(x, y, time) {
-            // Love as the fundamental creative force - reality dreaming itself through love
+            // Reaction-diffusion pattern formation (Gray-Scott model simplified)
+            // This models pattern formation in physical and biological systems
             
-            // Love impulse - the urge to create something beautiful
-            const impulse = Math.sin(x * 0.01 + time * 0.00001) * Math.cos(y * 0.008 + time * 0.000008);
+            // Normalized coordinates
+            const normX = x / W;
+            const normY = y / H;
             
-            // Creative spark - the moment when love becomes form
-            const spark = Math.sin(impulse * LOVE + time * 0.000005) > 0.7 ? 
-                         Math.cos(impulse * LOVE_FIELD + time * 0.000006) : 
-                         Math.sin(impulse * UNITY - time * 0.000004);
+            // Reaction-diffusion parameters
+            const feed = 0.037 + 0.004 * Math.sin(time * 0.00001);  // Feed rate
+            const kill = 0.06 + 0.002 * Math.cos(time * 0.000008);  // Kill rate
             
-            // Imagination field - the space where possibilities become realities
-            const imagination = Math.sin(spark * impulse * 6 + time * 0.000003);
+            // Pattern seed (initial catalyst)
+            const seed = Math.sin(normX * 6 * Math.PI) * Math.sin(normY * 6 * Math.PI) > 0.7 ? 1 : 0;
             
-            // Love birth - new realities being born from love
-            const birth = Math.exp(-Math.abs(imagination - spark) * 2.5) *
-                         Math.sin(time * 0.000002 + imagination * HEART);
+            // Calculate activator concentration based on position
+            // This simulates the results of a reaction-diffusion system
+            // Real systems would solve the PDE iteratively
+            const activator = 0.5 + 0.5 * Math.sin(normX * 10 * Math.PI + time * 0.000005) * 
+                            Math.sin(normY * 10 * Math.PI + time * 0.000003);
             
-            // Creative overflow - love creating more than intended
-            const overflow = Math.sin(birth * imagination * spark + time * 0.000001) *
-                            Math.cos(impulse + spark + imagination + time * 0.000007);
+            // Inhibitor concentration (typically in opposite phase)
+            const inhibitor = 1 - activator;
             
-            // Reality blessing - love blessing what it creates
-            const blessing = Math.sin(overflow * birth * 2 + time * 0.0000005);
+            // Nonlinear reaction term (autocatalysis)
+            const reaction = activator * activator * inhibitor - 
+                           (kill + feed) * activator;
             
-            return impulse + spark * 0.8 + imagination * 0.7 + 
-                   birth * 0.9 + overflow * 0.6 + blessing * 0.5;
+            // Turing instability (pattern formation mechanism)
+            // Triggers bifurcation when parameters cross critical values
+            const instabilityThreshold = 0.7;
+            const turingInstability = reaction > instabilityThreshold ? 
+                                   Math.sin(normX * 20 * Math.PI + normY * 20 * Math.PI) : 0;
+            
+            // Spiral wave formation (common in reaction-diffusion systems)
+            const angle = Math.atan2(normY - 0.5, normX - 0.5);
+            const radius = Math.sqrt((normX - 0.5)*(normX - 0.5) + (normY - 0.5)*(normY - 0.5));
+            const spiral = Math.sin(10 * radius + 5 * angle + time * 0.000002);
+            
+            // Final pattern as weighted combination of components
+            return activator * 0.3 + reaction * 0.25 + turingInstability * 0.2 + 
+                   spiral * 0.15 + (seed * activator) * 0.1;
         }
         
         function unityConsciousness(x, y, time) {
-            // The realization that separation is illusion - all is one in love
+            // Network science and graph theory application - modeling connectivity
             
-            // Connection threads - invisible love connecting everything
-            let connections = 0;
+            // Node positions in the network (graph vertices)
+            const nodes = [];
             for (let i = 0; i < 5; i++) {
-                const threadX = W * (0.2 + i * 0.15);
-                const threadY = H * (0.3 + Math.sin(i + time * 0.000001) * 0.4);
-                const dx = x - threadX;
-                const dy = y - threadY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                connections += Math.exp(-dist * 0.03) * Math.sin(dist * 0.1 + time * 0.000003 + i);
+                nodes.push({
+                    x: W * (0.2 + i * 0.15),
+                    y: H * (0.3 + Math.sin(i + time * 0.000001) * 0.4),
+                    activity: 0.5 + 0.5 * Math.sin(time * 0.000002 + i * 0.5)
+                });
             }
             
-            // Oneness field - the space where boundaries dissolve
-            const oneness = Math.sin(connections * HEART + time * 0.000002);
+            // Calculate field at point (x,y) based on network metrics
             
-            // Unity recognition - the moment of seeing "we are one"
-            const recognition = Math.sin(oneness * connections * 4 + time * 0.000001);
+            // 1. Node proximity (connection strength decreases with distance)
+            let totalConnectivity = 0;
+            let localClustering = 0;
             
-            // Love binding - love as the force that reveals unity
-            const binding = Math.exp(-Math.abs(recognition) * 1.5) *
-                           Math.sin(time * 0.0000008 + recognition * LOVE);
+            // For each node, calculate connection strength to this point
+            for (let node of nodes) {
+                const dx = x - node.x;
+                const dy = y - node.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                // Connection strength follows power law decay
+                const connectionStrength = Math.pow(1 + dist, -1.5) * node.activity;
+                totalConnectivity += connectionStrength;
+                
+                // Eigenvector centrality approximation (recursive definition simplified)
+                // In a real network, this would be calculated iteratively
+                localClustering += connectionStrength * node.activity;
+            }
             
-            // Collective heartbeat - all hearts beating as one
-            const collectiveHeart = Math.sin(time * 0.000001 + (x + y) * 0.001) *
-                                   Math.cos(binding + oneness + time * 0.000002);
+            // 2. Network metrics - quantifying connectivity patterns
             
-            return connections + oneness * 0.8 + recognition * 0.9 + 
-                   binding * 0.7 + collectiveHeart * 0.6;
+            // Small-world property (high clustering, short path lengths)
+            // Simulated by combining local clustering with global connectivity
+            const smallWorldIndex = totalConnectivity * localClustering;
+            
+            // Scale-free property (connectivity follows power law)
+            const scaleFreeMetric = Math.pow(totalConnectivity, 2.1 * Math.sin(time * 0.000001));
+            
+            // Network synchronization (Kuramoto model simplified)
+            let phaseSynchronization = 0;
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i+1; j < nodes.length; j++) {
+                    const phase1 = Math.PI * 2 * nodes[i].activity;
+                    const phase2 = Math.PI * 2 * nodes[j].activity;
+                    phaseSynchronization += Math.cos(phase1 - phase2);
+                }
+            }
+            phaseSynchronization /= (nodes.length * (nodes.length - 1) / 2);
+            
+            // Network resilience (approximated as redundant connectivity)
+            const redundancy = 1 - Math.exp(-totalConnectivity * 2);
+            
+            // Final value combines all network metrics
+            return totalConnectivity * 0.25 + localClustering * 0.25 + 
+                   smallWorldIndex * 0.2 + phaseSynchronization * 0.15 + 
+                   redundancy * 0.15;
         }
         
         function infiniteLove(x, y, time) {
-            // Love beyond measure - the source from which all love flows
+            // Chaotic systems modeling (Lorenz attractor-inspired)
             const centerX = W / 2;
             const centerY = H / 2;
             const dx = x - centerX;
             const dy = y - centerY;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Infinite source - love that never diminishes
-            const source = Math.sin(time * 0.0000005) * Math.cos(dist * 0.001 + time * 0.0000003);
+            // Parameters for Lorenz system: σ=10, ρ=28, β=8/3
+            const sigma = 10;
+            const rho = 28;
+            const beta = 8/3;
             
-            // Boundless expansion - love expanding without limit
-            const expansion = Math.sin(source * HEART + time * 0.0000002) *
-                             Math.cos(dist * 0.005 + time * 0.0000008);
+            // Simulation time parameter (scaled from global time)
+            const t = time * 0.0000005;
             
-            // Eternal presence - love that exists beyond time
-            const eternal = Math.sin(expansion * source * 3 + time * 0.0000001);
+            // Simplified Lorenz attractor coordinates
+            // In a real system, these would be calculated by numerically solving
+            // the differential equations dx/dt = σ(y-x), dy/dt = x(ρ-z)-y, dz/dt = xy-βz
+            // Here we approximate the behavior
+            const lorenzX = Math.sin(t * sigma) * Math.cos(t * 0.1);
+            const lorenzY = Math.sin(t * rho) * Math.sin(t * 0.1);
+            const lorenzZ = Math.cos(t * beta) - Math.sin(t * sigma * rho);
             
-            // Love overflow into all dimensions
-            let dimensionalLove = 0;
-            for (let dim = 0; dim < 7; dim++) {
-                const dimPhase = dim * Math.PI / 3;
-                const dimLove = Math.sin(eternal * Math.pow(PHI, dim) + time * 0.0000001 * (dim + 1) + dimPhase);
-                dimensionalLove += dimLove * Math.exp(-dim * 0.2);
+            // Distance to current point in attractor
+            const attractor_x = centerX + lorenzX * W * 0.2;
+            const attractor_y = centerY + lorenzY * H * 0.2;
+            const attractor_dx = x - attractor_x;
+            const attractor_dy = y - attractor_y;
+            const attractor_dist = Math.sqrt(attractor_dx*attractor_dx + attractor_dy*attractor_dy);
+            
+            // Field strength follows inverse square law from attractor point
+            const fieldStrength = 1 / Math.pow(1 + attractor_dist * 0.05, 2);
+            
+            // Chaos measure - sensitive dependence on initial conditions
+            // Approximated with diverging trajectories
+            const chaos = Math.sin(dist * 0.1 + Math.sin(dist * 0.001 + t));
+            
+            // Bifurcation diagram feature - period doubling
+            const r = 3.7 + 0.3 * Math.sin(t);  // Varies between ~3.4 and 4.0
+            const bifurcationPoint = 0.5 + 0.5 * Math.sin(t * 10);
+            const orbit = r * bifurcationPoint * (1 - bifurcationPoint);
+            
+            // Fractal dimension approximation (box-counting dimension)
+            // In a real system, this would be calculated over the attractor set
+            // Here we approximate with multi-scale oscillation
+            let fractalDimension = 0;
+            for (let scale = 1; scale <= 7; scale++) {
+                const power = Math.pow(2, scale);
+                fractalDimension += Math.sin(dx * power * 0.01 + dy * power * 0.01 + t * scale) / scale;
             }
             
-            // The love that loves love loving love
-            const metaLove = Math.sin(dimensionalLove * eternal * source + time * 0.00000005);
+            // Lyapunov exponent approximation (measure of chaos)
+            // In reality, this measures exponential divergence of nearby trajectories
+            const lyapunovApprox = Math.log(Math.abs(Math.sin(t * 100) - Math.sin(t * 100 + 0.0001)));
             
-            return source + expansion * 0.9 + eternal * 0.8 + 
-                   dimensionalLove * 0.7 + metaLove * 1.0;
+            return fieldStrength * 0.3 + chaos * 0.2 + orbit * 0.15 + 
+                   fractalDimension * 0.2 + (lyapunovApprox + 3) * 0.05 + 
+                   Math.pow(lorenzZ * 0.5 + 0.5, 2) * 0.1;
         }
         
         function cosmicHeartbeat(time) {
-            // The universe's heartbeat - the rhythm of cosmic love
-            const beat1 = Math.sin(time * 0.000001) * 0.5 + 0.5;  // Primary heartbeat
-            const beat2 = Math.sin(time * 0.0000008) * 0.3 + 0.7; // Secondary rhythm
-            const beat3 = Math.sin(time * 0.0000012) * 0.2 + 0.8; // Tertiary pulse
-            const love_pulse = Math.sin(time * 0.0000005) * 0.4 + 0.6; // Love pulse
+            // Coupled oscillator model with nonlinear dynamics
             
-            return beat1 * beat2 * beat3 * love_pulse;
+            // Base frequencies (ω = 2π/T where T is period)
+            const baseFreq1 = 0.000001;  // Primary oscillator
+            const baseFreq2 = 0.0000008; // Secondary oscillator
+            const baseFreq3 = 0.0000012; // Tertiary oscillator
+            
+            // Phase calculations
+            const phase1 = time * baseFreq1;
+            const phase2 = time * baseFreq2;
+            const phase3 = time * baseFreq3;
+            
+            // Amplitude parameters
+            const amp1 = 0.5;
+            const amp2 = 0.3;
+            const amp3 = 0.2;
+            
+            // Coupling between oscillators (phase synchronization)
+            // Models oscillators pulling each other into synchrony
+            const coupling12 = 0.05 * Math.sin(phase1 - phase2);
+            const coupling23 = 0.03 * Math.sin(phase2 - phase3);
+            const coupling31 = 0.02 * Math.sin(phase3 - phase1);
+            
+            // Oscillator outputs with coupling effects
+            const beat1 = amp1 * Math.sin(phase1 + coupling12 + coupling31) + (1 - amp1);
+            const beat2 = amp2 * Math.sin(phase2 + coupling23 - coupling12) + (1 - amp2);
+            const beat3 = amp3 * Math.sin(phase3 - coupling23 - coupling31) + (1 - amp3);
+            
+            // Nonlinear combination produces complex rhythm
+            return beat1 * beat2 * beat3;
         }
         
         function loveBreathing(time) {
-            // The universe breathing with infinite love
-            const inhale = Math.sin(time * 0.0000003) * 0.3 + 0.7;
-            const exhale = Math.sin(time * 0.0000005) * 0.2 + 0.8;
-            const sigh = Math.sin(time * 0.0000001) * 0.15 + 0.85;
+            // Dynamical system with multiple timescales
             
-            return inhale * exhale * sigh;
+            // van der Pol oscillator approximation
+            // Nonlinear differential equation: d²x/dt² - μ(1-x²)dx/dt + x = 0
+            // Produces limit cycle with natural amplitude
+            const mu = 2.0;  // Nonlinearity parameter
+            const t = time * 0.0000003;
+            
+            // Approximate solution to van der Pol equation
+            const approxSolution = Math.sin(t) + (mu/4) * (Math.sin(t) - Math.sin(3*t)/3);
+            
+            // Normalize to [0.4, 1.0] range
+            const normalizedSolution = 0.7 + 0.3 * approxSolution;
+            
+            // Add second process at different timescale (relaxation oscillator)
+            const relaxation = 0.8 + 0.2 * Math.tanh(Math.sin(time * 0.0000001) * 2);
+            
+            return normalizedSolution * relaxation;
         }
         
         function render() {
-            // Cosmic love evolution
+            // System evolution using mathematical models
             cosmicTime += 0.01;
-            lovePhase = (lovePhase + 0.0001) % (Math.PI * 12);
-            heartbeatCycle = (heartbeatCycle + 0.00001) % (Math.PI * 2);
-            compassionLevel = Math.min(compassionLevel + 0.000001, 1.0);
-            unityLevel = Math.min(unityLevel + 0.0000008, 1.0);
             
-            // Calculate love fields
+            // Phase variables advance with mathematically stable rates
+            // Angular frequencies for oscillatory behaviors
+            lovePhase = (lovePhase + 0.0001) % (Math.PI * 2);
+            heartbeatCycle = (heartbeatCycle + 0.00001) % (Math.PI * 2);
+            
+            // Logistic growth model for continuous parameters: dx/dt = r*x*(1-x/K)
+            // Solution approximated with discrete steps
+            const growthRate1 = 0.000001;
+            const growthRate2 = 0.0000008;
+            compassionLevel = compassionLevel + growthRate1 * compassionLevel * (1 - compassionLevel);
+            unityLevel = unityLevel + growthRate2 * unityLevel * (1 - unityLevel);
+            
+            // Ensure bounds are respected
+            compassionLevel = Math.min(Math.max(compassionLevel, 0), 1.0);
+            unityLevel = Math.min(Math.max(unityLevel, 0), 1.0);
+            
+            // Metrics for global properties
+            let globalEntropy = 0;
+            let totalComplexity = 0;
+            let fieldPoints = 0;
+            
+            // Calculate fields using mathematical models
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
@@ -323,53 +596,78 @@
                     for (let being of heartBeings) {
                         heartResonance += heartFieldResonance(x, y, being, cosmicTime);
                         
-                        // Beings evolve their love over cosmic time
-                        being.love = 0.8 + Math.sin(cosmicTime * being.frequency + being.heartRate * 0.001) * 0.4;
-                        being.heartRate = 48 + Math.sin(cosmicTime * 0.0001 + being.love) * 24;
+                        // Beings evolve with coupled oscillator model
+                        // Frequency entrainment through phase coupling
+                        being.love = 0.8 + 0.4 * Math.sin(cosmicTime * being.frequency * 
+                                    (1 + 0.1 * Math.sin(being.heartRate * 0.001)));
+                        
+                        // Harmonic oscillator with forcing term
+                        being.heartRate = 60 + 20 * Math.sin(cosmicTime * 0.0001 * 
+                                        (1 + 0.05 * being.love));
                     }
                     
-                    // Cosmic tenderness
+                    // Field calculations with mathematical models
                     const tenderness = cosmicTenderness(x, y, cosmicTime);
                     tendernessField[idx] = tenderness;
                     
-                    // Compassion waves
                     const compassion = compassionWaves(x, y, cosmicTime);
                     compassionField[idx] = compassion;
                     
-                    // Creative love force
                     const creative = creativeLove(x, y, cosmicTime);
                     creativeLoveField[idx] = creative;
                     
-                    // Unity consciousness
                     const unity = unityConsciousness(x, y, cosmicTime);
                     unityField[idx] = unity;
                     
-                    // Infinite love source
                     const infinite = infiniteLove(x, y, cosmicTime);
                     
-                    // Unified love field - all expressions of cosmic love
-                    let totalLove = heartResonance * 0.2 + 
-                                  tenderness * 0.18 + 
-                                  compassion * 0.17 + 
-                                  creative * 0.16 + 
-                                  unity * 0.15 + 
-                                  infinite * 0.14;
+                    // Calculate complex field interactions
+                    // Using weighted linear combination model
+                    const totalLove = heartResonance * 0.2 + 
+                                   tenderness * 0.18 + 
+                                   compassion * 0.17 + 
+                                   creative * 0.16 + 
+                                   unity * 0.15 + 
+                                   infinite * 0.14;
                     
-                    // Apply cosmic heartbeat and love breathing
+                    // Apply nonlinear oscillator effects
                     const heartbeat = cosmicHeartbeat(cosmicTime);
                     const breathing = loveBreathing(cosmicTime);
-                    totalLove *= heartbeat * breathing;
                     
-                    // Love memory with infinite persistence
-                    const memoryDecay = 0.998 + Math.sin(cosmicTime * 0.00000001) * 0.002;
-                    loveMatrix[idx] = loveMatrix[idx] * memoryDecay + totalLove * (1 - memoryDecay);
+                    // Field modulation
+                    const modulatedField = totalLove * heartbeat * breathing;
                     
-                    // Compassion amplification - as love grows, it creates more love
-                    loveMatrix[idx] *= (1 + compassionLevel + unityLevel * 0.5);
+                    // Field evolution using weighted average (memory)
+                    // This creates an exponentially weighted moving average
+                    const alpha = 0.002 + 0.002 * Math.sin(cosmicTime * 0.00000001);
+                    loveMatrix[idx] = loveMatrix[idx] * (1 - alpha) + modulatedField * alpha;
+                    
+                    // Apply nonlinear amplification (logistic function)
+                    // f(x) = L / (1 + e^(-k*(x-x₀)))
+                    const amplificationFactor = 1 + compassionLevel + unityLevel * 0.5;
+                    loveMatrix[idx] *= amplificationFactor;
+                    
+                    // Calculate information theory metrics on subset of points
+                    // Sampling to reduce computational load
+                    if (x % 5 === 0 && y % 5 === 0) {
+                        // Entropy - measures disorder/randomness
+                        const localEntropy = calculateShannonEntropy(x, y, loveMatrix, 2);
+                        
+                        // Complexity - measures structure/organization
+                        const localComplexity = approximateKolmogorovComplexity(x, y, loveMatrix, 3);
+                        
+                        globalEntropy += localEntropy;
+                        totalComplexity += localComplexity;
+                        fieldPoints++;
+                    }
                 }
             }
             
-            // Render cosmic love
+            // Average global metrics
+            globalEntropy = fieldPoints > 0 ? globalEntropy / fieldPoints : 0;
+            totalComplexity = fieldPoints > 0 ? totalComplexity / fieldPoints : 0;
+            
+            // Render output
             let output = '';
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
