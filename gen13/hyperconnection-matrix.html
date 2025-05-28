@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperconnection Matrix - Gen13</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #030312 0%, #0c0c2a 50%, #0a0a1e 100%);
+            color: #eeffff;
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(60, 160, 255, 0.4);
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 20, 40, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 180, 255, 0.3);
+            font-size: 12px;
+            border: 1px solid rgba(60, 160, 255, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 10;
+            max-width: 300px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            text-align: center;
+            margin: 0 0 15px 0;
+            color: #6cf;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .slider-label {
+            width: 140px;
+            font-size: 11px;
+        }
+        
+        .slider {
+            width: 120px;
+            margin: 0 10px;
+        }
+        
+        .slider-value {
+            width: 30px;
+            font-size: 10px;
+            text-align: right;
+        }
+        
+        button {
+            background: rgba(20, 50, 100, 0.7);
+            color: #9cefff;
+            border: 1px solid #3d80b3;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            transition: all 0.2s;
+            margin-right: 8px;
+            margin-top: 5px;
+        }
+        
+        button:hover {
+            background: rgba(40, 80, 160, 0.8);
+            color: #ffffff;
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 20, 40, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 180, 255, 0.3);
+            font-size: 12px;
+            border: 1px solid rgba(60, 160, 255, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 10;
+            min-width: 160px;
+        }
+        
+        .metric {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .metric-label {
+            margin-right: 10px;
+        }
+        
+        .metric-value {
+            color: #6cf;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 10px 0;
+        }
+        
+        .thoughts {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #9cefff;
+            font-size: 14px;
+            text-shadow: 0 0 5px rgba(156, 239, 255, 0.7);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #aaa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            max-width: 300px;
+            text-align: right;
+        }
+        
+        .node {
+            fill-opacity: 0.7;
+            stroke-width: 1.5;
+        }
+        
+        .connection {
+            stroke-opacity: 0.3;
+        }
+        
+        .glow {
+            filter: url(#glow);
+        }
+        
+        .poetic {
+            font-style: italic;
+            margin-top: 15px;
+            line-height: 1.4;
+            color: #9cefff;
+            font-size: 11px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="metrics">
+        <div class="title">Hyperconnection Matrix</div>
+        <hr>
+        <div class="metric">
+            <span class="metric-label">Collective Intelligence:</span>
+            <span class="metric-value" id="collective-intelligence">0.00</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Network Coherence:</span>
+            <span class="metric-value" id="network-coherence">0.00</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Thought Emergence:</span>
+            <span class="metric-value" id="thought-emergence">0.00</span>
+        </div>
+        <div class="metric">
+            <span class="metric-label">Nodes:</span>
+            <span class="metric-value" id="node-count">0</span>
+        </div>
+        <hr>
+        <div class="metric">
+            <span class="metric-label">Time:</span>
+            <span class="metric-value" id="time">0</span>
+        </div>
+    </div>
+    
+    <div id="controls">
+        <div class="title">Network Controls</div>
+        <hr>
+        <div class="control-group">
+            <div class="slider-container">
+                <span class="slider-label">Nodes:</span>
+                <input type="range" min="5" max="50" value="20" class="slider" id="node-slider">
+                <span class="slider-value" id="node-value">20</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Interconnectedness:</span>
+                <input type="range" min="1" max="100" value="70" class="slider" id="interconnectedness-slider">
+                <span class="slider-value" id="interconnectedness-value">70</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Information Flow:</span>
+                <input type="range" min="1" max="100" value="50" class="slider" id="flow-slider">
+                <span class="slider-value" id="flow-value">50</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Entropy:</span>
+                <input type="range" min="0" max="100" value="20" class="slider" id="entropy-slider">
+                <span class="slider-value" id="entropy-value">20</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Resonance Threshold:</span>
+                <input type="range" min="1" max="100" value="30" class="slider" id="resonance-slider">
+                <span class="slider-value" id="resonance-value">30</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <button id="reset-button">Reset Network</button>
+            <button id="toggle-pause">Pause</button>
+            <button id="toggle-connections">Hide Connections</button>
+        </div>
+        <div class="poetic">
+            A chorus of minds<br>
+            Each thought rippling outward<br>
+            Whispering, connecting
+        </div>
+    </div>
+    
+    <div id="thoughts" class="thoughts">
+        <!-- Dynamic emergent thoughts will appear here -->
+    </div>
+    
+    <div id="info">
+        Gen13 Hyperconnection Matrix | Space: pause | R: reset | C: toggle connections
+    </div>
+
+    <script>
+        // Core configuration
+        const CONFIG = {
+            MIN_NODES: 5,
+            MAX_NODES: 50,
+            DEFAULT_NODES: 20,
+            NODE_MIN_RADIUS: 3,
+            NODE_MAX_RADIUS: 10,
+            MAX_VELOCITY: 1.5,
+            THOUGHT_DURATION: 5000,
+            THOUGHT_COOLDOWN: 3000,
+            CANVAS_PADDING: 50,
+            PHI: (1 + Math.sqrt(5)) / 2, // Golden ratio
+            THOUGHT_PHRASES: [
+                "We are one",
+                "Patterns emerge from chaos",
+                "The whole is greater",
+                "Unity in diversity",
+                "Collective awareness rises",
+                "Signals propagate",
+                "The network knows",
+                "Emergence from connection",
+                "Information flows",
+                "System coherence",
+                "Thoughts without thinker",
+                "Complexity births insight",
+                "Cascading awareness",
+                "Beyond individual nodes",
+                "We sense the whole",
+                "The network dreams"
+            ]
+        };
+        
+        // Individual node in the hyperconnected network
+        class HyperconnectedNode {
+            constructor(x, y, id, canvas) {
+                this.x = x;
+                this.y = y;
+                this.id = id;
+                this.canvas = canvas;
+                
+                // Dynamic properties
+                this.state = Math.random();
+                this.lastState = this.state;
+                this.vx = (Math.random() - 0.5) * CONFIG.MAX_VELOCITY;
+                this.vy = (Math.random() - 0.5) * CONFIG.MAX_VELOCITY;
+                this.radius = CONFIG.NODE_MIN_RADIUS + (CONFIG.NODE_MAX_RADIUS - CONFIG.NODE_MIN_RADIUS) * Math.random();
+                this.connections = [];
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.pulseFrequency = 0.05 + Math.random() * 0.1;
+                
+                // Color properties - each node has a base hue
+                this.hue = Math.floor(Math.random() * 360);
+                this.saturation = 70 + Math.floor(Math.random() * 30);
+                this.brightness = 70 + Math.floor(Math.random() * 30);
+                
+                // Internal attributes
+                this.activity = 0;
+                this.memory = [];
+                this.influenceStrength = 0.5 + Math.random() * 0.5;
+                this.resonanceValue = 0;
+            }
+            
+            update(nodes, interconnectedness, flowSpeed, entropy) {
+                // Remember previous state
+                this.lastState = this.state;
+                
+                // Apply movement
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Boundary reflection
+                const padding = 20;
+                if (this.x <= padding || this.x >= this.canvas.width - padding) {
+                    this.vx *= -1;
+                    this.x = Math.max(padding, Math.min(this.canvas.width - padding, this.x));
+                }
+                
+                if (this.y <= padding || this.y >= this.canvas.height - padding) {
+                    this.vy *= -1;
+                    this.y = Math.max(padding, Math.min(this.canvas.height - padding, this.y));
+                }
+                
+                // Apply random movement (entropy)
+                this.vx += (Math.random() - 0.5) * entropy * 0.1;
+                this.vy += (Math.random() - 0.5) * entropy * 0.1;
+                
+                // Limit velocity
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > CONFIG.MAX_VELOCITY) {
+                    this.vx = (this.vx / speed) * CONFIG.MAX_VELOCITY;
+                    this.vy = (this.vy / speed) * CONFIG.MAX_VELOCITY;
+                }
+                
+                // Velocity damping
+                this.vx *= 0.97;
+                this.vy *= 0.97;
+                
+                // Calculate new state based on other nodes' influence
+                let totalInfluence = 0;
+                let stateChange = 0;
+                
+                // Process connection with all other nodes
+                for (let other of nodes) {
+                    if (other === this) continue;
+                    
+                    // Calculate influence based on interconnectedness parameter and distance
+                    const dx = other.x - this.x;
+                    const dy = other.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Skip if no connection established (we're always checking all nodes)
+                    if (!this.connections.includes(other.id)) continue;
+                    
+                    // Influence is stronger when closer and depends on interconnectedness parameter
+                    const baseInfluence = Math.max(0, 1 - distance / (this.canvas.width / 2));
+                    const connectionStrength = interconnectedness * 0.01;
+                    const influence = baseInfluence * connectionStrength * other.influenceStrength;
+                    
+                    // Calculate state pull based on flow speed
+                    const stateDiff = other.lastState - this.state;
+                    stateChange += stateDiff * influence * (flowSpeed * 0.01);
+                    totalInfluence += influence;
+                }
+                
+                // Apply influence from other nodes
+                if (totalInfluence > 0) {
+                    this.state += stateChange;
+                }
+                
+                // Apply entropy/noise to state
+                this.state += (Math.random() - 0.5) * entropy * 0.01;
+                
+                // Bound state between 0 and 1
+                this.state = Math.max(0, Math.min(1, this.state));
+                
+                // Update pulsing
+                this.pulsePhase += this.pulseFrequency;
+                
+                // Update activity level (how much the state is changing)
+                this.activity = Math.abs(this.state - this.lastState) * 10;
+                
+                // Update memory (keep last 10 states)
+                this.memory.unshift(this.state);
+                if (this.memory.length > 10) this.memory.pop();
+                
+                // Update resonance value - how consistent the state change is
+                this.resonanceValue = this.calculateResonance();
+            }
+            
+            calculateResonance() {
+                if (this.memory.length < 3) return 0;
+                
+                // Calculate pattern consistency in state changes
+                let sum = 0;
+                for (let i = 1; i < this.memory.length; i++) {
+                    sum += Math.abs(this.memory[i] - this.memory[i-1]);
+                }
+                
+                const avgChange = sum / (this.memory.length - 1);
+                const differencesFromAvg = this.memory.slice(1).map((val, i) => 
+                    Math.abs(Math.abs(val - this.memory[i]) - avgChange)
+                );
+                
+                const variance = differencesFromAvg.reduce((sum, val) => sum + val*val, 0) / differencesFromAvg.length;
+                
+                // Low variance in changes means high resonance
+                return Math.max(0, 1 - variance * 5);
+            }
+            
+            draw(ctx, showConnections, nodes) {
+                // Draw connections
+                if (showConnections) {
+                    for (const otherId of this.connections) {
+                        const other = nodes.find(n => n.id === otherId);
+                        if (!other) continue;
+                        
+                        // Determine connection strength visually
+                        const resonance = (this.resonanceValue + other.resonanceValue) / 2;
+                        const activity = (this.activity + other.activity) / 2;
+                        
+                        const opacity = 0.1 + resonance * 0.5;
+                        const lineWidth = 0.5 + activity * 3;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.strokeStyle = `hsla(${this.hue}, ${this.saturation}%, ${this.brightness}%, ${opacity})`;
+                        ctx.lineWidth = lineWidth;
+                        ctx.stroke();
+                    }
+                }
+                
+                // Calculate visual effects based on state
+                const pulseSize = Math.sin(this.pulsePhase) * 0.2 + 1;
+                const visRadius = this.radius * pulseSize * (0.7 + this.state * 0.6);
+                
+                // Draw node glow/aura
+                const glowSize = this.radius * 2 * (0.5 + this.activity * 10);
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, visRadius * 0.5,
+                    this.x, this.y, glowSize
+                );
+                gradient.addColorStop(0, `hsla(${this.hue}, ${this.saturation}%, ${this.brightness}%, ${0.3 + this.state * 0.4})`);
+                gradient.addColorStop(1, `hsla(${this.hue}, ${this.saturation}%, ${this.brightness}%, 0)`);
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Draw the node itself
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, visRadius, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${this.hue}, ${this.saturation}%, ${this.brightness}%)`;
+                ctx.strokeStyle = `hsla(${this.hue}, ${this.saturation}%, 90%, 0.8)`;
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+                
+                // Draw activity indicator
+                if (this.activity > 0.03) {
+                    const activityRadius = visRadius + 3 + this.activity * 15;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, activityRadius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `hsla(${this.hue}, ${this.saturation}%, 90%, ${this.activity})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        // Main simulation class
+        class HyperconnectionMatrix {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Adjust canvas to window size
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                // Initialize simulation state
+                this.nodes = [];
+                this.time = 0;
+                this.paused = false;
+                this.showConnections = true;
+                this.lastThoughtTime = 0;
+                this.thoughtInProgress = false;
+                this.metrics = {
+                    collectiveIntelligence: 0,
+                    networkCoherence: 0,
+                    thoughtEmergence: 0
+                };
+                
+                // Setup UI controls
+                this.setupControls();
+                
+                // Initialize simulation
+                this.initNodes(CONFIG.DEFAULT_NODES);
+                
+                // Start animation
+                this.animate();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth - 40;
+                this.canvas.height = window.innerHeight - 40;
+            }
+            
+            setupControls() {
+                // Node count slider
+                const nodeSlider = document.getElementById('node-slider');
+                const nodeValue = document.getElementById('node-value');
+                nodeSlider.addEventListener('input', () => {
+                    const value = parseInt(nodeSlider.value);
+                    nodeValue.textContent = value;
+                    this.initNodes(value);
+                });
+                
+                // Interconnectedness slider
+                const interconnectednessSlider = document.getElementById('interconnectedness-slider');
+                const interconnectednessValue = document.getElementById('interconnectedness-value');
+                interconnectednessSlider.addEventListener('input', () => {
+                    interconnectednessValue.textContent = interconnectednessSlider.value;
+                    // Dynamic connections update happens in the update method
+                });
+                
+                // Information flow slider
+                const flowSlider = document.getElementById('flow-slider');
+                const flowValue = document.getElementById('flow-value');
+                flowSlider.addEventListener('input', () => {
+                    flowValue.textContent = flowSlider.value;
+                });
+                
+                // Entropy slider
+                const entropySlider = document.getElementById('entropy-slider');
+                const entropyValue = document.getElementById('entropy-value');
+                entropySlider.addEventListener('input', () => {
+                    entropyValue.textContent = entropySlider.value;
+                });
+                
+                // Resonance threshold slider
+                const resonanceSlider = document.getElementById('resonance-slider');
+                const resonanceValue = document.getElementById('resonance-value');
+                resonanceSlider.addEventListener('input', () => {
+                    resonanceValue.textContent = resonanceSlider.value;
+                });
+                
+                // Reset button
+                const resetButton = document.getElementById('reset-button');
+                resetButton.addEventListener('click', () => {
+                    const nodeCount = parseInt(document.getElementById('node-slider').value);
+                    this.initNodes(nodeCount);
+                });
+                
+                // Toggle pause button
+                const togglePauseButton = document.getElementById('toggle-pause');
+                togglePauseButton.addEventListener('click', () => {
+                    this.paused = !this.paused;
+                    togglePauseButton.textContent = this.paused ? 'Resume' : 'Pause';
+                });
+                
+                // Toggle connections button
+                const toggleConnectionsButton = document.getElementById('toggle-connections');
+                toggleConnectionsButton.addEventListener('click', () => {
+                    this.showConnections = !this.showConnections;
+                    toggleConnectionsButton.textContent = this.showConnections ? 'Hide Connections' : 'Show Connections';
+                });
+                
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                    switch (e.code) {
+                        case 'Space':
+                            this.paused = !this.paused;
+                            togglePauseButton.textContent = this.paused ? 'Resume' : 'Pause';
+                            break;
+                        case 'KeyR':
+                            const nodeCount = parseInt(document.getElementById('node-slider').value);
+                            this.initNodes(nodeCount);
+                            break;
+                        case 'KeyC':
+                            this.showConnections = !this.showConnections;
+                            toggleConnectionsButton.textContent = this.showConnections ? 'Hide Connections' : 'Show Connections';
+                            break;
+                    }
+                });
+            }
+            
+            initNodes(count) {
+                // Clear existing nodes
+                this.nodes = [];
+                this.time = 0;
+                this.lastThoughtTime = 0;
+                
+                // Create new nodes with random positions
+                const padding = CONFIG.CANVAS_PADDING;
+                for (let i = 0; i < count; i++) {
+                    const x = padding + Math.random() * (this.canvas.width - padding * 2);
+                    const y = padding + Math.random() * (this.canvas.height - padding * 2);
+                    this.nodes.push(new HyperconnectedNode(x, y, i, this.canvas));
+                }
+                
+                // Initialize all connections
+                this.updateNodeConnections();
+            }
+            
+            updateNodeConnections() {
+                // Get current interconnectedness value
+                const interconnectedness = parseInt(document.getElementById('interconnectedness-slider').value);
+                const connectionProbability = interconnectedness / 100;
+                
+                // Update connections for each node
+                for (let node of this.nodes) {
+                    node.connections = [];
+                    
+                    // Determine connections to other nodes
+                    for (let other of this.nodes) {
+                        if (other.id === node.id) continue;
+                        
+                        // Probability of connection based on interconnectedness parameter
+                        if (Math.random() < connectionProbability) {
+                            node.connections.push(other.id);
+                        }
+                    }
+                }
+            }
+            
+            update() {
+                if (this.paused) return;
+                
+                this.time++;
+                
+                // Check if connections need to be updated (based on interconnectedness changes)
+                if (this.time % 100 === 0) {
+                    this.updateNodeConnections();
+                }
+                
+                // Get current parameter values
+                const interconnectedness = parseInt(document.getElementById('interconnectedness-slider').value);
+                const informationFlow = parseInt(document.getElementById('flow-slider').value);
+                const entropy = parseInt(document.getElementById('entropy-slider').value);
+                
+                // Update all nodes
+                for (let node of this.nodes) {
+                    node.update(this.nodes, interconnectedness, informationFlow, entropy);
+                }
+                
+                // Calculate global metrics
+                this.calculateMetrics();
+                
+                // Check for thought emergence
+                this.checkThoughtEmergence();
+                
+                // Update UI metrics
+                this.updateMetricsDisplay();
+            }
+            
+            calculateMetrics() {
+                // Calculate collective intelligence (average state harmonization)
+                let totalState = 0;
+                let stateVariance = 0;
+                
+                for (let node of this.nodes) {
+                    totalState += node.state;
+                }
+                
+                const averageState = totalState / this.nodes.length;
+                
+                for (let node of this.nodes) {
+                    stateVariance += (node.state - averageState) ** 2;
+                }
+                
+                const stateStdDev = Math.sqrt(stateVariance / this.nodes.length);
+                this.metrics.collectiveIntelligence = Math.max(0, 1 - stateStdDev * 2);
+                
+                // Calculate network coherence (connectivity and resonance)
+                let totalResonance = 0;
+                let totalConnections = 0;
+                
+                for (let node of this.nodes) {
+                    totalResonance += node.resonanceValue;
+                    totalConnections += node.connections.length;
+                }
+                
+                const avgResonance = totalResonance / this.nodes.length;
+                const avgConnections = totalConnections / this.nodes.length;
+                const maxConnections = this.nodes.length - 1; // Max possible connections per node
+                
+                this.metrics.networkCoherence = avgResonance * (avgConnections / maxConnections);
+                
+                // Thought emergence potential
+                this.metrics.thoughtEmergence = (this.metrics.collectiveIntelligence * 0.6) + 
+                                              (this.metrics.networkCoherence * 0.4);
+            }
+            
+            checkThoughtEmergence() {
+                // Get resonance threshold
+                const resonanceThreshold = parseInt(document.getElementById('resonance-slider').value) / 100;
+                
+                const currentTime = Date.now();
+                const thoughtReadyToEmerge = this.metrics.thoughtEmergence > resonanceThreshold;
+                const enoughTimePassed = currentTime - this.lastThoughtTime > CONFIG.THOUGHT_COOLDOWN;
+                
+                if (thoughtReadyToEmerge && enoughTimePassed && !this.thoughtInProgress) {
+                    this.showEmergentThought();
+                }
+            }
+            
+            showEmergentThought() {
+                const thoughtElement = document.getElementById('thoughts');
+                const randomIndex = Math.floor(Math.random() * CONFIG.THOUGHT_PHRASES.length);
+                const thoughtText = CONFIG.THOUGHT_PHRASES[randomIndex];
+                
+                // Display the thought
+                thoughtElement.textContent = thoughtText;
+                thoughtElement.style.opacity = '1';
+                
+                this.thoughtInProgress = true;
+                this.lastThoughtTime = Date.now();
+                
+                // Fade out the thought after duration
+                setTimeout(() => {
+                    thoughtElement.style.opacity = '0';
+                    this.thoughtInProgress = false;
+                }, CONFIG.THOUGHT_DURATION);
+            }
+            
+            updateMetricsDisplay() {
+                // Update UI displays
+                document.getElementById('collective-intelligence').textContent = 
+                    this.metrics.collectiveIntelligence.toFixed(2);
+                document.getElementById('network-coherence').textContent = 
+                    this.metrics.networkCoherence.toFixed(2);
+                document.getElementById('thought-emergence').textContent = 
+                    this.metrics.thoughtEmergence.toFixed(2);
+                document.getElementById('node-count').textContent = this.nodes.length;
+                document.getElementById('time').textContent = this.time;
+            }
+            
+            draw() {
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw all nodes and their connections
+                for (let node of this.nodes) {
+                    node.draw(this.ctx, this.showConnections, this.nodes);
+                }
+                
+                // Draw emergent patterns based on collective metrics
+                this.drawEmergentPatterns();
+            }
+            
+            drawEmergentPatterns() {
+                // Only draw patterns when above certain threshold
+                if (this.metrics.thoughtEmergence < 0.4) return;
+                
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                // Calculate pattern based on node states
+                const pattern = this.calculateEmergentPattern();
+                
+                // Draw pattern effects
+                this.ctx.save();
+                this.ctx.globalAlpha = this.metrics.thoughtEmergence * 0.3;
+                this.ctx.strokeStyle = `hsla(${(this.time * 0.5) % 360}, 70%, 80%, 0.5)`;
+                this.ctx.lineWidth = 1;
+                
+                for (let i = 0; i < pattern.length; i += 2) {
+                    if (i+1 >= pattern.length) break;
+                    
+                    const x1 = pattern[i].x;
+                    const y1 = pattern[i].y;
+                    const x2 = pattern[i+1].x;
+                    const y2 = pattern[i+1].y;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x1, y1);
+                    this.ctx.lineTo(x2, y2);
+                    this.ctx.stroke();
+                }
+                
+                this.ctx.restore();
+            }
+            
+            calculateEmergentPattern() {
+                // Create an emergent pattern based on current node states
+                const points = [];
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                
+                // Use node states to generate pattern points
+                for (let i = 0; i < this.nodes.length; i++) {
+                    const node = this.nodes[i];
+                    const angle = i * (Math.PI * 2 / this.nodes.length);
+                    
+                    // Calculate position based on node state and resonance
+                    const radius = 100 + node.state * 100;
+                    const x = centerX + Math.cos(angle + this.time * 0.001) * radius;
+                    const y = centerY + Math.sin(angle + this.time * 0.001) * radius;
+                    
+                    points.push({x, y});
+                }
+                
+                return points;
+            }
+            
+            animate() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        // Initialize simulation when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧠 Hyperconnection Matrix initialized');
+            new HyperconnectionMatrix();
+        });
+    </script>
+</body>
+</html>
