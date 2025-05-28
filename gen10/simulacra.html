@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulacra - Infinite Reflections</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #1a1a2e, #16213e);
+            color: #e94560;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.9;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: pulse 5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { background: #1a1a2e; color: #e94560; }
+            50% { background: #16213e; color: #0f3460; }
+        }
+
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 2px rgba(233,69,96,0.6), 0 0 4px rgba(233,69,96,0.3);
+            filter: blur(0.05px);
+            transition: all 0.1s ease;
+        }
+
+        #canvas:hover {
+            transform: scale(1.02);
+            text-shadow: 0 0 3px rgba(233,69,96,0.8), 0 0 6px rgba(233,69,96,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+
+        // Simulacra Fields
+        let reflectionMatrix = new Array(W * H).fill(0);
+        let distortionField = new Array(W * H).fill(0);
+        let recursionField = new Array(W * H).fill(0);
+
+        // Symbolic representation
+        const symbols = [' ', '.', ':', '*', 'o', 'O', '@', '#', '%', '&'];
+
+        function render() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = reflectionMatrix[idx] + distortionField[idx] * Math.sin(time / 10) + recursionField[idx] * Math.cos(time / 15);
+
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+
+        evolve();
+    </script>
+</body>
+</html>

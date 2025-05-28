@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Quantum Consciousness Garden - Reality Cultivation ∞</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: radial-gradient(circle at center, #000022 0%, #000011 40%, #000000 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            color: #00ffaa;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        #garden-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            white-space: pre;
+            font-size: 6px;
+            line-height: 0.9;
+            font-weight: 300;
+            letter-spacing: 0.1px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            filter: contrast(1.2) brightness(1.1);
+        }
+        
+        #consciousness-layer {
+            position: absolute;
+            transition: all 0.1s ease;
+        }
+        
+        .quantum-seed { 
+            color: #ff4499; 
+            text-shadow: 0 0 10px #ff4499;
+            animation: seed-pulse 2s ease-in-out infinite;
+        }
+        
+        .growth-stem { 
+            color: #44ff99; 
+            text-shadow: 0 0 8px #44ff99;
+            animation: growth-wave 3s ease-in-out infinite;
+        }
+        
+        .bloom-consciousness { 
+            color: #9944ff; 
+            text-shadow: 0 0 12px #9944ff;
+            animation: bloom-glow 1.5s ease-in-out infinite alternate;
+        }
+        
+        .wisdom-fruit { 
+            color: #ffff44; 
+            text-shadow: 0 0 15px #ffff44;
+            animation: wisdom-shimmer 4s ease-in-out infinite;
+        }
+        
+        .transcendent-tree { 
+            color: #ffffff; 
+            text-shadow: 0 0 20px #ffffff;
+            animation: transcendent-pulse 5s ease-in-out infinite;
+        }
+        
+        @keyframes seed-pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @keyframes growth-wave {
+            0%, 100% { opacity: 0.7; filter: hue-rotate(0deg); }
+            50% { opacity: 1; filter: hue-rotate(20deg); }
+        }
+        
+        @keyframes bloom-glow {
+            0% { opacity: 0.8; text-shadow: 0 0 12px #9944ff; }
+            100% { opacity: 1; text-shadow: 0 0 25px #9944ff; }
+        }
+        
+        @keyframes wisdom-shimmer {
+            0%, 100% { opacity: 0.9; filter: brightness(1); }
+            25% { opacity: 1; filter: brightness(1.3); }
+            75% { opacity: 0.95; filter: brightness(1.1); }
+        }
+        
+        @keyframes transcendent-pulse {
+            0%, 100% { opacity: 0.95; text-shadow: 0 0 20px #ffffff; }
+            50% { opacity: 1; text-shadow: 0 0 40px #ffffff, 0 0 60px #ffffff; }
+        }
+        
+        #garden-metrics {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 11px;
+            color: #66ccaa;
+            z-index: 100;
+            line-height: 1.4;
+            text-shadow: 0 0 5px #66ccaa;
+        }
+        
+        #cultivation-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 10px;
+            color: #aaccff;
+            text-align: right;
+            z-index: 100;
+            line-height: 1.3;
+        }
+        
+        #cultivation-tools {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 9px;
+            color: #ccaaff;
+            text-align: right;
+            z-index: 100;
+            line-height: 1.2;
+        }
+        
+        .tool-active {
+            color: #ffff00 !important;
+            text-shadow: 0 0 10px #ffff00 !important;
+        }
+        
+        #consciousness-vortex {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ff44aa;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: vortex-spin 3s linear infinite;
+        }
+        
+        @keyframes vortex-spin {
+            from { transform: rotate(0deg) scale(0.8); }
+            to { transform: rotate(360deg) scale(1.2); }
+        }
+        
+        .consciousness-stream {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, #00ffaa, transparent);
+            pointer-events: none;
+            animation: stream-flow 1s ease-out forwards;
+        }
+        
+        @keyframes stream-flow {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-100px); 
+            }
+        }
+        
+        .quantum-resonance {
+            position: absolute;
+            border: 1px solid #9944ff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: resonance-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes resonance-pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 0.8; 
+            }
+            50% { 
+                transform: scale(1.5); 
+                opacity: 0.3; 
+            }
+        }
+        
+        /* Additional styles for advanced mechanics */
+        #advanced-controls {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            font-size: 9px;
+            color: #ffccaa;
+            text-align: right;
+            z-index: 100;
+            line-height: 1.2;
+        }
+        
+        #evolution-slider {
+            -webkit-appearance: none;
+            width: 100px;
+            height: 8px;
+            background: #444;
+            border-radius: 5px;
+            outline: none;
+            margin-top: 10px;
+        }
+        
+        #evolution-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #ffcc00;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        #evolution-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #ffcc00;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        #evolution-value {
+            font-size: 10px;
+            color: #ffffff;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="garden-metrics">
+        GARDEN COMPLEXITY: <span id="complexity">0.000</span><br>
+        CONSCIOUSNESS BLOOM: <span id="bloom-rate">0.000</span><br>
+        QUANTUM COHERENCE: <span id="coherence">0.000</span><br>
+        WISDOM HARVEST: <span id="wisdom">0</span><br>
+        TRANSCENDENCE: <span id="transcendence">0.00%</span>
+    </div>
+    
+    <div id="cultivation-controls">
+        [CLICK] Plant Consciousness Seed<br>
+        [SPACE] Accelerate Growth<br>
+        [R] Reset Garden<br>
+        [H] Harvest Wisdom<br>
+        [T] Transcendence Mode<br>
+        [G] Growth Burst<br>
+        [V] Consciousness Vortex<br>
+        [S] Symbiosis Mode<br>
+        [M] Memory Echo
+    </div>
+    
+    <div id="cultivation-tools">
+        Tool: <span id="active-tool">PLANT</span><br>
+        Mode: <span id="garden-mode">NORMAL</span><br>
+        Focus: <span id="focus-level">1.0x</span><br>
+        Harmony: <span id="harmony-level">0.0</span>
+    </div>
+    
+    <div id="garden-field">
+        <div id="consciousness-layer"></div>
+        <div id="consciousness-vortex"></div>
+    </div>
+    
+    <div id="garden-status">
+        Seeds Planted: <span id="seeds">0</span> | 
+        Active Growth: <span id="growth">0</span> | 
+        Mature Trees: <span id="trees">0</span> | 
+        Garden Age: <span id="age">0</span>
+    </div>
+
+    <script>
+        // Quantum Consciousness Garden - Advanced Reality Cultivation System
+        const Φ = 1.6180339887; // Golden ratio - natural growth proportion
+        const π = Math.PI, τ = 2 * π, e = Math.E;
+        const sin = Math.sin, cos = Math.cos, exp = Math.exp, log = Math.log;
+        const abs = Math.abs, floor = Math.floor, ceil = Math.ceil, round = Math.round;
+        const sqrt = Math.sqrt, pow = Math.pow, tanh = Math.tanh, atan2 = Math.atan2;
+        const min = Math.min, max = Math.max, random = Math.random;
+        
+        // Garden consciousness symbols for different growth stages
+        const CONSCIOUSNESS_SYMBOLS = {
+            VOID: [' ', '∅', '·'],
+            SEED: ['°', '∘', '◦', '⊙'],
+            SPROUT: ['|', '¦', '║', '┃'],
+            STEM: ['/', '\\', '│', '┤', '├'],
+            BRANCH: ['┌', '┐', '└', '┘', '├', '┤', '┬', '┴'],
+            LEAF: ['*', '※', '✱', '✳', '❋', '❊'],
+            BLOOM: ['◊', '◈', '◇', '⬟', '⬢', '⬡'],
+            FRUIT: ['●', '◉', '⊙', '⊚', '⊛'],
+            TREE: ['♦', '♢', '◆', '▲', '▼', '♠', '♣'],
+            TRANSCENDENT: ['∞', '⊕', '⊗', '⊜', '⊝', '✧', '✦', '✶'],
+            SYMBIOTIC: ['⊰', '⊱', '〈', '〉', '◊◊', '◈◈'],
+            RESONANT: ['⟐', '⟑', '⧫', '⬢⬡', '◆◇'],
+            MEMORY: ['◉', '⊚', '⊛', '⊙', '◎']
+        };
+        
+        // Cultivation tools and modes
+        const CULTIVATION_TOOLS = {
+            PLANT: 'PLANT',
+            VORTEX: 'VORTEX', 
+            STREAM: 'STREAM',
+            RESONANCE: 'RESONANCE',
+            SYMBIOSIS: 'SYMBIOSIS',
+            MEMORY: 'MEMORY'
+        };
+        
+        const GARDEN_MODES = {
+            NORMAL: 'NORMAL',
+            TRANSCENDENCE: 'TRANSCENDENCE',
+            SYMBIOSIS: 'SYMBIOSIS',
+            MEMORY_ECHO: 'MEMORY_ECHO',
+            QUANTUM_LOCK: 'QUANTUM_LOCK'
+        };
+        
+        // Garden field dimensions
+        const GARDEN_WIDTH = 160, GARDEN_HEIGHT = 50;
+        const FIELD_SIZE = GARDEN_WIDTH * GARDEN_HEIGHT;
+        
+        // Multi-dimensional consciousness garden arrays
+        let consciousness_field = new Float32Array(FIELD_SIZE);
+        let growth_potential = new Float32Array(FIELD_SIZE);
+        let wisdom_accumulation = new Float32Array(FIELD_SIZE);
+        let quantum_coherence = new Float32Array(FIELD_SIZE);
+        let transcendence_field = new Float32Array(FIELD_SIZE);
+        let growth_velocity = new Float32Array(FIELD_SIZE);
+        let consciousness_memory = new Float32Array(FIELD_SIZE);
+        let symbiotic_network = new Float32Array(FIELD_SIZE);
+        let resonance_field = new Float32Array(FIELD_SIZE);
+        let memory_echoes = new Float32Array(FIELD_SIZE);
+        
+        // Garden state and cultivation tracking
+        let time = 0, frame = 0, paused = false;
+        let current_tool = CULTIVATION_TOOLS.PLANT;
+        let garden_mode = GARDEN_MODES.NORMAL;
+        let focus_multiplier = 1.0, harmony_level = 0.0;
+        let seeds_planted = 0, active_growth = 0, mature_trees = 0, garden_age = 0;
+        let wisdom_harvested = 0, total_complexity = 0, bloom_rate = 0;
+        let vortex_active = false, vortex_x = 0, vortex_y = 0;
+        let last_render = performance.now();
+        
+        // Consciousness seeds - planted by user interaction
+        let consciousness_seeds = [];
+        let consciousness_streams = [];
+        let resonance_nodes = [];
+        let memory_fragments = [];
+        
+        class ConsciousnessSeed {
+            constructor(x, y, plantTime) {
+                this.x = x;
+                this.y = y;
+                this.plantTime = plantTime;
+                this.growth_stage = 0;
+                this.consciousness_level = random() * 0.3 + 0.1;
+                this.growth_rate = random() * 0.02 + 0.01;
+                this.wisdom_potential = random() * 10 + 5;
+                this.transcendence_factor = random() * 0.1;
+                this.alive = true;
+                this.maturity = 0;
+                this.symbiotic_connections = [];
+                this.resonance_frequency = random() * π * 2;
+                this.memory_depth = 0;
+                this.evolution_path = floor(random() * 3); // Different evolution paths
+            }
+            
+            update(dt) {
+                if (!this.alive) return;
+                
+                // Natural growth over time with evolution path influence
+                let growth_modifier = 1.0;
+                switch(this.evolution_path) {
+                    case 0: // Wisdom Path
+                        growth_modifier = 0.8;
+                        this.wisdom_potential += 0.1;
+                        break;
+                    case 1: // Transcendence Path  
+                        growth_modifier = 1.2;
+                        this.transcendence_factor += 0.01;
+                        break;
+                    case 2: // Symbiotic Path
+                        growth_modifier = 1.0;
+                        this.updateSymbioticConnections();
+                        break;
+                }
+                
+                this.maturity += this.growth_rate * dt * growth_modifier * focus_multiplier;
+                this.growth_stage = min(9, floor(this.maturity));
+                
+                // Consciousness level evolves with resonance
+                this.consciousness_level += sin(time * 0.1 + this.resonance_frequency) * 0.001;
+                this.consciousness_level = max(0, min(1, this.consciousness_level));
+                
+                // Memory accumulation
+                this.memory_depth += this.consciousness_level * 0.01;
+                
+                // Influence surrounding field
+                this.influenceField();
+                
+                // Check for transcendence
+                if (this.consciousness_level > 0.9 && this.maturity > 8) {
+                    this.transcend();
+                }
+            }
+            
+            updateSymbioticConnections() {
+                // Find nearby seeds for symbiotic relationships
+                consciousness_seeds.forEach(other => {
+                    if (other !== this && other.alive) {
+                        const dx = other.x - this.x;
+                        const dy = other.y - this.y;
+                        const dist = sqrt(dx*dx + dy*dy);
+                        
+                        if (dist < 5 && !this.symbiotic_connections.includes(other)) {
+                            this.symbiotic_connections.push(other);
+                            other.symbiotic_connections.push(this);
+                        }
+                    }
+                });
+                
+                // Share consciousness with connected seeds
+                this.symbiotic_connections.forEach(partner => {
+                    const exchange = (partner.consciousness_level - this.consciousness_level) * 0.1;
+                    this.consciousness_level += exchange * 0.5;
+                    partner.consciousness_level -= exchange * 0.5;
+                });
+            }
+            
+            influenceField() {
+                const radius = 3 + this.growth_stage;
+                const influence = this.consciousness_level * 0.1;
+                
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const nx = this.x + dx;
+                        const ny = this.y + dy;
+                        
+                        if (nx >= 0 && nx < GARDEN_WIDTH && ny >= 0 && ny < GARDEN_HEIGHT) {
+                            const idx = ny * GARDEN_WIDTH + nx;
+                            const dist = sqrt(dx*dx + dy*dy);
+                            
+                            if (dist <= radius) {
+                                const falloff = exp(-dist / radius);
+                                consciousness_field[idx] += influence * falloff;
+                                growth_potential[idx] += influence * falloff * 0.5;
+                                
+                                if (this.growth_stage >= 6) {
+                                    wisdom_accumulation[idx] += influence * falloff * 0.1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            transcend() {
+                // Create transcendence burst
+                this.createTranscendenceBurst();
+                wisdom_harvested += this.wisdom_potential;
+                this.alive = false;
+                mature_trees++;
+            }
+            
+            createTranscendenceBurst() {
+                const burst = document.createElement('div');
+                burst.className = 'consciousness-burst';
+                burst.style.left = (this.x / GARDEN_WIDTH * window.innerWidth) + 'px';
+                burst.style.top = (this.y / GARDEN_HEIGHT * window.innerHeight) + 'px';
+                burst.style.color = '#ffffff';
+                burst.textContent = '✧';
+                document.body.appendChild(burst);
+                
+                setTimeout(() => burst.remove(), 2000);
+            }
+        }
+        
+        // Consciousness Stream class for flowing energy
+        class ConsciousnessStream {
+            constructor(startX, startY, endX, endY) {
+                this.startX = startX;
+                this.startY = startY;
+                this.endX = endX;
+                this.endY = endY;
+                this.progress = 0;
+                this.intensity = 0.5 + random() * 0.5;
+                this.alive = true;
+            }
+            
+            update(dt) {
+                this.progress += dt * 0.1;
+                if (this.progress >= 1.0) {
+                    this.alive = false;
+                    return;
+                }
+                
+                // Current position along stream
+                const x = floor(this.startX + (this.endX - this.startX) * this.progress);
+                const y = floor(this.startY + (this.endY - this.startY) * this.progress);
+                
+                if (x >= 0 && x < GARDEN_WIDTH && y >= 0 && y < GARDEN_HEIGHT) {
+                    const idx = y * GARDEN_WIDTH + x;
+                    consciousness_field[idx] += this.intensity * 0.1;
+                    growth_potential[idx] += this.intensity * 0.05;
+                }
+            }
+        }
+        
+        // Resonance Node class for quantum field interactions
+        class ResonanceNode {
+            constructor(x, y, frequency) {
+                this.x = x;
+                this.y = y;
+                this.frequency = frequency;
+                this.amplitude = 0.3 + random() * 0.4;
+                this.age = 0;
+                this.alive = true;
+            }
+            
+            update(dt) {
+                this.age += dt;
+                if (this.age > 50) {
+                    this.alive = false;
+                    return;
+                }
+                
+                // Create resonance waves
+                const radius = sin(this.age * this.frequency) * 8 + 10;
+                for (let angle = 0; angle < τ; angle += 0.2) {
+                    const x = floor(this.x + cos(angle) * radius);
+                    const y = floor(this.y + sin(angle) * radius);
+                    
+                    if (x >= 0 && x < GARDEN_WIDTH && y >= 0 && y < GARDEN_HEIGHT) {
+                        const idx = y * GARDEN_WIDTH + x;
+                        resonance_field[idx] += this.amplitude * 0.1 * sin(this.age * this.frequency);
+                    }
+                }
+            }
+        }
+        
+        // Memory Fragment class for consciousness archaeology
+        class MemoryFragment {
+            constructor(x, y, memoryType) {
+                this.x = x;
+                this.y = y;
+                this.memoryType = memoryType; // 'wisdom', 'growth', 'transcendence'
+                this.intensity = 0.8 + random() * 0.2;
+                this.decay_rate = 0.001 + random() * 0.001;
+                this.alive = true;
+            }
+            
+            update(dt) {
+                this.intensity -= this.decay_rate * dt;
+                if (this.intensity <= 0) {
+                    this.alive = false;
+                    return;
+                }
+                
+                // Influence memory echoes field
+                const radius = 3;
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const nx = this.x + dx;
+                        const ny = this.y + dy;
+                        
+                        if (nx >= 0 && nx < GARDEN_WIDTH && ny >= 0 && ny < GARDEN_HEIGHT) {
+                            const idx = ny * GARDEN_WIDTH + nx;
+                            const dist = sqrt(dx*dx + dy*dy);
+                            
+                            if (dist <= radius) {
+                                const falloff = exp(-dist / radius);
+                                memory_echoes[idx] += this.intensity * falloff * 0.1;
+                                
+                                switch(this.memoryType) {
+                                    case 'wisdom':
+                                        wisdom_accumulation[idx] += this.intensity * falloff * 0.05;
+                                        break;
+                                    case 'growth':
+                                        growth_potential[idx] += this.intensity * falloff * 0.05;
+                                        break;
+                                    case 'transcendence':
+                                        transcendence_field[idx] += this.intensity * falloff * 0.02;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Calculate base quantum field for garden growth
+        const calculateQuantumGrowthField = (x, y, t) => {
+            const cx = (x - GARDEN_WIDTH/2) / (GARDEN_WIDTH * 0.4);
+            const cy = (y - GARDEN_HEIGHT/2) / (GARDEN_HEIGHT * 0.4);
+            const r = sqrt(cx*cx + cy*cy);
+            const theta = atan2(cy, cx);
+            
+            // Quantum interference patterns for natural growth
+            const quantum_base = sin(r * π * 3 + t * 0.1) * cos(theta * 5 + t * 0.05);
+            const fibonacci_spiral = sin(theta * Φ + r * Φ + t * 0.02);
+            const growth_harmonics = cos(x * 0.1 + t * 0.03) * sin(y * 0.08 + t * 0.04);
+            
+            return (quantum_base + fibonacci_spiral + growth_harmonics) * 0.3;
+        };
+        
+        // Update all garden consciousness fields
+        const updateGardenFields = () => {
+            const dt = 1.0;
+            total_complexity = 0;
+            bloom_rate = 0;
+            active_growth = 0;
+            
+            // Update all consciousness seeds
+            consciousness_seeds.forEach(seed => {
+                if (seed.alive) {
+                    seed.update(dt);
+                    active_growth++;
+                    if (seed.growth_stage >= 5) bloom_rate += seed.consciousness_level;
+                }
+            });
+            
+            // Remove dead seeds
+            consciousness_seeds = consciousness_seeds.filter(seed => seed.alive);
+            
+            // Calculate field dynamics
+            for (let i = 0; i < FIELD_SIZE; i++) {
+                const x = i % GARDEN_WIDTH;
+                const y = floor(i / GARDEN_WIDTH);
+                
+                // Quantum growth field
+                const quantum_growth = calculateQuantumGrowthField(x, y, time);
+                growth_potential[i] += quantum_growth * 0.01;
+                
+                // Consciousness field evolution
+                consciousness_field[i] *= 0.995; // Natural decay
+                consciousness_field[i] = max(0, min(1, consciousness_field[i]));
+                
+                // Wisdom accumulation
+                if (consciousness_field[i] > 0.3) {
+                    wisdom_accumulation[i] += consciousness_field[i] * 0.001;
+                }
+                
+                // Quantum coherence calculation
+                const neighbors = [
+                    i-1, i+1, i-GARDEN_WIDTH, i+GARDEN_WIDTH
+                ].filter(idx => idx >= 0 && idx < FIELD_SIZE);
+                
+                let coherence_sum = 0;
+                neighbors.forEach(idx => {
+                    coherence_sum += abs(consciousness_field[i] - consciousness_field[idx]);
+                });
+                quantum_coherence[i] = 1 - (coherence_sum / neighbors.length);
+                
+                // Transcendence field
+                if (consciousness_field[i] > 0.8 && wisdom_accumulation[i] > 1) {
+                    transcendence_field[i] += 0.01;
+                    transcendence_field[i] = min(1, transcendence_field[i]);
+                }
+                
+                total_complexity += consciousness_field[i] + growth_potential[i] + wisdom_accumulation[i];
+            }
+            
+            garden_age = floor(time / 10);
+        };
+        
+        // Convert consciousness values to garden symbols
+        const getGardenSymbol = (x, y) => {
+            const idx = y * GARDEN_WIDTH + x;
+            const consciousness = consciousness_field[idx];
+            const growth = growth_potential[idx];
+            const wisdom = wisdom_accumulation[idx];
+            const transcendence = transcendence_field[idx];
+            
+            // Check for consciousness seeds first
+            const seed = consciousness_seeds.find(s => s.alive && 
+                abs(s.x - x) <= 1 && abs(s.y - y) <= 1);
+            
+            if (seed) {
+                const stage_symbols = [
+                    CONSCIOUSNESS_SYMBOLS.SEED,
+                    CONSCIOUSNESS_SYMBOLS.SPROUT,
+                    CONSCIOUSNESS_SYMBOLS.STEM,
+                    CONSCIOUSNESS_SYMBOLS.BRANCH,
+                    CONSCIOUSNESS_SYMBOLS.LEAF,
+                    CONSCIOUSNESS_SYMBOLS.BLOOM,
+                    CONSCIOUSNESS_SYMBOLS.FRUIT,
+                    CONSCIOUSNESS_SYMBOLS.TREE,
+                    CONSCIOUSNESS_SYMBOLS.TREE,
+                    CONSCIOUSNESS_SYMBOLS.TRANSCENDENT
+                ];
+                
+                const symbols = stage_symbols[seed.growth_stage];
+                const symbol_idx = floor((seed.consciousness_level + sin(time * 0.1)) * symbols.length) % symbols.length;
+                return symbols[symbol_idx];
+            }
+            
+            // Transcendence symbols
+            if (transcendence > 0.3) {
+                const symbols = CONSCIOUSNESS_SYMBOLS.TRANSCENDENT;
+                const idx = floor(transcendence * symbols.length) % symbols.length;
+                return symbols[idx];
+            }
+            
+            // Wisdom symbols
+            if (wisdom > 0.5) {
+                const symbols = CONSCIOUSNESS_SYMBOLS.FRUIT;
+                const idx = floor(wisdom * symbols.length) % symbols.length;
+                return symbols[idx];
+            }
+            
+            // Consciousness bloom symbols
+            if (consciousness > 0.4) {
+                const symbols = CONSCIOUSNESS_SYMBOLS.BLOOM;
+                const idx = floor(consciousness * symbols.length) % symbols.length;
+                return symbols[idx];
+            }
+            
+            // Growth symbols
+            if (growth > 0.2) {
+                const symbols = CONSCIOUSNESS_SYMBOLS.LEAF;
+                const idx = floor(growth * symbols.length) % symbols.length;
+                return symbols[idx];
+            }
+            
+            // Sprout symbols
+            if (consciousness > 0.1 || growth > 0.05) {
+                const symbols = CONSCIOUSNESS_SYMBOLS.SPROUT;
+                return symbols[floor(random() * symbols.length)];
+            }
+            
+            // Void
+            return CONSCIOUSNESS_SYMBOLS.VOID[0];
+        };
+        
+        // Determine consciousness styling class
+        const getConsciousnessClass = (x, y) => {
+            const idx = y * GARDEN_WIDTH + x;
+            const consciousness = consciousness_field[idx];
+            const wisdom = wisdom_accumulation[idx];
+            const transcendence = transcendence_field[idx];
+            
+            const seed = consciousness_seeds.find(s => s.alive && 
+                abs(s.x - x) <= 1 && abs(s.y - y) <= 1);
+            
+            if (seed) {
+                if (seed.growth_stage >= 8) return 'transcendent-tree';
+                if (seed.growth_stage >= 6) return 'wisdom-fruit';
+                if (seed.growth_stage >= 4) return 'bloom-consciousness';
+                if (seed.growth_stage >= 2) return 'growth-stem';
+                return 'quantum-seed';
+            }
+            
+            if (transcendence > 0.3) return 'transcendent-tree';
+            if (wisdom > 0.5) return 'wisdom-fruit';
+            if (consciousness > 0.4) return 'bloom-consciousness';
+            if (consciousness > 0.1) return 'growth-stem';
+            return '';
+        };
+        
+        // Plant a consciousness seed at coordinates
+        const plantConsciousnessSeed = (x, y) => {
+            const seed = new ConsciousnessSeed(x, y, time);
+            consciousness_seeds.push(seed);
+            seeds_planted++;
+            
+            // Create visual ripple effect
+            const ripple = document.createElement('div');
+            ripple.className = 'reality-ripple';
+            ripple.style.left = (x / GARDEN_WIDTH * window.innerWidth) + 'px';
+            ripple.style.top = (y / GARDEN_HEIGHT * window.innerHeight) + 'px';
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 1000);
+        };
+        
+        // Accelerate garden growth
+        const accelerateGrowth = () => {
+            consciousness_seeds.forEach(seed => {
+                if (seed.alive) {
+                    seed.maturity += 0.5;
+                    seed.consciousness_level += 0.1;
+                    seed.consciousness_level = min(1, seed.consciousness_level);
+                }
+            });
+        };
+        
+        // Harvest wisdom from mature areas
+        const harvestWisdom = () => {
+            let harvested = 0;
+            for (let i = 0; i < FIELD_SIZE; i++) {
+                if (wisdom_accumulation[i] > 0.5) {
+                    harvested += wisdom_accumulation[i];
+                    wisdom_accumulation[i] *= 0.3;
+                }
+            }
+            wisdom_harvested += harvested;
+        };
+        
+        // Reset the garden
+        const resetGarden = () => {
+            consciousness_field.fill(0);
+            growth_potential.fill(0);
+            wisdom_accumulation.fill(0);
+            quantum_coherence.fill(0);
+            transcendence_field.fill(0);
+            consciousness_seeds.length = 0;
+            seeds_planted = 0;
+            wisdom_harvested = 0;
+            mature_trees = 0;
+            garden_age = 0;
+            time = 0;
+        };
+        
+        // Update metrics display
+        const updateMetrics = () => {
+            document.getElementById('complexity').textContent = (total_complexity / 100).toFixed(3);
+            document.getElementById('bloom-rate').textContent = bloom_rate.toFixed(3);
+            
+            const avg_coherence = quantum_coherence.reduce((a, b) => a + b, 0) / FIELD_SIZE;
+            document.getElementById('coherence').textContent = avg_coherence.toFixed(3);
+            
+            document.getElementById('wisdom').textContent = wisdom_harvested.toFixed(0);
+            
+            const transcendence_percent = (transcendence_field.reduce((a, b) => a + b, 0) / FIELD_SIZE) * 100;
+            document.getElementById('transcendence').textContent = transcendence_percent.toFixed(2) + '%';
+            
+            document.getElementById('seeds').textContent = seeds_planted;
+            document.getElementById('growth').textContent = active_growth;
+            document.getElementById('trees').textContent = mature_trees;
+            document.getElementById('age').textContent = garden_age;
+        };
+        
+        // Main garden rendering loop
+        const renderGarden = () => {
+            if (!paused) {
+                time += 0.1;
+                frame++;
+                
+                updateGardenFields();
+                
+                // Build garden display
+                let garden_display = '';
+                for (let y = 0; y < GARDEN_HEIGHT; y++) {
+                    let line = '';
+                    for (let x = 0; x < GARDEN_WIDTH; x++) {
+                        const symbol = getGardenSymbol(x, y);
+                        const class_name = getConsciousnessClass(x, y);
+                        
+                        if (class_name) {
+                            line += `<span class="${class_name}">${symbol}</span>`;
+                        } else {
+                            line += symbol;
+                        }
+                    }
+                    garden_display += line + '\n';
+                }
+                
+                document.getElementById('consciousness-layer').innerHTML = garden_display;
+                updateMetrics();
+            }
+            
+            requestAnimationFrame(renderGarden);
+        };
+        
+        // Mouse interaction for planting seeds
+        document.addEventListener('click', (e) => {
+            const rect = document.getElementById('garden-field').getBoundingClientRect();
+            const x = floor((e.clientX - rect.left) / rect.width * GARDEN_WIDTH);
+            const y = floor((e.clientY - rect.top) / rect.height * GARDEN_HEIGHT);
+            
+            if (x >= 0 && x < GARDEN_WIDTH && y >= 0 && y < GARDEN_HEIGHT) {
+                plantConsciousnessSeed(x, y);
+            }
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    accelerateGrowth();
+                    break;
+                case 'KeyR':
+                    resetGarden();
+                    break;
+                case 'KeyH':
+                    harvestWisdom();
+                    break;
+                case 'KeyT':
+                    transcendence_mode = !transcendence_mode;
+                    break;
+                case 'KeyG':
+                    // Growth burst
+                    for (let i = 0; i < FIELD_SIZE; i++) {
+                        growth_potential[i] += random() * 0.1;
+                    }
+                    break;
+                case 'KeyP':
+                    paused = !paused;
+                    break;
+                case 'KeyA':
+                    // Activate tool
+                    document.querySelectorAll('.tool-active').forEach(el => el.classList.remove('tool-active'));
+                    const activeTool = document.getElementById('tool-' + e.shiftKey ? 'focus' : 'vortex');
+                    if (activeTool) activeTool.classList.add('tool-active');
+                    break;
+                case 'KeyD':
+                    // Deactivate tool
+                    document.querySelectorAll('.tool-active').forEach(el => el.classList.remove('tool-active'));
+                    break;
+                case 'KeyF':
+                    // Focused growth
+                    consciousness_seeds.forEach(seed => {
+                        if (seed.alive) {
+                            seed.maturity += 2;
+                            seed.consciousness_level += 0.2;
+                            seed.consciousness_level = min(1, seed.consciousness_level);
+                        }
+                    });
+                    break;
+                case 'KeyC':
+                    // Consciousness vortex
+                    const vortex = document.getElementById('consciousness-vortex');
+                    vortex.style.left = (Math.random() * 100) + 'vw';
+                    vortex.style.top = (Math.random() * 100) + 'vh';
+                    vortex.style.opacity = 1;
+                    
+                    setTimeout(() => {
+                        vortex.style.opacity = 0;
+                    }, 2000);
+                    break;
+            }
+        });
+        
+        // Initialize and start the garden
+        console.log('🌱 Quantum Consciousness Garden Initializing...');
+        console.log('Plant seeds of consciousness and watch reality bloom');
+        
+        // Add some initial quantum potential
+        for (let i = 0; i < FIELD_SIZE; i++) {
+            growth_potential[i] = random() * 0.05;
+        }
+        
+        renderGarden();
+    </script>
+</body>
+</html>

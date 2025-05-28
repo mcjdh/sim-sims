@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Temporal Fractals</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+        #canvas {
+            display: block;
+            margin: auto;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 120, H = 60;
+        let time = 0;
+
+        // Fractal field arrays
+        let fractalField = new Array(W * H).fill(0);
+        let temporalField = new Array(W * H).fill(0);
+        let memoryField = new Array(W * H).fill(0);
+
+        // Fractal symbols: void → seed → branch → fractal → infinite recursion
+        const symbols = ' .·°∘○◯●◉⊙⊚⊛⊜⊝⊞⊟⊠⊡⬢⬣⬡⬠⬟⬞⬝⬜⬛█';
+
+        function generateFractal(x, y, time) {
+            // Generate fractal patterns based on temporal evolution
+            return Math.sin(x * y + time) * symbols.length;
+        }
+
+        function renderField() {
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = '';
+            for (let y = 0; y < H; y++) {
+                let row = '';
+                for (let x = 0; x < W; x++) {
+                    const index = Math.floor(generateFractal(x, y, time) % symbols.length);
+                    row += symbols[index];
+                }
+                canvas.innerHTML += row + '<br>';
+            }
+        }
+
+        function animate() {
+            time += 0.1;
+            renderField();
+            requestAnimationFrame(animate);
+        }
+
+        renderField();
+        animate();
+    </script>
+</body>
+</html>

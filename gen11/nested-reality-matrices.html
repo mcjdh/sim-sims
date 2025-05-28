@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nested Reality Matrices - Gen11</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background: #000008;
+            color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            animation: realityShift 180s infinite ease-in-out;
+        }
+        
+        @keyframes realityShift {
+            0%, 100% { background: #000008; }
+            25% { background: #080012; }
+            50% { background: #120008; }
+            75% { background: #080808; }
+        }
+        
+        #canvas {
+            white-space: pre;
+            font-size: 9px;
+            line-height: 0.95;
+            letter-spacing: 0px;
+            font-weight: normal;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #222;
+            padding: 10px;
+            overflow: hidden;
+            text-shadow: 0 0 2px currentColor;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            padding: 12px;
+            border: 1px solid #333;
+            font-size: 11px;
+            line-height: 1.4;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: #666;
+            z-index: 100;
+        }
+        
+        /* Reality layer visualization styles */
+        .layer-0 { color: #4444ff; text-shadow: 0 0 2px #4444ff60; }
+        .layer-1 { color: #44ff44; text-shadow: 0 0 2px #44ff4460; }
+        .layer-2 { color: #ff4444; text-shadow: 0 0 2px #ff444460; }
+        .layer-3 { color: #ff44ff; text-shadow: 0 0 2px #ff44ff60; }
+        .layer-4 { color: #ffff44; text-shadow: 0 0 2px #ffff4460; }
+        .layer-5 { color: #44ffff; text-shadow: 0 0 2px #44ffff60; }
+        .nexus { color: #ffffff; text-shadow: 0 0 4px #ffffff80; animation: nexusPulse 2s infinite; }
+        
+        @keyframes nexusPulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        /* Reality collapse animation */
+        @keyframes realityCollapse {
+            0% { transform: rotateX(0deg) rotateY(0deg) scale(1); }
+            50% { transform: rotateX(5deg) rotateY(5deg) scale(0.98); }
+            100% { transform: rotateX(0deg) rotateY(0deg) scale(1); }
+        }
+        
+        .collapsing {
+            animation: realityCollapse 3s ease-in-out;
+        }
+        
+        /* Emergence glow */
+        @keyframes emergenceGlow {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.3) saturate(1.5); }
+        }
+        
+        .emerging {
+            animation: emergenceGlow 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="metrics">
+        <div>🌌 Nested Reality Matrices</div>
+        <div>─────────────────────</div>
+        <div>Reality Depth: <span id="depth">0</span></div>
+        <div>Φ-coherence: <span id="phi">0.000</span></div>
+        <div>Ψ-entanglement: <span id="psi">0.000</span></div>
+        <div>Emergence: <span id="emergence">0.000</span></div>
+        <div>Recursion: <span id="recursion">0.000</span></div>
+        <div>Nexus Points: <span id="nexus">0</span></div>
+        <div>State: <span id="state">Initializing</span></div>
+        <div>─────────────────────</div>
+        <div>Cycle: <span id="cycle">0</span></div>
+        <div>FPS: <span id="fps">0</span></div>
+    </div>
+    
+    <div id="canvas"></div>
+    
+    <div id="info">
+        Gen11 Nested Reality Matrices | Space: pause | R: reset | D: deeper | S: shallower | N: create nexus
+    </div>
+
+    <script>
+        // Core simulation constants
+        const CONFIG = {
+            W: 150, 
+            H: 65,
+            PHI: (1 + Math.sqrt(5)) / 2,
+            PI: Math.PI,
+            E: Math.E,
+            MAX_DEPTH: 6,
+            REALITY_LAYERS: 6,
+            NEXUS_THRESHOLD: 0.8,
+            EMERGENCE_RATE: 0.002,
+            RECURSION_LIMIT: 10
+        };
+        
+        // Reality layer symbols - each layer has its own symbol set
+        const REALITY_SYMBOLS = [
+            ['·', '∘', '○', '◯', '●'],                    // Layer 0: Quantum foam
+            ['₊', '×', '✕', '✖', '✚'],                    // Layer 1: Particle reality
+            ['△', '▲', '▽', '▼', '◆'],                    // Layer 2: Wave reality
+            ['□', '■', '▢', '▣', '▤'],                    // Layer 3: Field reality
+            ['⬡', '⬢', '⬣', '⬤', '⬥'],                    // Layer 4: Consciousness reality
+            ['☆', '★', '✦', '✧', '✪'],                    // Layer 5: Meta-reality
+            ['∞', '◈', '❋', '✾', '❈']                     // Nexus symbols
+        ];
+        
+        // Reality Matrix class - represents a single layer of reality
+        class RealityMatrix {
+            constructor(depth, parentMatrix = null) {
+                this.depth = depth;
+                this.parent = parentMatrix;
+                this.field = new Float32Array(CONFIG.W * CONFIG.H);
+                this.consciousness = new Float32Array(CONFIG.W * CONFIG.H);
+                this.entanglement = new Float32Array(CONFIG.W * CONFIG.H);
+                this.time = 0;
+                this.coherence = 0.5;
+                this.emergence = 0;
+                this.children = [];
+                
+                // Reality-specific oscillators
+                this.oscillators = [];
+                for (let i = 0; i < 3 + depth; i++) {
+                    this.oscillators.push({
+                        freq: 0.001 * (1 + i * CONFIG.PHI) * Math.pow(0.8, depth),
+                        phase: i * CONFIG.PI / (3 + depth),
+                        amp: 1.0 / (1 + i * 0.3),
+                        x: CONFIG.W * (0.2 + 0.6 * i / (2 + depth)),
+                        y: CONFIG.H * (0.2 + 0.6 * ((i + depth) % 3) / 2)
+                    });
+                }
+                
+                // Initialize with quantum fluctuations
+                this.initializeQuantumField();
+            }
+            
+            initializeQuantumField() {
+                for (let i = 0; i < this.field.length; i++) {
+                    // Deeper realities start with more structure
+                    this.field[i] = (Math.random() - 0.5) * Math.exp(-this.depth * 0.3);
+                    this.consciousness[i] = Math.random() * 0.1 * (1 + this.depth * 0.1);
+                    this.entanglement[i] = 0;
+                }
+            }
+            
+            update(globalTime) {
+                this.time = globalTime;
+                
+                // Update oscillators
+                for (let osc of this.oscillators) {
+                    osc.phase += osc.freq;
+                    // Reality drift
+                    osc.x += Math.sin(this.time * 0.001 + osc.phase) * 0.1;
+                    osc.y += Math.cos(this.time * 0.0008 + osc.phase) * 0.1;
+                    
+                    // Keep in bounds
+                    osc.x = Math.max(5, Math.min(CONFIG.W - 5, osc.x));
+                    osc.y = Math.max(5, Math.min(CONFIG.H - 5, osc.y));
+                }
+                
+                // Update field dynamics
+                this.updateField();
+                
+                // Calculate emergence and coherence
+                this.calculateEmergence();
+                
+                // Update child realities recursively
+                for (let child of this.children) {
+                    child.update(globalTime);
+                }
+            }
+            
+            updateField() {
+                const newField = new Float32Array(this.field.length);
+                const newConsciousness = new Float32Array(this.consciousness.length);
+                const newEntanglement = new Float32Array(this.entanglement.length);
+                
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        const idx = y * CONFIG.W + x;
+                        
+                        // Reality wave function
+                        let waveFunction = 0;
+                        for (let osc of this.oscillators) {
+                            const dx = x - osc.x;
+                            const dy = y - osc.y;
+                            const r = Math.sqrt(dx*dx + dy*dy);
+                            
+                            // Complex wave interference
+                            const wave = Math.sin(r * 0.1 - this.time * osc.freq * 10 + osc.phase) * 
+                                        Math.exp(-r * 0.02) * osc.amp;
+                            waveFunction += wave;
+                        }
+                        
+                        // Parent reality influence (if nested)
+                        let parentInfluence = 0;
+                        if (this.parent && this.parent.field[idx]) {
+                            parentInfluence = this.parent.field[idx] * 0.3;
+                        }
+                        
+                        // Consciousness emergence from field interactions
+                        const neighbors = this.sampleNeighbors(x, y);
+                        const laplacian = neighbors.laplacian;
+                        const gradient = neighbors.gradient;
+                        
+                        // Field evolution with wave equation
+                        newField[idx] = this.field[idx] * 0.95 + 
+                                       (waveFunction + parentInfluence + laplacian * 0.1) * 0.05;
+                        
+                        // Consciousness emerges from field complexity
+                        const complexity = Math.abs(gradient.mag) + Math.abs(laplacian);
+                        newConsciousness[idx] = this.consciousness[idx] * 0.9 + 
+                                               Math.tanh(complexity * (1 + this.depth * 0.2)) * 0.1;
+                        
+                        // Entanglement with other realities
+                        let entanglement = 0;
+                        
+                        // Parent entanglement
+                        if (this.parent) {
+                            entanglement += Math.abs(this.field[idx] - this.parent.field[idx]) * 0.5;
+                        }
+                        
+                        // Child entanglement
+                        for (let child of this.children) {
+                            if (child.field[idx]) {
+                                entanglement += Math.abs(this.field[idx] - child.field[idx]) * 0.3;
+                            }
+                        }
+                        
+                        newEntanglement[idx] = this.entanglement[idx] * 0.8 + Math.tanh(entanglement) * 0.2;
+                    }
+                }
+                
+                this.field = newField;
+                this.consciousness = newConsciousness;
+                this.entanglement = newEntanglement;
+            }
+            
+            sampleNeighbors(x, y) {
+                let laplacian = 0;
+                let gradX = 0, gradY = 0;
+                let count = 0;
+                
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        
+                        if (nx >= 0 && nx < CONFIG.W && ny >= 0 && ny < CONFIG.H) {
+                            const nIdx = ny * CONFIG.W + nx;
+                            const value = this.field[nIdx];
+                            
+                            if (dx === 0 && dy === 0) {
+                                laplacian -= 4 * value;
+                            } else {
+                                laplacian += value;
+                                if (dx !== 0) gradX += dx * value;
+                                if (dy !== 0) gradY += dy * value;
+                            }
+                            count++;
+                        }
+                    }
+                }
+                
+                return {
+                    laplacian: laplacian / count,
+                    gradient: {
+                        x: gradX,
+                        y: gradY,
+                        mag: Math.sqrt(gradX*gradX + gradY*gradY)
+                    }
+                };
+            }
+            
+            calculateEmergence() {
+                let totalConsciousness = 0;
+                let totalEntanglement = 0;
+                let maxField = 0;
+                
+                for (let i = 0; i < this.field.length; i++) {
+                    totalConsciousness += this.consciousness[i];
+                    totalEntanglement += this.entanglement[i];
+                    maxField = Math.max(maxField, Math.abs(this.field[i]));
+                }
+                
+                this.coherence = totalConsciousness / this.field.length;
+                this.emergence = Math.tanh(this.coherence * (1 + totalEntanglement / this.field.length));
+                
+                // Normalize field if it's growing too large
+                if (maxField > 5) {
+                    for (let i = 0; i < this.field.length; i++) {
+                        this.field[i] /= maxField / 5;
+                    }
+                }
+            }
+            
+            createChildReality() {
+                if (this.children.length < 3 && this.depth < CONFIG.MAX_DEPTH - 1) {
+                    const child = new RealityMatrix(this.depth + 1, this);
+                    this.children.push(child);
+                    return child;
+                }
+                return null;
+            }
+            
+            findNexusPoints() {
+                const nexusPoints = [];
+                
+                for (let y = 5; y < CONFIG.H - 5; y++) {
+                    for (let x = 5; x < CONFIG.W - 5; x++) {
+                        const idx = y * CONFIG.W + x;
+                        
+                        // Nexus points occur where consciousness and entanglement are both high
+                        if (this.consciousness[idx] > CONFIG.NEXUS_THRESHOLD && 
+                            this.entanglement[idx] > CONFIG.NEXUS_THRESHOLD * 0.8) {
+                            nexusPoints.push({ x, y, strength: this.consciousness[idx] * this.entanglement[idx] });
+                        }
+                    }
+                }
+                
+                return nexusPoints;
+            }
+        }
+        
+        // Main simulation class
+        class NestedRealitySimulation {
+            constructor() {
+                this.time = 0;
+                this.paused = false;
+                this.frameCount = 0;
+                this.currentDepth = 0;
+                this.viewMode = 0; // 0: combined, 1: consciousness, 2: entanglement, 3: field
+                
+                // Create root reality
+                this.rootReality = new RealityMatrix(0);
+                this.allRealities = [this.rootReality];
+                
+                // Create initial nested realities
+                this.createInitialNesting();
+                
+                // Combined visualization field
+                this.visualField = new Float32Array(CONFIG.W * CONFIG.H);
+                
+                // Metrics
+                this.metrics = {
+                    depth: 0,
+                    phi: 0,
+                    psi: 0,
+                    emergence: 0,
+                    recursion: 0,
+                    nexusCount: 0,
+                    state: 'Initializing'
+                };
+                
+                // Performance
+                this.lastTime = performance.now();
+                this.fps = 0;
+            }
+            
+            createInitialNesting() {
+                // Create a few nested realities to start
+                let current = this.rootReality;
+                for (let i = 0; i < 2; i++) {
+                    const child = current.createChildReality();
+                    if (child) {
+                        this.allRealities.push(child);
+                        current = child;
+                    }
+                }
+            }
+            
+            update() {
+                if (this.paused) return;
+                
+                this.time++;
+                this.frameCount++;
+                
+                // Update all realities starting from root
+                this.rootReality.update(this.time);
+                
+                // Calculate combined field
+                this.calculateVisualField();
+                
+                // Check for emergence events
+                if (this.frameCount % 50 === 0) {
+                    this.checkEmergenceEvents();
+                }
+                
+                // Update metrics
+                this.updateMetrics();
+                
+                // FPS
+                if (this.frameCount % 60 === 0) {
+                    const now = performance.now();
+                    this.fps = 60000 / (now - this.lastTime);
+                    this.lastTime = now;
+                }
+            }
+            
+            calculateVisualField() {
+                // Clear visual field
+                this.visualField.fill(0);
+                
+                // Combine all reality layers
+                this.combineReality(this.rootReality, 1.0);
+            }
+            
+            combineReality(reality, weight) {
+                // Add this reality's contribution
+                for (let i = 0; i < this.visualField.length; i++) {
+                    let contribution = 0;
+                    
+                    switch (this.viewMode) {
+                        case 0: // Combined view
+                            contribution = reality.field[i] * 0.4 + 
+                                         reality.consciousness[i] * 0.4 + 
+                                         reality.entanglement[i] * 0.2;
+                            break;
+                        case 1: // Consciousness view
+                            contribution = reality.consciousness[i];
+                            break;
+                        case 2: // Entanglement view
+                            contribution = reality.entanglement[i];
+                            break;
+                        case 3: // Field view
+                            contribution = reality.field[i];
+                            break;
+                    }
+                    
+                    this.visualField[i] += contribution * weight;
+                }
+                
+                // Recursively add child realities with decreasing weight
+                for (let child of reality.children) {
+                    this.combineReality(child, weight * 0.6);
+                }
+            }
+            
+            checkEmergenceEvents() {
+                // Collect all realities
+                this.allRealities = [];
+                this.collectRealities(this.rootReality);
+                
+                // Check each reality for emergence conditions
+                for (let reality of this.allRealities) {
+                    // Spontaneous child creation based on emergence level
+                    if (reality.emergence > 0.7 && Math.random() < CONFIG.EMERGENCE_RATE) {
+                        const child = reality.createChildReality();
+                        if (child) {
+                            this.allRealities.push(child);
+                            console.log(`New reality emerged at depth ${child.depth}`);
+                        }
+                    }
+                }
+                
+                // Update max depth
+                this.metrics.depth = Math.max(...this.allRealities.map(r => r.depth));
+            }
+            
+            collectRealities(reality) {
+                this.allRealities.push(reality);
+                for (let child of reality.children) {
+                    this.collectRealities(child);
+                }
+            }
+            
+            updateMetrics() {
+                // Calculate aggregate metrics
+                let totalPhi = 0, totalPsi = 0, totalEmergence = 0;
+                let nexusCount = 0;
+                
+                for (let reality of this.allRealities) {
+                    totalPhi += reality.coherence;
+                    totalPsi += reality.entanglement.reduce((a, b) => a + b, 0) / reality.entanglement.length;
+                    totalEmergence += reality.emergence;
+                    
+                    // Count nexus points
+                    nexusCount += reality.findNexusPoints().length;
+                }
+                
+                this.metrics.phi = totalPhi / this.allRealities.length;
+                this.metrics.psi = totalPsi / this.allRealities.length;
+                this.metrics.emergence = totalEmergence / this.allRealities.length;
+                this.metrics.recursion = this.allRealities.length / CONFIG.MAX_DEPTH;
+                this.metrics.nexusCount = nexusCount;
+                
+                // Determine state
+                if (this.metrics.emergence > 0.8) {
+                    this.metrics.state = 'Transcendent';
+                } else if (this.metrics.emergence > 0.6) {
+                    this.metrics.state = 'Emerging';
+                } else if (this.metrics.emergence > 0.4) {
+                    this.metrics.state = 'Coherent';
+                } else if (this.metrics.emergence > 0.2) {
+                    this.metrics.state = 'Fluctuating';
+                } else {
+                    this.metrics.state = 'Quantum';
+                }
+                
+                // Update UI
+                document.getElementById('depth').textContent = this.metrics.depth;
+                document.getElementById('phi').textContent = this.metrics.phi.toFixed(3);
+                document.getElementById('psi').textContent = this.metrics.psi.toFixed(3);
+                document.getElementById('emergence').textContent = this.metrics.emergence.toFixed(3);
+                document.getElementById('recursion').textContent = this.metrics.recursion.toFixed(3);
+                document.getElementById('nexus').textContent = this.metrics.nexusCount;
+                document.getElementById('state').textContent = this.metrics.state;
+                document.getElementById('cycle').textContent = this.time;
+                document.getElementById('fps').textContent = this.fps.toFixed(1);
+            }
+            
+            render() {
+                let output = '';
+                
+                // Create a map to track which reality layer contributes most at each point
+                const layerMap = new Int8Array(CONFIG.W * CONFIG.H);
+                
+                // Determine dominant reality at each point
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        const idx = y * CONFIG.W + x;
+                        
+                        let maxContribution = 0;
+                        let dominantDepth = 0;
+                        
+                        // Check each reality's contribution at this point
+                        this.checkRealityContribution(this.rootReality, idx, 0, (depth, value) => {
+                            if (Math.abs(value) > maxContribution) {
+                                maxContribution = Math.abs(value);
+                                dominantDepth = depth;
+                            }
+                        });
+                        
+                        layerMap[idx] = dominantDepth;
+                    }
+                }
+                
+                // Render with reality-specific symbols and colors
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        const idx = y * CONFIG.W + x;
+                        const intensity = this.visualField[idx];
+                        const layer = layerMap[idx];
+                        
+                        // Check for nexus points
+                        let isNexus = false;
+                        for (let reality of this.allRealities) {
+                            const nexusPoints = reality.findNexusPoints();
+                            for (let nexus of nexusPoints) {
+                                if (Math.abs(nexus.x - x) < 1 && Math.abs(nexus.y - y) < 1) {
+                                    isNexus = true;
+                                    break;
+                                }
+                            }
+                            if (isNexus) break;
+                        }
+                        
+                        // Select symbol
+                        let symbol, className;
+                        if (isNexus) {
+                            const nexusSymbols = REALITY_SYMBOLS[6];
+                            const symIdx = Math.floor(Math.abs(intensity) * nexusSymbols.length) % nexusSymbols.length;
+                            symbol = nexusSymbols[symIdx];
+                            className = 'nexus';
+                        } else {
+                            const layerSymbols = REALITY_SYMBOLS[layer % REALITY_SYMBOLS.length];
+                            const normalized = Math.max(0, Math.min(0.99, (intensity + 1) / 2));
+                            const symIdx = Math.floor(normalized * layerSymbols.length);
+                            symbol = layerSymbols[symIdx];
+                            className = `layer-${layer}`;
+                        }
+                        
+                        output += `<span class="${className}">${symbol}</span>`;
+                    }
+                    output += '\n';
+                }
+                
+                document.getElementById('canvas').innerHTML = output;
+                
+                // Apply visual effects based on state
+                const canvas = document.getElementById('canvas');
+                canvas.className = '';
+                if (this.metrics.state === 'Transcendent') {
+                    canvas.classList.add('emerging');
+                } else if (this.metrics.state === 'Emerging') {
+                    canvas.classList.add('collapsing');
+                }
+            }
+            
+            checkRealityContribution(reality, idx, depth, callback) {
+                callback(depth, reality.field[idx] + reality.consciousness[idx] * 0.5);
+                
+                for (let child of reality.children) {
+                    this.checkRealityContribution(child, idx, depth + 1, callback);
+                }
+            }
+            
+            // Control methods
+            togglePause() {
+                this.paused = !this.paused;
+            }
+            
+            reset() {
+                this.time = 0;
+                this.frameCount = 0;
+                this.rootReality = new RealityMatrix(0);
+                this.allRealities = [this.rootReality];
+                this.createInitialNesting();
+                this.visualField.fill(0);
+            }
+            
+            goDeeper() {
+                // Find deepest reality and add child
+                let deepest = this.rootReality;
+                let maxDepth = 0;
+                
+                for (let reality of this.allRealities) {
+                    if (reality.depth > maxDepth && reality.depth < CONFIG.MAX_DEPTH - 1) {
+                        deepest = reality;
+                        maxDepth = reality.depth;
+                    }
+                }
+                
+                const child = deepest.createChildReality();
+                if (child) {
+                    this.allRealities.push(child);
+                    console.log(`Created reality at depth ${child.depth}`);
+                }
+            }
+            
+            goShallower() {
+                // Remove deepest realities
+                const maxDepth = Math.max(...this.allRealities.map(r => r.depth));
+                if (maxDepth > 0) {
+                    // Remove from parents
+                    for (let reality of this.allRealities) {
+                        reality.children = reality.children.filter(c => c.depth < maxDepth);
+                    }
+                    // Remove from list
+                    this.allRealities = this.allRealities.filter(r => r.depth < maxDepth);
+                }
+            }
+            
+            createNexus() {
+                // Force creation of nexus points by increasing consciousness
+                for (let reality of this.allRealities) {
+                    for (let i = 0; i < 10; i++) {
+                        const x = Math.floor(Math.random() * CONFIG.W);
+                        const y = Math.floor(Math.random() * CONFIG.H);
+                        const idx = y * CONFIG.W + x;
+                        
+                        reality.consciousness[idx] = Math.min(1, reality.consciousness[idx] + 0.5);
+                        reality.entanglement[idx] = Math.min(1, reality.entanglement[idx] + 0.5);
+                    }
+                }
+            }
+        }
+        
+        // Initialize simulation
+        const simulation = new NestedRealitySimulation();
+        
+        // Animation loop
+        function animate() {
+            simulation.update();
+            simulation.render();
+            requestAnimationFrame(animate);
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    simulation.togglePause();
+                    break;
+                case 'KeyR':
+                    simulation.reset();
+                    break;
+                case 'KeyD':
+                    simulation.goDeeper();
+                    break;
+                case 'KeyS':
+                    simulation.goShallower();
+                    break;
+                case 'KeyN':
+                    simulation.createNexus();
+                    break;
+                case 'Digit1':
+                    simulation.viewMode = 0;
+                    break;
+                case 'Digit2':
+                    simulation.viewMode = 1;
+                    break;
+                case 'Digit3':
+                    simulation.viewMode = 2;
+                    break;
+                case 'Digit4':
+                    simulation.viewMode = 3;
+                    break;
+            }
+        });
+        
+        // Start simulation
+        console.log('🌌 Nested Reality Matrices initialized');
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacra Gen11 - Harmonic Dreamspace</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #1a002a 0%, #002a1a 100%);
+            color: #e0ffe0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            animation: dreamBg 18s infinite alternate ease-in-out;
+        }
+        @keyframes dreamBg {
+            0% { background: linear-gradient(120deg, #1a002a 0%, #002a1a 100%); }
+            50% { background: linear-gradient(120deg, #2a1a4a 0%, #1a4a2a 100%); }
+            100% { background: linear-gradient(120deg, #1a002a 0%, #002a1a 100%); }
+        }
+        #canvas {
+            white-space: pre;
+            font-size: 6px;
+            line-height: 0.78;
+            text-align: center;
+            text-shadow: 0 0 4px #e0ffe088, 0 0 10px #e0ffe044;
+            filter: blur(0.06px) brightness(1.12);
+            transition: transform 0.3s, text-shadow 0.3s;
+        }
+        #canvas:hover {
+            transform: scale(1.018);
+            text-shadow: 0 0 8px #e0ffe0cc, 0 0 18px #e0ffe077;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        // Harmonic Dreamspace Simulation: Interference of dream-waves
+        const W = 160, H = 80;
+        let time = 0;
+        // Dream symbols: from void to peak lucidity
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', 'o', 'O', '0', '#', '@', '%', '&', '$', '§', 'Ψ', 'Φ', 'Ω', 'Σ', '∆', '∇', '∞'];
+        // Dream harmonics
+        const dreamWaves = [
+            { freq: 0.07, amp: 1.0, phase: 0.0 },
+            { freq: 0.11, amp: 0.7, phase: 1.2 },
+            { freq: 0.16, amp: 0.5, phase: 2.1 },
+            { freq: 0.21, amp: 0.4, phase: 3.3 }
+        ];
+        function render() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    let v = 0;
+                    for (let w = 0; w < dreamWaves.length; w++) {
+                        const dw = dreamWaves[w];
+                        v += Math.sin(x * dw.freq + y * dw.freq * 0.7 + time * (0.7 + 0.2 * w) + dw.phase) * dw.amp;
+                    }
+                    // Lucidity pulse
+                    v += Math.sin(time * 0.13 + x * 0.02 + y * 0.03) * 0.7;
+                    // Normalize v to [0,1]
+                    const intensity = Math.max(0, Math.min(1, (v * 0.18 + 1) / 2));
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+            time += 0.025;
+            requestAnimationFrame(render);
+        }
+        render();
+    </script>
+</body>
+</html>

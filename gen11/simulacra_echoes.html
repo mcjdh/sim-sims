@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulacra Gen11 - Echoes of Thought</title>
+    <style>
+        body {
+            background: #080812; /* Deep dark blue */
+            color: #7aa5ff; /* Soft ethereal blue */
+            font-family: 'Courier New', monospace;
+            font-size: 7px;
+            line-height: 0.95;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: backgroundShift 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes backgroundShift {
+            0% { background-color: #080812; }
+            50% { background-color: #100c1c; }
+            100% { background-color: #080812; }
+        }
+
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 3px rgba(122, 165, 255, 0.5), 0 0 6px rgba(122, 165, 255, 0.2);
+            filter: blur(0.08px);
+            transition: transform 0.5s ease-out, text-shadow 0.5s ease-out;
+        }
+        
+        #canvas:hover {
+            transform: scale(1.01);
+            text-shadow: 0 0 5px rgba(122, 165, 255, 0.7), 0 0 10px rgba(122, 165, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 170, H = 85; // Slightly larger canvas
+        let time = 0;
+
+        // Simulation Fields
+        let activeThoughtLayer = new Array(W * H).fill(0); // Current prominent thoughts
+        let memoryTraceLayer = new Array(W * H).fill(0); // Fading echoes of past thoughts
+        let distortionWaveField = new Array(W * H).fill(0); // Subtle warping of reality
+
+        // Extended symbols for more nuanced visuals
+        const symbols = [' ', '.', '·', ':', ';', '-', '=', '+', '*', 'o', 'O', '0', '%', '#', '@', '&', '$'];
+
+        function updateSimulationFields() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+
+                    // 1. Active Thought Layer: Emergent patterns
+                    const wave1 = Math.sin(x * 0.08 + time * 0.03 + y * 0.02);
+                    const wave2 = Math.cos(y * 0.07 - time * 0.025 + x * 0.03);
+                    const circularPattern = Math.sin(Math.sqrt((x - W/2)**2 + (y - H/2)**2) * 0.1 - time * 0.05);
+                    activeThoughtLayer[idx] = (wave1 + wave2 + circularPattern * 1.5) / 3.5;
+
+                    // 2. Memory Trace Layer: Active thoughts fade into memory
+                    // Memory fades slower and accumulates active thoughts
+                    memoryTraceLayer[idx] = memoryTraceLayer[idx] * 0.985 + activeThoughtLayer[idx] * 0.015;
+                    
+                    // 3. Distortion Wave Field: Subtle reality warping
+                    const distortX = Math.sin(x * 0.02 + time * 0.005 + y * 0.01);
+                    const distortY = Math.cos(y * 0.02 - time * 0.006 + x * 0.01);
+                    distortionWaveField[idx] = (distortX + distortY) / 2 * 0.3; // Subtle distortion
+                }
+            }
+        }
+
+        function render() {
+            updateSimulationFields();
+            let output = '';
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Apply distortion to coordinates for sampling
+                    const distortFactor = distortionWaveField[idx] * 10; // Control distortion strength
+                    const sampleX = Math.floor(x + distortFactor) % W;
+                    const sampleY = Math.floor(y + distortFactor / 2) % H; // Asymmetric distortion
+                    const distortedIdx = ((sampleY + H) % H) * W + ((sampleX + W) % W);
+
+                    // Combine layers: Active thoughts are prominent, memory is a subtle background
+                    let intensity = activeThoughtLayer[distortedIdx] * 0.6 + memoryTraceLayer[idx] * 0.4;
+                    
+                    // Normalize intensity: range [-1, 1] to [0, 1]
+                    intensity = (intensity + 1) / 2;
+                    intensity = Math.max(0, Math.min(1, intensity)); // Clamp
+
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+
+        function evolve() {
+            render();
+            requestAnimationFrame(evolve);
+        }
+
+        // Initialize and start the simulation
+        evolve();
+    </script>
+</body>
+</html>

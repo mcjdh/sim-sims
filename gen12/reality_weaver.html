@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reality Weaver</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #030312 0%, #0c0c2a 50%, #0a0a1e 100%);
+            color: #eeffff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(60, 160, 255, 0.4);
+            cursor: crosshair;
+        }
+        
+        #interface {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(10, 20, 40, 0.8);
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 180, 255, 0.3);
+            font-size: 12px;
+            border: 1px solid rgba(60, 160, 255, 0.5);
+            backdrop-filter: blur(3px);
+        }
+        
+        .control-group {
+            margin-bottom: 10px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .slider-label {
+            width: 100px;
+            font-size: 11px;
+        }
+        
+        .slider {
+            width: 120px;
+            margin: 0 10px;
+        }
+        
+        .slider-value {
+            width: 30px;
+            font-size: 10px;
+            text-align: right;
+        }
+        
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        button {
+            background: rgba(20, 50, 100, 0.7);
+            color: #9cefff;
+            border: 1px solid #3d80b3;
+            border-radius: 3px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: rgba(40, 80, 160, 0.8);
+            color: #ffffff;
+        }
+        
+        #modes button {
+            margin-right: 5px;
+        }
+
+        #info {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #aaa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            max-width: 300px;
+            text-align: right;
+        }
+
+        .active-mode {
+            background: rgba(60, 130, 220, 0.8) !important;
+            color: white !important;
+            box-shadow: 0 0 8px rgba(100, 200, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="interface">
+        <div class="control-group">
+            <h3 style="margin: 0 0 8px 0; text-align: center; color: #6cf;">Reality Weaver</h3>
+            <div class="slider-container">
+                <span class="slider-label">Particle Count:</span>
+                <input type="range" min="100" max="2000" value="500" class="slider" id="particleCountSlider">
+                <span class="slider-value" id="particleCountValue">500</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Force Strength:</span>
+                <input type="range" min="1" max="100" value="50" class="slider" id="forceStrengthSlider">
+                <span class="slider-value" id="forceStrengthValue">50</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Entropy:</span>
+                <input type="range" min="0" max="100" value="20" class="slider" id="entropySlider">
+                <span class="slider-value" id="entropyValue">20</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Connection Radius:</span>
+                <input type="range" min="10" max="200" value="80" class="slider" id="radiusSlider">
+                <span class="slider-value" id="radiusValue">80</span>
+            </div>
+        </div>
+        
+        <div class="control-group" id="modes">
+            <div style="margin-bottom: 5px; font-size: 11px;">Interaction Mode:</div>
+            <button id="attractMode" class="active-mode">Attract</button>
+            <button id="repelMode">Repel</button>
+            <button id="vortexMode">Vortex</button>
+            <button id="chaosMode">Chaos</button>
+        </div>
+        
+        <div class="button-row">
+            <button id="resetBtn">Reset</button>
+            <button id="patternBtn">Random Pattern</button>
+            <button id="toggleConnectionsBtn">Toggle Connections</button>
+        </div>
+    </div>
+    
+    <div id="info">
+        Click and drag to interact with the particles<br>
+        Press SPACE to pause/resume the simulation
+    </div>
+
+    <script>
+        // Initialize canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize canvas to fill screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // UI elements
+        const particleCountSlider = document.getElementById('particleCountSlider');
+        const particleCountValue = document.getElementById('particleCountValue');
+        const forceStrengthSlider = document.getElementById('forceStrengthSlider');
+        const forceStrengthValue = document.getElementById('forceStrengthValue');
+        const entropySlider = document.getElementById('entropySlider');
+        const entropyValue = document.getElementById('entropyValue');
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusValue = document.getElementById('radiusValue');
+        const resetBtn = document.getElementById('resetBtn');
+        const patternBtn = document.getElementById('patternBtn');
+        const toggleConnectionsBtn = document.getElementById('toggleConnectionsBtn');
+        
+        // Mode buttons
+        const modeBtns = {
+            attract: document.getElementById('attractMode'),
+            repel: document.getElementById('repelMode'),
+            vortex: document.getElementById('vortexMode'),
+            chaos: document.getElementById('chaosMode')
+        };
+        
+        // Simulation settings
+        let settings = {
+            particleCount: parseInt(particleCountSlider.value),
+            forceStrength: parseInt(forceStrengthSlider.value) / 1000,
+            entropy: parseInt(entropySlider.value) / 1000,
+            connectionRadius: parseInt(radiusSlider.value),
+            showConnections: true,
+            paused: false,
+            interactionMode: 'attract'
+        };
+        
+        // Particle system
+        let particles = [];
+        
+        // Mouse interaction
+        let mouse = {
+            x: null,
+            y: null,
+            radius: 150,
+            active: false
+        };
+        
+        // Color scheme
+        const colors = [
+            { r: 60, g: 200, b: 255 },  // Cyan
+            { r: 180, g: 100, b: 255 }, // Purple
+            { r: 255, g: 100, b: 150 }, // Pink
+            { r: 255, g: 200, b: 50 }   // Yellow
+        ];
+        
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < settings.particleCount; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const colorIndex = Math.floor(Math.random() * colors.length);
+                
+                // Velocity based on position (creates natural flow)
+                const vx = (Math.random() - 0.5) * 2;
+                const vy = (Math.random() - 0.5) * 2;
+                
+                particles.push({
+                    x, y,
+                    vx, vy,
+                    radius: Math.random() * 2 + 0.5,
+                    color: colors[colorIndex],
+                    originalColor: colors[colorIndex],
+                    energy: Math.random()
+                });
+            }
+        }
+        
+        // Function to apply a pattern to particles
+        function applyPattern(patternName) {
+            switch(patternName) {
+                case 'circle':
+                    for (let i = 0; i < particles.length; i++) {
+                        const angle = (i / particles.length) * Math.PI * 2;
+                        const radius = Math.min(canvas.width, canvas.height) * 0.3;
+                        particles[i].x = canvas.width/2 + Math.cos(angle) * radius;
+                        particles[i].y = canvas.height/2 + Math.sin(angle) * radius;
+                        particles[i].vx = (Math.random() - 0.5) * 1;
+                        particles[i].vy = (Math.random() - 0.5) * 1;
+                    }
+                    break;
+                case 'spiral':
+                    for (let i = 0; i < particles.length; i++) {
+                        const angle = (i / particles.length) * Math.PI * 12;
+                        const radius = (i / particles.length) * Math.min(canvas.width, canvas.height) * 0.35;
+                        particles[i].x = canvas.width/2 + Math.cos(angle) * radius;
+                        particles[i].y = canvas.height/2 + Math.sin(angle) * radius;
+                        particles[i].vx = Math.cos(angle + Math.PI/2) * 2;
+                        particles[i].vy = Math.sin(angle + Math.PI/2) * 2;
+                    }
+                    break;
+                case 'grid':
+                    const cols = Math.ceil(Math.sqrt(particles.length));
+                    const rows = Math.ceil(particles.length / cols);
+                    const cellWidth = canvas.width * 0.6 / cols;
+                    const cellHeight = canvas.height * 0.6 / rows;
+                    
+                    for (let i = 0; i < particles.length; i++) {
+                        const col = i % cols;
+                        const row = Math.floor(i / cols);
+                        particles[i].x = canvas.width*0.2 + col * cellWidth + cellWidth/2;
+                        particles[i].y = canvas.height*0.2 + row * cellHeight + cellHeight/2;
+                        particles[i].vx = (Math.random() - 0.5) * 0.5;
+                        particles[i].vy = (Math.random() - 0.5) * 0.5;
+                    }
+                    break;
+                case 'wave':
+                    for (let i = 0; i < particles.length; i++) {
+                        const x = canvas.width * (i / particles.length);
+                        const y = canvas.height/2 + Math.sin(x * 0.01) * 100;
+                        particles[i].x = x;
+                        particles[i].y = y;
+                        particles[i].vx = (Math.random() - 0.5);
+                        particles[i].vy = (Math.random() - 0.5);
+                    }
+                    break;
+                case 'random':
+                default:
+                    const patterns = ['circle', 'spiral', 'grid', 'wave'];
+                    applyPattern(patterns[Math.floor(Math.random() * patterns.length)]);
+                    break;
+            }
+        }
+        
+        // Update simulation
+        function update() {
+            if (settings.paused) return;
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                
+                // Add entropy/randomness
+                p.vx += (Math.random() - 0.5) * settings.entropy;
+                p.vy += (Math.random() - 0.5) * settings.entropy;
+                
+                // Apply mouse interaction based on current mode
+                if (mouse.active) {
+                    const dx = mouse.x - p.x;
+                    const dy = mouse.y - p.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < mouse.radius) {
+                        const force = (1 - distance/mouse.radius) * settings.forceStrength * 10;
+                        
+                        switch(settings.interactionMode) {
+                            case 'attract':
+                                p.vx += dx * force;
+                                p.vy += dy * force;
+                                break;
+                            case 'repel':
+                                p.vx -= dx * force;
+                                p.vy -= dy * force;
+                                break;
+                            case 'vortex':
+                                p.vx += dy * force * 0.3;
+                                p.vy -= dx * force * 0.3;
+                                break;
+                            case 'chaos':
+                                if (Math.random() > 0.5) {
+                                    p.vx += dx * force * Math.sin(p.energy * 10);
+                                    p.vy += dy * force * Math.cos(p.energy * 10);
+                                } else {
+                                    p.vx -= dx * force * Math.cos(p.energy * 10);
+                                    p.vy -= dy * force * Math.sin(p.energy * 10);
+                                }
+                                break;
+                        }
+                    }
+                }
+                
+                // Particle interaction with other particles
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p2.x - p.x;
+                    const dy = p2.y - p.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < settings.connectionRadius) {
+                        // Small attraction/repulsion forces
+                        const force = settings.forceStrength * 0.01;
+                        p.vx += dx * force;
+                        p.vy += dy * force;
+                        p2.vx -= dx * force;
+                        p2.vy -= dy * force;
+                    }
+                }
+                
+                // Update position
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                // Apply friction
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+                
+                // Boundary checking (wrap around)
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+            }
+        }
+        
+        // Render simulation
+        function render() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw connections between particles
+            if (settings.showConnections) {
+                ctx.lineWidth = 0.3;
+                
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dx = p2.x - p.x;
+                        const dy = p2.y - p.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (distance < settings.connectionRadius) {
+                            const opacity = (1 - distance/settings.connectionRadius) * 0.5;
+                            const blend = (p.color.r + p2.color.r)/2;
+                            ctx.strokeStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${opacity})`;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            
+            // Draw particles
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                
+                // Color transition based on velocity
+                const speed = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+                const r = p.originalColor.r + speed * 40;
+                const g = p.originalColor.g + speed * 40;
+                const b = p.originalColor.b + speed * 40;
+                
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Draw mouse interaction radius
+            if (mouse.active) {
+                const gradient = ctx.createRadialGradient(
+                    mouse.x, mouse.y, 0,
+                    mouse.x, mouse.y, mouse.radius
+                );
+                
+                let color;
+                switch(settings.interactionMode) {
+                    case 'attract': color = '100,200,255'; break;
+                    case 'repel': color = '255,100,100'; break;
+                    case 'vortex': color = '200,100,255'; break;
+                    case 'chaos': color = '255,200,100'; break;
+                }
+                
+                gradient.addColorStop(0, `rgba(${color},0.2)`);
+                gradient.addColorStop(1, `rgba(${color},0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(mouse.x, mouse.y, mouse.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Animation loop
+        function animate() {
+            update();
+            render();
+            requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        canvas.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        
+        canvas.addEventListener('mousedown', () => {
+            mouse.active = true;
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            mouse.active = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            mouse.active = false;
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                settings.paused = !settings.paused;
+            }
+        });
+        
+        // UI controls
+        particleCountSlider.addEventListener('input', () => {
+            settings.particleCount = parseInt(particleCountSlider.value);
+            particleCountValue.textContent = settings.particleCount;
+            initParticles();
+        });
+        
+        forceStrengthSlider.addEventListener('input', () => {
+            settings.forceStrength = parseInt(forceStrengthSlider.value) / 1000;
+            forceStrengthValue.textContent = forceStrengthSlider.value;
+        });
+        
+        entropySlider.addEventListener('input', () => {
+            settings.entropy = parseInt(entropySlider.value) / 1000;
+            entropyValue.textContent = entropySlider.value;
+        });
+        
+        radiusSlider.addEventListener('input', () => {
+            settings.connectionRadius = parseInt(radiusSlider.value);
+            radiusValue.textContent = settings.connectionRadius;
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            initParticles();
+        });
+        
+        patternBtn.addEventListener('click', () => {
+            applyPattern('random');
+        });
+        
+        toggleConnectionsBtn.addEventListener('click', () => {
+            settings.showConnections = !settings.showConnections;
+            toggleConnectionsBtn.textContent = settings.showConnections ? 
+                "Hide Connections" : "Show Connections";
+        });
+        
+        // Mode buttons
+        for (const mode in modeBtns) {
+            modeBtns[mode].addEventListener('click', () => {
+                // Remove active class from all buttons
+                for (const m in modeBtns) {
+                    modeBtns[m].classList.remove('active-mode');
+                }
+                
+                // Set active mode
+                settings.interactionMode = mode;
+                modeBtns[mode].classList.add('active-mode');
+            });
+        }
+        
+        // Initialize and start animation
+        initParticles();
+        animate();
+    </script>
+</body>
+</html>

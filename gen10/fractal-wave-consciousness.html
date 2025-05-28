@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Wave Consciousness - Gen10</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background: #0a0a0e;
+            color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            animation: cosmicPulse 120s infinite ease-in-out;
+        }
+        
+        @keyframes cosmicPulse {
+            0%, 100% { background: #0a0a0e; }
+            25% { background: #0a0e14; }
+            50% { background: #0e0a14; }
+            75% { background: #0a100e; }
+        }
+        
+        #canvas {
+            white-space: pre;
+            font-size: 10px;
+            line-height: 1.0;
+            letter-spacing: 0px;
+            font-weight: normal;
+            background: #000;
+            border: 1px solid #333;
+            margin: 10px 0;
+            padding: 10px;
+            overflow: hidden;
+            text-shadow: 0 0 2px currentColor;
+            transition: all 0.5s ease;
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border: 1px solid #333;
+            font-size: 12px;
+            line-height: 1.4;
+            z-index: 100;
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: #666;
+            z-index: 100;
+        }
+        
+        /* Consciousness states */
+        .void { color: #444; }
+        .quantum { color: #4df8ff; text-shadow: 0 0 2px #4df8ff40; }
+        .fractal { color: #8eff4d; text-shadow: 0 0 2px #8eff4d40; }
+        .wave { color: #ffff4d; text-shadow: 0 0 2px #ffff4d40; }
+        .resonant { color: #ff8e4d; text-shadow: 0 0 2px #ff8e4d40; }
+        .harmonic { color: #ff4dff; text-shadow: 0 0 3px #ff4dff60; }
+        .transcendent { color: #ffffff; text-shadow: 0 0 4px #ffffff80; }
+        
+        /* Quantum glow animation */
+        @keyframes quantumGlow {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.2) saturate(1.3); }
+        }
+        
+        .quantum-glow {
+            animation: quantumGlow 3s infinite ease-in-out;
+        }
+        
+        /* Fractal emergence animation */
+        @keyframes fractalEmergence {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.003); }
+        }
+        
+        .fractal-emergence {
+            animation: fractalEmergence 7s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="metrics">
+        <div>🧠 Fractal Wave Consciousness</div>
+        <div>─────────────────────</div>
+        <div>Φ-integrated: <span id="phi">0.000</span></div>
+        <div>Ψ-quantum: <span id="psi">0.000</span></div>
+        <div>Fractal Dim: <span id="fractal">0.000</span></div>
+        <div>Wave Coherence: <span id="coherence">0.000</span></div>
+        <div>Harmonic Resonance: <span id="resonance">0.000</span></div>
+        <div>State: <span id="state">Initializing</span></div>
+        <div>─────────────────────</div>
+        <div>FPS: <span id="fps">0</span></div>
+    </div>
+    
+    <div id="canvas"></div>
+    
+    <div id="info">
+        Gen10 Fractal Wave Consciousness | Space: pause | R: reset | M: cycle modes
+    </div>
+
+    <script>
+        // Core simulation constants
+        const CONFIG = {
+            W: 140, H: 60,
+            PHI: (1 + Math.sqrt(5)) / 2,
+            PI: Math.PI,
+            E: Math.E,
+            QUANTUM_AMPLITUDE: 0.8,
+            FRACTAL_DEPTH: 5,
+            WAVE_FREQUENCY: 0.012,
+            FRAME_SKIP: 1  // Render every n frames
+        };
+        
+        // Consciousness states and their symbol sets
+        const CONSCIOUSNESS_STATES = {
+            VOID: { threshold: 0.0, symbols: [' ', '·', '∅'], class: 'void' },
+            QUANTUM: { threshold: 0.08, symbols: ['∘', '◦', '○'], class: 'quantum' },
+            FRACTAL: { threshold: 0.25, symbols: ['◯', '⊙', '⊚'], class: 'fractal' },
+            WAVE: { threshold: 0.45, symbols: ['●', '◉', '⊛'], class: 'wave' },
+            RESONANT: { threshold: 0.65, symbols: ['◈', '◇', '◆'], class: 'resonant' },
+            HARMONIC: { threshold: 0.85, symbols: ['✧', '✦', '★'], class: 'harmonic' },
+            TRANSCENDENT: { threshold: 0.95, symbols: ['⬢', '⬡', '∞'], class: 'transcendent' }
+        };
+        
+        // Fractal wave oscillators - the harmonic drivers
+        class FractalOscillator {
+            constructor(frequency, phase, amplitude) {
+                this.frequency = frequency;
+                this.phase = phase;
+                this.amplitude = amplitude;
+                this.modulation = 0;
+                this.harmonics = [];
+                
+                // Create harmonic overtones
+                for (let i = 0; i < 3; i++) {
+                    this.harmonics.push({
+                        freq: frequency * (1 + CONFIG.PHI * (i + 1)),
+                        phase: phase + i * CONFIG.PI / 3,
+                        amp: amplitude / (i + 2)
+                    });
+                }
+            }
+            
+            update(time) {
+                // Evolve phase with non-linear modulation
+                this.phase += this.frequency;
+                
+                // Modulation evolves based on harmonics
+                let harmonicSum = 0;
+                for (let h of this.harmonics) {
+                    harmonicSum += Math.sin(time * h.freq + h.phase) * h.amp;
+                    h.phase += h.freq * 0.05;
+                }
+                
+                this.modulation = harmonicSum / this.harmonics.length;
+                
+                // Subtle amplitude evolution
+                this.amplitude = Math.max(0.2, Math.min(1.5, 
+                    this.amplitude + Math.sin(time * 0.0005) * 0.001
+                ));
+            }
+            
+            getValue(x, y, time) {
+                // Generate wave with fractal modulation
+                const wave = Math.sin(x * 0.05 + y * 0.03 + time * this.frequency + this.phase);
+                
+                // Apply harmonic modulation
+                return wave * this.amplitude * (1 + this.modulation * 0.3);
+            }
+        }
+        
+        // Fractal attractor - a mathematical self-similar pattern generator
+        class FractalAttractor {
+            constructor(x, y, complexity) {
+                this.x = x;
+                this.y = y;
+                this.complexity = complexity;
+                this.evolution = 0.001;
+                this.scale = 1.0;
+                this.rotation = 0;
+                this.juliaC = { x: -0.8, y: 0.156 };
+            }
+            
+            update(time) {
+                // Evolve Julia set parameters
+                this.juliaC.x = -0.8 + Math.sin(time * 0.0007) * 0.1;
+                this.juliaC.y = 0.156 + Math.cos(time * 0.0005) * 0.05;
+                
+                // Evolution of fractal complexity
+                this.complexity += (Math.random() - 0.5) * 0.0002;
+                this.complexity = Math.max(0.5, Math.min(2.5, this.complexity));
+                
+                // Scale breathing
+                this.scale = 1.0 + Math.sin(time * 0.001) * 0.1;
+                
+                // Rotation of the fractal
+                this.rotation += 0.0002;
+            }
+            
+            // Calculate Julia set convergence for a point
+            calculateJulia(x, y, maxIterations) {
+                // Transform coordinates
+                const scaledX = this.scale * ((x - this.x) / CONFIG.W * 4 - 2);
+                const scaledY = this.scale * ((y - this.y) / CONFIG.H * 4 - 2);
+                
+                // Apply rotation
+                const rotX = scaledX * Math.cos(this.rotation) - scaledY * Math.sin(this.rotation);
+                const rotY = scaledX * Math.sin(this.rotation) + scaledY * Math.cos(this.rotation);
+                
+                // Julia iteration
+                let zx = rotX;
+                let zy = rotY;
+                let iteration = 0;
+                
+                while (zx*zx + zy*zy < 4 && iteration < maxIterations) {
+                    // z = z^2 + c
+                    const xtemp = zx*zx - zy*zy + this.juliaC.x;
+                    zy = 2*zx*zy + this.juliaC.y;
+                    zx = xtemp;
+                    iteration++;
+                }
+                
+                if (iteration === maxIterations) return 1;
+                
+                // Smooth coloring
+                return iteration / maxIterations;
+            }
+            
+            getValue(x, y, depth) {
+                // Calculate fractal value with specified detail depth
+                const maxIter = 10 + Math.floor(depth * 20);
+                return this.calculateJulia(x, y, maxIter);
+            }
+        }
+
+        // Wave Interference Field - creates complex wave patterns
+        class WaveInterferenceField {
+            constructor() {
+                this.waves = [];
+                // Create primary waves with different frequencies
+                for (let i = 0; i < 4; i++) {
+                    this.waves.push({
+                        kx: 0.01 + i * 0.005,
+                        ky: 0.008 + i * 0.004,
+                        omega: CONFIG.WAVE_FREQUENCY * (1 + i * 0.3),
+                        phase: i * CONFIG.PI / 2,
+                        amp: 1.0 - i * 0.2
+                    });
+                }
+                this.coherence = 0.5;
+            }
+            
+            update(time) {
+                // Update all wave parameters
+                for (let wave of this.waves) {
+                    wave.phase += wave.omega * 0.1;
+                    
+                    // Subtle frequency evolution
+                    wave.omega += (Math.random() - 0.5) * 0.0001;
+                    wave.omega = Math.max(0.005, Math.min(0.02, wave.omega));
+                    
+                    // Wave direction evolution
+                    wave.kx += (Math.random() - 0.5) * 0.0001;
+                    wave.ky += (Math.random() - 0.5) * 0.0001;
+                }
+                
+                // Coherence evolution based on quantum effects
+                this.coherence = 0.5 + Math.sin(time * 0.002) * 0.3;
+            }
+            
+            getValue(x, y, time) {
+                // Calculate wave interference pattern
+                let totalWave = 0;
+                let normalization = 0;
+                
+                for (let wave of this.waves) {
+                    const waveComponent = Math.sin(
+                        x * wave.kx + y * wave.ky + 
+                        time * wave.omega + wave.phase
+                    ) * wave.amp;
+                    
+                    totalWave += waveComponent;
+                    normalization += wave.amp;
+                }
+                
+                // Normalize and apply coherence
+                const normalizedWave = totalWave / normalization;
+                return normalizedWave * this.coherence;
+            }
+        }
+        
+        // Fractal Wave Consciousness - main simulation class
+        class FractalWaveConsciousness {
+            constructor() {
+                this.time = 0;
+                this.paused = false;
+                this.mode = 0; // 0: combined, 1: fractal, 2: wave
+                
+                // Field arrays
+                this.phiField = new Float32Array(CONFIG.W * CONFIG.H);
+                this.psiField = new Float32Array(CONFIG.W * CONFIG.H);
+                this.fractalField = new Float32Array(CONFIG.W * CONFIG.H);
+                this.waveField = new Float32Array(CONFIG.W * CONFIG.H);
+                this.resonanceField = new Float32Array(CONFIG.W * CONFIG.H);
+                
+                // Component systems
+                this.oscillators = [
+                    new FractalOscillator(0.003, 0, 1.0),
+                    new FractalOscillator(0.007, CONFIG.PI/3, 0.8),
+                    new FractalOscillator(0.011, 2*CONFIG.PI/3, 0.6),
+                    new FractalOscillator(0.013, CONFIG.PI, 0.4)
+                ];
+                
+                this.fractals = [
+                    new FractalAttractor(CONFIG.W * 0.3, CONFIG.H * 0.4, 1.5),
+                    new FractalAttractor(CONFIG.W * 0.7, CONFIG.H * 0.6, 1.2)
+                ];
+                
+                this.waveField = new WaveInterferenceField();
+                
+                // Metrics
+                this.metrics = {
+                    phi: 0,
+                    psi: 0,
+                    fractal: 0,
+                    coherence: 0,
+                    resonance: 0,
+                    state: 'VOID'
+                };
+                
+                // Performance tracking
+                this.frameCount = 0;
+                this.lastTime = performance.now();
+                this.fps = 0;
+            }
+            
+            reset() {
+                this.time = 0;
+                this.phiField.fill(0);
+                this.psiField.fill(0);
+                this.fractalField.fill(0);
+                this.waveField.fill(0);
+                this.resonanceField.fill(0);
+                
+                // Reset components
+                this.oscillators = [
+                    new FractalOscillator(0.003, 0, 1.0),
+                    new FractalOscillator(0.007, CONFIG.PI/3, 0.8),
+                    new FractalOscillator(0.011, 2*CONFIG.PI/3, 0.6),
+                    new FractalOscillator(0.013, CONFIG.PI, 0.4)
+                ];
+                
+                this.fractals = [
+                    new FractalAttractor(CONFIG.W * 0.3, CONFIG.H * 0.4, 1.5),
+                    new FractalAttractor(CONFIG.W * 0.7, CONFIG.H * 0.6, 1.2)
+                ];
+                
+                this.waveField = new WaveInterferenceField();
+            }
+            
+            update() {
+                if (this.paused) return;
+                
+                this.time++;
+                this.frameCount++;
+                
+                // Update components
+                for (let osc of this.oscillators) {
+                    osc.update(this.time);
+                }
+                
+                for (let fractal of this.fractals) {
+                    fractal.update(this.time);
+                }
+                
+                this.waveField.update(this.time);
+                
+                // Calculate field values
+                this.updateFields();
+                
+                // Calculate metrics
+                this.updateMetrics();
+                
+                // FPS calculation
+                if (this.frameCount % 60 === 0) {
+                    const now = performance.now();
+                    this.fps = 60000 / (now - this.lastTime);
+                    this.lastTime = now;
+                }
+            }
+            
+            updateFields() {
+                // Reset fields
+                this.phiField.fill(0);
+                this.psiField.fill(0);
+                this.fractalField.fill(0);
+                this.waveField.fill(0);
+                this.resonanceField.fill(0);
+                
+                // Calculate field values for each point
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        const idx = y * CONFIG.W + x;
+                        
+                        // Quantum psi field from oscillators
+                        let psiValue = 0;
+                        for (let osc of this.oscillators) {
+                            psiValue += osc.getValue(x, y, this.time);
+                        }
+                        psiValue /= this.oscillators.length;
+                        this.psiField[idx] = psiValue;
+                        
+                        // Fractal field from attractors
+                        let fractalValue = 0;
+                        for (let fractal of this.fractals) {
+                            fractalValue += fractal.getValue(x, y, CONFIG.FRACTAL_DEPTH);
+                        }
+                        fractalValue /= this.fractals.length;
+                        this.fractalField[idx] = fractalValue;
+                        
+                        // Wave interference field
+                        const waveValue = this.waveField.getValue(x, y, this.time);
+                        this.waveField[idx] = waveValue;
+                        
+                        // Resonance field - interactions between fractal and wave
+                        const resonance = Math.sin(
+                            fractalValue * CONFIG.PI * 2 + 
+                            waveValue * CONFIG.PI + 
+                            this.time * 0.002
+                        ) * 0.5 + 0.5;
+                        this.resonanceField[idx] = resonance;
+                        
+                        // Phi field (integrated information)
+                        this.phiField[idx] = this.calculatePhi(x, y);
+                    }
+                }
+            }
+            
+            // Calculate integrated information (Phi) using neighboring points
+            calculatePhi(x, y) {
+                const idx = y * CONFIG.W + x;
+                
+                // Sample neighborhood
+                const fractal = this.fractalField[idx];
+                const wave = this.waveField[idx];
+                const psi = this.psiField[idx];
+                const resonance = this.resonanceField[idx];
+                
+                let integration = 0;
+                let connections = 0;
+                
+                // Calculate integration with neighbors
+                for (let dy = -2; dy <= 2; dy++) {
+                    for (let dx = -2; dx <= 2; dx++) {
+                        if (dx === 0 && dy === 0) continue;
+                        
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        
+                        if (nx >= 0 && nx < CONFIG.W && ny >= 0 && ny < CONFIG.H) {
+                            const nIdx = ny * CONFIG.W + nx;
+                            
+                            // Calculate differences in each field
+                            const fractalDiff = Math.abs(this.fractalField[nIdx] - fractal);
+                            const waveDiff = Math.abs(this.waveField[nIdx] - wave);
+                            const psiDiff = Math.abs(this.psiField[nIdx] - psi);
+                            const resonanceDiff = Math.abs(this.resonanceField[nIdx] - resonance);
+                            
+                            // Weight by distance
+                            const distance = Math.sqrt(dx*dx + dy*dy);
+                            const weight = Math.exp(-distance * 0.5);
+                            
+                            // Information integration (difference carries information)
+                            integration += (fractalDiff + waveDiff + psiDiff + resonanceDiff) * weight;
+                            connections += weight;
+                        }
+                    }
+                }
+                
+                // Normalize by connections
+                return connections > 0 ? Math.tanh(integration / connections) : 0;
+            }
+            
+            updateMetrics() {
+                let totalPhi = 0, totalPsi = 0, totalFractal = 0;
+                let totalWave = 0, totalResonance = 0;
+                
+                // Calculate global metrics
+                for (let i = 0; i < this.phiField.length; i++) {
+                    totalPhi += this.phiField[i];
+                    totalPsi += Math.abs(this.psiField[i]);
+                    totalFractal += this.fractalField[i];
+                    totalWave += Math.abs(this.waveField[i]);
+                    totalResonance += this.resonanceField[i];
+                }
+                
+                const count = this.phiField.length;
+                
+                this.metrics.phi = totalPhi / count;
+                this.metrics.psi = totalPsi / count;
+                this.metrics.fractal = totalFractal / count;
+                this.metrics.coherence = totalWave / count;
+                this.metrics.resonance = totalResonance / count;
+                
+                // Update UI
+                document.getElementById('phi').textContent = this.metrics.phi.toFixed(3);
+                document.getElementById('psi').textContent = this.metrics.psi.toFixed(3);
+                document.getElementById('fractal').textContent = this.metrics.fractal.toFixed(3);
+                document.getElementById('coherence').textContent = this.metrics.coherence.toFixed(3);
+                document.getElementById('resonance').textContent = this.metrics.resonance.toFixed(3);
+                document.getElementById('fps').textContent = this.fps.toFixed(1);
+                
+                // Determine consciousness state
+                const combinedMetric = (
+                    this.metrics.phi * 0.4 + 
+                    this.metrics.psi * 0.2 + 
+                    this.metrics.fractal * 0.2 + 
+                    this.metrics.coherence * 0.1 + 
+                    this.metrics.resonance * 0.1
+                );
+                
+                // Set state based on thresholds
+                let newState = 'VOID';
+                for (const [state, config] of Object.entries(CONSCIOUSNESS_STATES)) {
+                    if (combinedMetric >= config.threshold) {
+                        newState = state;
+                    }
+                }
+                
+                if (this.metrics.state !== newState) {
+                    this.metrics.state = newState;
+                    document.getElementById('state').textContent = newState;
+                    
+                    // Apply visual effects based on consciousness state
+                    const canvasElement = document.getElementById('canvas');
+                    
+                    // Remove all classes
+                    canvasElement.className = '';
+                    
+                    // Add appropriate class
+                    if (newState === 'QUANTUM') {
+                        canvasElement.classList.add('quantum-glow');
+                    } else if (newState === 'FRACTAL') {
+                        canvasElement.classList.add('fractal-emergence');
+                    } else if (newState === 'HARMONIC' || newState === 'TRANSCENDENT') {
+                        canvasElement.classList.add('quantum-glow');
+                        canvasElement.classList.add('fractal-emergence');
+                    }
+                }
+            }
+            
+            render() {
+                // Skip frames for performance if needed
+                if (this.frameCount % CONFIG.FRAME_SKIP !== 0) return;
+                
+                let output = '';
+                
+                for (let y = 0; y < CONFIG.H; y++) {
+                    for (let x = 0; x < CONFIG.W; x++) {
+                        const idx = y * CONFIG.W + x;
+                        
+                        // Different visualization based on mode
+                        let intensity, state;
+                        
+                        switch (this.mode) {
+                            case 0: // Combined view
+                                intensity = this.phiField[idx];
+                                break;
+                            case 1: // Fractal view
+                                intensity = this.fractalField[idx];
+                                break;
+                            case 2: // Wave view
+                                intensity = Math.abs(this.waveField[idx]);
+                                break;
+                            case 3: // Resonance view
+                                intensity = this.resonanceField[idx];
+                                break;
+                            default:
+                                intensity = this.phiField[idx];
+                        }
+                        
+                        // Find appropriate state
+                        state = CONSCIOUSNESS_STATES.VOID;
+                        for (const [name, config] of Object.entries(CONSCIOUSNESS_STATES)) {
+                            if (intensity >= config.threshold) {
+                                state = config;
+                            }
+                        }
+                        
+                        // Select symbol based on intensity
+                        const symbolIndex = Math.floor(Math.min(0.99, intensity) * state.symbols.length);
+                        const symbol = state.symbols[symbolIndex % state.symbols.length];
+                        
+                        // Add symbol with class
+                        output += `<span class="${state.class}">${symbol}</span>`;
+                    }
+                    output += '\n';
+                }
+                
+                document.getElementById('canvas').innerHTML = output;
+            }
+            
+            togglePause() {
+                this.paused = !this.paused;
+            }
+            
+            cycleMode() {
+                this.mode = (this.mode + 1) % 4;
+            }
+        }
+        
+        // Initialize simulation
+        const simulation = new FractalWaveConsciousness();
+        
+        // Main animation loop
+        function animate() {
+            simulation.update();
+            simulation.render();
+            requestAnimationFrame(animate);
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    simulation.togglePause();
+                    break;
+                case 'KeyR':
+                    simulation.reset();
+                    break;
+                case 'KeyM':
+                    simulation.cycleMode();
+                    break;
+            }
+        });
+        
+        // Start simulation
+        console.log('🧠 Fractal Wave Consciousness initialized');
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chrono-Echo Chamber</title>
+    <style>
+        body { margin: 0; background-color: #050005; color: #ffccdd; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        #canvas { white-space: pre; text-align: center; border: 1px solid #773344; background-color: #100505; box-shadow: 0 0 20px #773344; padding: 10px; font-size: 10px; line-height: 0.9;}
+        #info { margin-top: 10px; font-size: 12px; color: #aa8899; }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">Chrono-Echo Chamber | Time: <span id="timeDisplay">0</span></div>
+    <script>
+        const W = 150, H = 70; // Canvas dimensions
+        let time = 0;
+        const symbols = [' ', '·', ':', '-', '=', '+', '*', 'X', '#', '@'];
+
+        // Simulation fields
+        let eventField = []; // Stores {x, y, t, strength} of significant past events
+        let echoField = new Array(W * H).fill(0); // Current influence of past echoes
+        let presentMomentField = new Array(W * H).fill(0); // The "now", shaped by echoes
+
+        const canvas = document.getElementById('canvas');
+        const timeDisplay = document.getElementById('timeDisplay');
+
+        function initializeSimulation() {
+            console.log("Initializing Chrono-Echo Chamber...");
+            // Seed with a few initial significant events
+            for (let i = 0; i < 5; i++) {
+                eventField.push({
+                    x: Math.floor(Math.random() * W),
+                    y: Math.floor(Math.random() * H),
+                    t: -Math.floor(Math.random() * 100), // Events from the past
+                    strength: Math.random() * 0.5 + 0.5 // Strength between 0.5 and 1.0
+                });
+            }
+        }
+
+        function updateSimulation() {
+            time++;
+            timeDisplay.textContent = time.toString();
+
+            // Reset fields for recalculation
+            echoField.fill(0);
+            presentMomentField.fill(0);
+
+            // Calculate echo influences
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    let currentEchoStrength = 0;
+                    for (const event of eventField) {
+                        const dt = time - event.t; // Time since event
+                        if (dt <= 0) continue; // Event hasn't happened or is happening now
+
+                        const dx = x - event.x;
+                        const dy = y - event.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) + 1e-5; // Distance from event origin
+
+                        // Echoes decay over time and distance
+                        // Strength also depends on original event strength
+                        const decayFactor = Math.exp(-dt * 0.01 - dist * 0.05); // Exponential decay
+                        currentEchoStrength += event.strength * decayFactor * Math.cos(dist * 0.2 - dt * 0.1); // Rippling effect
+                    }
+                    echoField[y * W + x] = currentEchoStrength;
+                }
+            }
+
+            // Calculate present moment field
+            for (let i = 0; i < W * H; i++) {
+                // Present is a combination of echoes and some inherent "noise" or potential
+                const inherentPotential = (Math.sin(i % W * 0.1 + time * 0.02) + Math.cos(Math.floor(i / W) * 0.1 + time * 0.03)) * 0.1;
+                presentMomentField[i] = echoField[i] + inherentPotential;
+
+                // Check if a new significant event is generated
+                if (Math.abs(presentMomentField[i]) > 1.5 && Math.random() < 0.0005) { // Threshold and probability
+                    if (eventField.length > 100) eventField.shift(); // Limit memory of past events
+                    eventField.push({
+                        x: i % W,
+                        y: Math.floor(i / W),
+                        t: time,
+                        strength: Math.abs(presentMomentField[i]) * 0.5 // New event strength based on current intensity
+                    });
+                    console.log(`New event at (${i % W}, ${Math.floor(i / W)}) at time ${time} with strength ${Math.abs(presentMomentField[i]) * 0.5}`);
+                }
+            }
+             // Decay very old events
+            eventField = eventField.filter(event => (time - event.t) < 500);
+        }
+
+        function renderSimulation() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = presentMomentField[idx];
+                    
+                    // Normalize intensity to symbol array range (approx -2 to 2)
+                    const normalized = (intensity + 2) / 4; 
+                    const clamped = Math.max(0, Math.min(1, normalized));
+                    
+                    const symbolIndex = Math.floor(clamped * (symbols.length -1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            canvas.textContent = output;
+        }
+
+        function gameLoop() {
+            updateSimulation();
+            renderSimulation();
+            requestAnimationFrame(gameLoop);
+        }
+
+        initializeSimulation();
+        gameLoop();
+
+        console.log("Chrono-Echo Chamber script loaded.");
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gen12 - Quantum Memory Maze</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #maze {
+            font-size: 18px;
+            line-height: 1.1;
+            background: #181828;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 0 16px #00ffe055;
+            margin-bottom: 18px;
+            user-select: none;
+        }
+        #info {
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: #aaffee;
+        }
+        #controls {
+            margin-top: 10px;
+            color: #aaa;
+            font-size: 13px;
+        }
+        .player { color: #ff6; font-weight: bold; }
+        .goal { color: #6f6; font-weight: bold; }
+        .wall { color: #0ff; }
+        .visited { color: #888; }
+    </style>
+</head>
+<body>
+    <div id="info">Quantum Memory Maze: Find the goal! (Use arrow keys)</div>
+    <div id="maze"></div>
+    <div id="controls">⬅️⬆️⬇️➡️ Move | R: Reset</div>
+    <script>
+        // Maze parameters
+        const W = 13, H = 9;
+        const wall = '#', empty = ' ', playerChar = '@', goalChar = '★';
+        let maze = [];
+        let visited = [];
+        let px = 1, py = 1;
+        let gx = W - 2, gy = H - 2;
+        let quantum = false;
+        function generateMaze() {
+            // Simple randomized DFS maze
+            maze = Array(H).fill().map(() => Array(W).fill(wall));
+            visited = Array(H).fill().map(() => Array(W).fill(false));
+            function carve(x, y) {
+                maze[y][x] = empty;
+                const dirs = [ [0,1],[1,0],[0,-1],[-1,0] ].sort(()=>Math.random()-0.5);
+                for (const [dx,dy] of dirs) {
+                    let nx = x+dx*2, ny = y+dy*2;
+                    if (ny>0 && ny<H-1 && nx>0 && nx<W-1 && maze[ny][nx]===wall) {
+                        maze[y+dy][x+dx]=empty;
+                        carve(nx,ny);
+                    }
+                }
+            }
+            carve(1,1);
+            maze[gy][gx] = goalChar;
+        }
+        function renderMaze() {
+            let out = '';
+            for (let y=0; y<H; y++) {
+                for (let x=0; x<W; x++) {
+                    if (x===px && y===py) out += `<span class="player">${playerChar}</span>`;
+                    else if (maze[y][x]===wall) out += `<span class="wall">${wall}</span>`;
+                    else if (maze[y][x]===goalChar) out += `<span class="goal">${goalChar}</span>`;
+                    else if (visited[y][x]) out += `<span class="visited">·</span>`;
+                    else out += ' ';
+                }
+                out += '\n';
+            }
+            document.getElementById('maze').innerHTML = out;
+        }
+        function resetGame() {
+            px=1; py=1; quantum=false;
+            generateMaze();
+            for(let y=0;y<H;y++) for(let x=0;x<W;x++) visited[y][x]=false;
+            visited[py][px]=true;
+            renderMaze();
+            document.getElementById('info').textContent = 'Quantum Memory Maze: Find the goal! (Use arrow keys)';
+        }
+        document.addEventListener('keydown', e => {
+            let dx=0,dy=0;
+            if (e.key==='ArrowUp') dy=-1;
+            if (e.key==='ArrowDown') dy=1;
+            if (e.key==='ArrowLeft') dx=-1;
+            if (e.key==='ArrowRight') dx=1;
+            if (e.key==='r' || e.key==='R') { resetGame(); return; }
+            if (dx||dy) {
+                let nx=px+dx, ny=py+dy;
+                if (maze[ny][nx]!==wall) {
+                    px=nx; py=ny;
+                    if (!visited[py][px]) quantum = Math.random()<0.15; // 15% chance to enter quantum state
+                    visited[py][px]=true;
+                    if (maze[py][px]===goalChar) {
+                        document.getElementById('info').textContent = quantum ? 'You reached the goal in a quantum state! Reality is uncertain...' : 'You reached the goal!';
+                    }
+                    renderMaze();
+                }
+            }
+        });
+        resetGame();
+    </script>
+</body>
+</html>

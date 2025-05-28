@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacra Gen11 - Harmonic Wave</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #ff77aa;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            animation: bgPulse 10s ease-in-out infinite alternate;
+        }
+        @keyframes bgPulse {
+            0% { background: #000; }
+            50% { background: #050014; }
+            100% { background: #000; }
+        }
+        #canvas {
+            white-space: pre;
+            font-size: 7px;
+            line-height: 0.85;
+            text-shadow: 0 0 2px #ff77aa88;
+            filter: blur(0.05px) brightness(1.1);
+            transition: transform 0.3s ease;
+        }
+        #canvas:hover {
+            transform: scale(1.02);
+            text-shadow: 0 0 4px #ff77aacc;
+            filter: blur(0.02px) brightness(1.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+        
+        function render() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    // Harmonic wave combination
+                    let v = Math.sin(x * 0.08 + time * 0.02)
+                          + Math.sin(y * 0.12 - time * 0.03)
+                          + Math.cos((x + y) * 0.06 + time * 0.015);
+                    // normalize to [0,1]
+                    v = (v / 3 + 1) / 2;
+                    v = Math.max(0, Math.min(1, v));
+                    const idx = Math.floor(v * (symbols.length - 1));
+                    output += symbols[idx];
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+            time += 0.5;
+            requestAnimationFrame(render);
+        }
+        render();
+    </script>
+</body>
+</html>

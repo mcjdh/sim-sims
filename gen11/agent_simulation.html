@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent-Based Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .start-btn { background-color: #4CAF50; color: white; }
+        .stop-btn { background-color: #f44336; color: white; }
+        .reset-btn { background-color: #2196F3; color: white; }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            width: 100px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agent-Based Simulation</h1>
+        
+        <div class="controls">
+            <button id="startBtn" class="start-btn">Start</button>
+            <button id="stopBtn" class="stop-btn">Stop</button>
+            <button id="resetBtn" class="reset-btn">Reset</button>
+            
+            <div class="control-group">
+                <label>Agents:</label>
+                <input type="range" id="agentCount" min="10" max="200" value="50">
+                <span id="agentCountValue">50</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Speed:</label>
+                <input type="range" id="speed" min="0.1" max="3" step="0.1" value="1">
+                <span id="speedValue">1.0</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Interaction Range:</label>
+                <input type="range" id="interactionRange" min="20" max="100" value="50">
+                <span id="interactionRangeValue">50</span>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="totalAgents">0</div>
+                <div class="stat-label">Total Agents</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="avgEnergy">0</div>
+                <div class="stat-label">Avg Energy</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="interactions">0</div>
+                <div class="stat-label">Interactions</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="timeStep">0</div>
+                <div class="stat-label">Time Step</div>
+            </div>
+        </div>
+        
+        <canvas id="simulationCanvas" width="800" height="600"></canvas>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4CAF50;"></div>
+                <span>High Energy (>70)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FFC107;"></div>
+                <span>Medium Energy (30-70)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f44336;"></div>
+                <span>Low Energy (<30)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2196F3;"></div>
+                <span>Interaction Range</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Agent {
+            constructor(x, y, canvas) {
+                this.x = x;
+                this.y = y;
+                this.canvas = canvas;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.energy = Math.random() * 100;
+                this.radius = 5;
+                this.maxEnergy = 100;
+                this.interactionCooldown = 0;
+            }
+            
+            update(agents, speed, interactionRange) {
+                // Movement with boundary reflection
+                this.x += this.vx * speed;
+                this.y += this.vy * speed;
+                
+                if (this.x <= this.radius || this.x >= this.canvas.width - this.radius) {
+                    this.vx *= -1;
+                    this.x = Math.max(this.radius, Math.min(this.canvas.width - this.radius, this.x));
+                }
+                if (this.y <= this.radius || this.y >= this.canvas.height - this.radius) {
+                    this.vy *= -1;
+                    this.y = Math.max(this.radius, Math.min(this.canvas.height - this.radius, this.y));
+                }
+                
+                // Energy decay
+                this.energy = Math.max(0, this.energy - 0.1);
+                
+                // Interaction cooldown
+                if (this.interactionCooldown > 0) {
+                    this.interactionCooldown--;
+                }
+                
+                // Check for interactions with other agents
+                for (let other of agents) {
+                    if (other !== this && this.interactionCooldown === 0) {
+                        let distance = Math.sqrt((this.x - other.x) ** 2 + (this.y - other.y) ** 2);
+                        if (distance < interactionRange) {
+                            this.interact(other);
+                            return 1; // Return interaction count
+                        }
+                    }
+                }
+                return 0;
+            }
+            
+            interact(other) {
+                // Energy exchange based on energy levels
+                let energyDiff = this.energy - other.energy;
+                let transfer = energyDiff * 0.1;
+                
+                this.energy = Math.max(0, Math.min(this.maxEnergy, this.energy - transfer));
+                other.energy = Math.max(0, Math.min(other.maxEnergy, other.energy + transfer));
+                
+                // Set cooldown to prevent immediate re-interaction
+                this.interactionCooldown = 30;
+                other.interactionCooldown = 30;
+                
+                // Slight repulsion after interaction
+                let dx = this.x - other.x;
+                let dy = this.y - other.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 0) {
+                    let repulsion = 0.5;
+                    this.vx += (dx / distance) * repulsion;
+                    this.vy += (dy / distance) * repulsion;
+                    other.vx -= (dx / distance) * repulsion;
+                    other.vy -= (dy / distance) * repulsion;
+                }
+            }
+            
+            getColor() {
+                if (this.energy > 70) return '#4CAF50'; // Green for high energy
+                if (this.energy > 30) return '#FFC107'; // Yellow for medium energy
+                return '#f44336'; // Red for low energy
+            }
+            
+            draw(ctx, showInteractionRange, interactionRange) {
+                // Draw interaction range if enabled
+                if (showInteractionRange && this.energy > 50) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, interactionRange, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#2196F3';
+                    ctx.stroke();
+                }
+                
+                // Draw agent
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.getColor();
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // Draw energy bar
+                let barWidth = 20;
+                let barHeight = 3;
+                let barX = this.x - barWidth / 2;
+                let barY = this.y - this.radius - 8;
+                
+                ctx.fillStyle = '#ddd';
+                ctx.fillRect(barX, barY, barWidth, barHeight);
+                
+                ctx.fillStyle = this.getColor();
+                ctx.fillRect(barX, barY, (this.energy / this.maxEnergy) * barWidth, barHeight);
+            }
+        }
+        
+        class Simulation {
+            constructor() {
+                this.canvas = document.getElementById('simulationCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.agents = [];
+                this.running = false;
+                this.timeStep = 0;
+                this.totalInteractions = 0;
+                
+                this.setupControls();
+                this.reset();
+            }
+            
+            setupControls() {
+                document.getElementById('startBtn').addEventListener('click', () => this.start());
+                document.getElementById('stopBtn').addEventListener('click', () => this.stop());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+                
+                // Update display values for sliders
+                const updateSliderDisplay = (sliderId, displayId, suffix = '') => {
+                    const slider = document.getElementById(sliderId);
+                    const display = document.getElementById(displayId);
+                    slider.addEventListener('input', () => {
+                        display.textContent = slider.value + suffix;
+                    });
+                };
+                
+                updateSliderDisplay('agentCount', 'agentCountValue');
+                updateSliderDisplay('speed', 'speedValue');
+                updateSliderDisplay('interactionRange', 'interactionRangeValue');
+            }
+            
+            createAgents(count) {
+                this.agents = [];
+                for (let i = 0; i < count; i++) {
+                    let x = Math.random() * (this.canvas.width - 20) + 10;
+                    let y = Math.random() * (this.canvas.height - 20) + 10;
+                    this.agents.push(new Agent(x, y, this.canvas));
+                }
+            }
+            
+            start() {
+                this.running = true;
+                this.animate();
+            }
+            
+            stop() {
+                this.running = false;
+            }
+            
+            reset() {
+                this.stop();
+                this.timeStep = 0;
+                this.totalInteractions = 0;
+                const agentCount = parseInt(document.getElementById('agentCount').value);
+                this.createAgents(agentCount);
+                this.updateStats();
+                this.draw();
+            }
+            
+            animate() {
+                if (!this.running) return;
+                
+                this.update();
+                this.draw();
+                this.updateStats();
+                
+                requestAnimationFrame(() => this.animate());
+            }
+            
+            update() {
+                const speed = parseFloat(document.getElementById('speed').value);
+                const interactionRange = parseInt(document.getElementById('interactionRange').value);
+                
+                let frameInteractions = 0;
+                for (let agent of this.agents) {
+                    frameInteractions += agent.update(this.agents, speed, interactionRange);
+                }
+                
+                this.totalInteractions += frameInteractions;
+                this.timeStep++;
+            }
+            
+            draw() {
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw background grid
+                this.ctx.strokeStyle = '#f0f0f0';
+                this.ctx.lineWidth = 1;
+                for (let x = 0; x <= this.canvas.width; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                for (let y = 0; y <= this.canvas.height; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+                
+                // Draw agents
+                const interactionRange = parseInt(document.getElementById('interactionRange').value);
+                for (let agent of this.agents) {
+                    agent.draw(this.ctx, false, interactionRange);
+                }
+            }
+            
+            updateStats() {
+                const totalAgents = this.agents.length;
+                const avgEnergy = totalAgents > 0 ? 
+                    (this.agents.reduce((sum, agent) => sum + agent.energy, 0) / totalAgents).toFixed(1) : 0;
+                
+                document.getElementById('totalAgents').textContent = totalAgents;
+                document.getElementById('avgEnergy').textContent = avgEnergy;
+                document.getElementById('interactions').textContent = this.totalInteractions;
+                document.getElementById('timeStep').textContent = this.timeStep;
+            }
+        }
+        
+        // Initialize simulation when page loads
+        window.addEventListener('load', () => {
+            new Simulation();
+        });
+    </script>
+</body>
+</html>

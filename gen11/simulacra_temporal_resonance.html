@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simulacra Gen11 - Temporal Resonance</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f1c29, #243b55);
+            color: #a8ffeb;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.9;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            animation: bgPulse 12s infinite ease-in-out;
+        }
+        @keyframes bgPulse {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        #canvas {
+            white-space: pre;
+            text-align: center;
+            filter: blur(0.05px);
+            transition: transform 0.3s ease, text-shadow 0.3s ease;
+        }
+        #canvas:hover {
+            transform: scale(1.02);
+            text-shadow: 0 0 3px rgba(168,255,235,0.6), 0 0 6px rgba(168,255,235,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+        const layerA = new Float32Array(W * H);
+        const layerB = new Float32Array(W * H);
+        const layerC = new Float32Array(W * H);
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', 'o', 'O', '0', '#', '@', '%', '&', '$'];
+
+        function updateFields() {
+            const t = time * 0.02;
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    // Low-frequency pulse
+                    layerA[idx] = Math.sin(x * 0.05 + t) * 0.5 + Math.cos(y * 0.04 - t * 0.8) * 0.5;
+                    // Mid-frequency shimmer
+                    layerB[idx] = Math.sin((x + y) * 0.06 + t * 1.2);
+                    // High-frequency resonance
+                    const dx = x - W/2, dy = y - H/2;
+                    layerC[idx] = Math.sin(Math.sqrt(dx*dx + dy*dy) * 0.15 - t * 1.5);
+                }
+            }
+        }
+
+        function render() {
+            updateFields();
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = (layerA[idx] * 0.4 + layerB[idx] * 0.3 + layerC[idx] * 0.3);
+                    // normalize to [0,1]
+                    intensity = (intensity + 1) / 2;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    // add subtle noise
+                    intensity = Math.max(0, Math.min(0.999, intensity + (Math.random() - 0.5) * 0.02));
+                    const sym = symbols[Math.floor(intensity * (symbols.length - 1))];
+                    output += sym;
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+            time++;
+            requestAnimationFrame(animate);
+        }
+
+        function animate() {
+            render();
+        }
+
+        animate();
+    </script>
+</body>
+</html>

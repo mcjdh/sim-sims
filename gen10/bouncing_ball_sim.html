@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Ball Simulation</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { border: 1px solid #000; }
+    </style>
+</head>
+<body>
+    <canvas id="simulationCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Canvas dimensions
+        let canvasWidth = 800;
+        let canvasHeight = 600;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // Ball properties
+        let ballRadius = 20;
+        let ballX = canvasWidth / 2;
+        let ballY = ballRadius + 50; // Start a bit below the top
+        let velocityX = 5;
+        let velocityY = 2;
+        let gravity = 0.5;
+        let bounceFactor = 0.8; // Energy lost on bounce
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = 'blue';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function update() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            // Apply gravity
+            velocityY += gravity;
+
+            // Update position
+            ballX += velocityX;
+            ballY += velocityY;
+
+            // Wall collision (left/right)
+            if (ballX + ballRadius > canvasWidth || ballX - ballRadius < 0) {
+                velocityX = -velocityX * bounceFactor;
+                // Adjust position to prevent sticking
+                if (ballX + ballRadius > canvasWidth) {
+                    ballX = canvasWidth - ballRadius;
+                } else if (ballX - ballRadius < 0) {
+                    ballX = ballRadius;
+                }
+            }
+
+            // Floor collision
+            if (ballY + ballRadius > canvasHeight) {
+                ballY = canvasHeight - ballRadius;
+                velocityY = -velocityY * bounceFactor;
+                
+                // Apply some friction to horizontal movement on floor bounce
+                velocityX *= 0.95; 
+
+                // If velocityY is very small after bounce, make it zero to stop bouncing
+                if (Math.abs(velocityY) < 1 && ballY + ballRadius >= canvasHeight - 1) {
+                    velocityY = 0;
+                    // Set ball exactly on the floor
+                    ballY = canvasHeight - ballRadius;
+                }
+
+            }
+            
+            // Ceiling collision (less common for a simple bounce, but good to have)
+            if (ballY - ballRadius < 0) {
+                ballY = ballRadius;
+                velocityY = -velocityY * bounceFactor;
+            }
+
+
+            drawBall();
+
+            // Request next frame
+            requestAnimationFrame(update);
+        }
+
+        // Start simulation
+        update();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Option 1: Reset simulation (simple)
+            // canvasWidth = window.innerWidth * 0.9;
+            // canvasHeight = window.innerHeight * 0.9;
+            // canvas.width = canvasWidth;
+            // canvas.height = canvasHeight;
+            // ballX = canvasWidth / 2;
+            // ballY = ballRadius + 10;
+            // velocityX = 5; // Reset velocity
+            // velocityY = 2;
+
+            // Option 2: Try to adapt (more complex, might need more logic for ball position)
+            // For now, let's just inform the user to refresh for optimal view or keep fixed size.
+            // A simple fixed size might be better if responsive logic is not the focus.
+            // Let's keep canvas fixed for now to simplify.
+            // If you want responsive, uncomment above and refine.
+        });
+
+    </script>
+</body>
+</html> 

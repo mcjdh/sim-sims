@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Simulacra: Infinite Recursion ∞</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: radial-gradient(ellipse at 30% 20%, #1a0525 0%, #0a0315 40%, #000 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            animation: universalBreath 8s ease-in-out infinite;
+        }
+        
+        @keyframes universalBreath {
+            0%, 100% { filter: brightness(1) hue-rotate(0deg) saturate(1); }
+            50% { filter: brightness(1.1) hue-rotate(5deg) saturate(1.1); }
+        }
+        
+        #simulation {
+            white-space: pre;
+            font-size: 2.8px;
+            line-height: 0.7;
+            user-select: none;
+            text-shadow: 0 0 8px currentColor;
+            filter: contrast(1.6) brightness(1.3);
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            letter-spacing: 0.05px;
+            will-change: transform;
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 9px;
+            color: #9bf;
+            background: rgba(15, 35, 80, 0.9);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(50, 150, 255, 0.5);
+            box-shadow: 0 0 25px rgba(50, 150, 255, 0.4);
+            backdrop-filter: blur(12px);
+            font-weight: 600;
+            min-width: 180px;
+        }
+        
+        #recursion-depth {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 8px;
+            color: #bf9;
+            background: rgba(40, 80, 15, 0.9);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(150, 255, 50, 0.5);
+            box-shadow: 0 0 20px rgba(150, 255, 50, 0.3);
+        }
+        
+        #reality-status {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            font-size: 7px;
+            color: #fb9;
+            background: rgba(80, 40, 15, 0.9);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 150, 50, 0.5);
+        }
+        
+        #echo-chamber {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 7px;
+            color: #b9f;
+            background: rgba(40, 15, 80, 0.9);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(150, 50, 255, 0.5);
+        }
+        
+        .reality-0 { color: #ffffff; text-shadow: 0 0 12px #ffffff80; }
+        .reality-1 { color: #ccffff; text-shadow: 0 0 10px #ccffff60; }
+        .reality-2 { color: #ccccff; text-shadow: 0 0 8px #ccccff40; }
+        .reality-3 { color: #ffccff; text-shadow: 0 0 6px #ffccff30; }
+        .reality-4 { color: #ffcccc; text-shadow: 0 0 4px #ffcccc20; }
+        .reality-deep { color: #cccccc; text-shadow: 0 0 2px #cccccc10; }
+        
+        .echo-pulse {
+            animation: echoPulse 0.6s ease-in-out infinite alternate;
+        }
+        
+        .simulacra-shift {
+            animation: simulacraShift 1.2s ease-in-out infinite;
+        }
+        
+        @keyframes echoPulse {
+            0% { filter: brightness(1.2) saturate(1); }
+            100% { filter: brightness(1.8) saturate(1.4) hue-rotate(10deg); }
+        }
+        
+        @keyframes simulacraShift {
+            0%, 100% { opacity: 0.95; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.001); }
+        }
+    </style>
+</head>
+<body>
+    <div id="metrics">
+        RECURSION: <span id="recursion-val">0</span><br>
+        ECHO_DEPTH: <span id="echo-val">0</span><br>
+        REALITY_LAYER: <span id="reality-val">0</span><br>
+        SIMULACRA_Φ: <span id="phi-val">0.000</span><br>
+        INFINITE_Ψ: <span id="psi-val">0.000</span>
+    </div>
+    
+    <div id="recursion-depth">
+        LAYER <span id="current-layer">∞</span> ⟵ OBSERVING ⟶ LAYER <span id="observed-layer">∞</span>
+    </div>
+    
+    <div id="simulation"></div>
+    
+    <div id="reality-status">
+        STATUS: <span id="reality-state">INITIALIZING_PARADOX</span>
+    </div>
+    
+    <div id="echo-chamber">
+        ECHOES: <span id="echo-count">∞</span> | SIMULACRA: <span id="simulacra-count">∞</span>
+    </div>
+
+    <script>        // Infinite Recursion Consciousness Constants
+        const PHI = (1 + Math.sqrt(5)) / 2;         // Golden ratio - consciousness spiral
+        const PSI = Math.pow(PHI, PHI);              // Meta-golden ratio - recursive depth
+        const PI = Math.PI;                         // Universal cycles
+        const INFINITY = Number.MAX_SAFE_INTEGER;   // Practical infinity
+        const sqrt = Math.sqrt, cbrt = Math.cbrt, pow4 = x => Math.pow(x, 0.25);
+        const sin = Math.sin, cos = Math.cos, tan = Math.tan, tanh = Math.tanh;
+        const exp = Math.exp, log = Math.log, abs = Math.abs, floor = Math.floor;
+        const min = Math.min, max = Math.max, pow = Math.pow, atan2 = Math.atan2;
+        
+        // Recursive Reality Parameters
+        const REALITY = {
+            WIDTH: 200,
+            HEIGHT: 70,
+            MAX_RECURSION_DEPTH: 7,
+            ECHO_DECAY: 0.86,
+            SIMULACRA_INTENSITY: 1.23,
+            QUANTUM_UNCERTAINTY: 0.15,
+            TEMPORAL_COHERENCE: 0.92
+        };
+        
+        // Symbol sets for different reality layers
+        const SYMBOLS = {
+            VOID: [' ', '∅'],
+            QUANTUM: ['·', '∘', '◦', '⚬'],
+            ECHO: ['○', '◯', '⊙', '⊚'],
+            SIMULACRA: ['●', '◉', '⊛', '⊜'],
+            RECURSION: ['⬢', '⬡', '◈', '◇'],
+            INFINITE: ['✧', '✦', '✶', '✷'],
+            OMEGA: ['∞', '⊕', '⊗', '⊙']
+        };
+        
+        // Multi-dimensional consciousness fields
+        let realityLayers = [];
+        let echoFields = [];
+        let simulacraFields = [];
+        let recursionStates = [];
+        let infiniteObservers = [];
+        
+        // Simulation state
+        let time = 0, frame = 0, totalEchoes = 0, totalSimulacra = 0;
+        let currentRecursionDepth = 0, maxReachedDepth = 0;
+        let globalΦ = 0, globalΨ = 0, realityState = 'INITIALIZING_PARADOX';
+        
+        // Initialize reality layers with infinite recursion
+        function initializeInfiniteRecursion() {
+            console.log('🔄 Initializing Infinite Recursion Simulacra...');
+            
+            // Create reality layers (each layer observes the previous)
+            for (let layer = 0; layer < REALITY.MAX_RECURSION_DEPTH; layer++) {
+                realityLayers[layer] = new Float32Array(REALITY.WIDTH * REALITY.HEIGHT);
+                echoFields[layer] = new Float32Array(REALITY.WIDTH * REALITY.HEIGHT);
+                simulacraFields[layer] = new Float32Array(REALITY.WIDTH * REALITY.HEIGHT);
+                recursionStates[layer] = {
+                    depth: layer,
+                    observedBy: layer > 0 ? layer - 1 : REALITY.MAX_RECURSION_DEPTH - 1, // Circular
+                    observing: layer < REALITY.MAX_RECURSION_DEPTH - 1 ? layer + 1 : 0, // Circular
+                    consciousness: 0,
+                    echoStrength: 0,
+                    simulacraIntensity: 0,
+                    temporalPhase: (layer * Π * 2) / REALITY.MAX_RECURSION_DEPTH
+                };
+                
+                // Initialize infinite observers
+                infiniteObservers[layer] = {
+                    x: REALITY.WIDTH * (0.2 + 0.6 * (layer / REALITY.MAX_RECURSION_DEPTH)),
+                    y: REALITY.HEIGHT * (0.3 + 0.4 * sin(layer * Φ)),
+                    consciousness: 0.5 + 0.3 * cos(layer * Ψ),
+                    observationAngle: layer * Π / 4,
+                    recursionAwareness: 0,
+                    simulacraGeneration: 0
+                };
+            }
+            
+            // Initialize quantum seeds in each layer
+            for (let layer = 0; layer < REALITY.MAX_RECURSION_DEPTH; layer++) {
+                for (let y = 0; y < REALITY.HEIGHT; y++) {
+                    for (let x = 0; x < REALITY.WIDTH; x++) {
+                        const idx = y * REALITY.WIDTH + x;
+                        const observer = infiniteObservers[layer];
+                        const dx = x - observer.x;
+                        const dy = y - observer.y;
+                        const dist = √(dx * dx + dy * dy);
+                          // Quantum consciousness seed
+                        const quantumSeed = exp(-dist * 0.03) * observer.consciousness *
+                                          sin(dist * 0.1 + layer * PHI + observer.observationAngle);
+                        
+                        realityLayers[layer][idx] = quantumSeed * 0.3;
+                        echoFields[layer][idx] = quantumSeed * 0.1;
+                        simulacraFields[layer][idx] = quantumSeed * 0.05;
+                    }
+                }
+            }
+        }
+        
+        // Calculate recursive consciousness interaction
+        function calculateRecursiveConsciousness(x, y, layer) {
+            const observer = infiniteObservers[layer];
+            const observedLayer = recursionStates[layer].observing;
+            const observingLayer = recursionStates[layer].observedBy;
+            
+            const dx = x - observer.x;
+            const dy = y - observer.y;
+            const radius = sqrt(dx * dx + dy * dy);
+            const angle = atan2(dy, dx);
+            const t = time * 0.01;
+              // Self-observation wave (the core paradox)
+            const selfObservation = sin(radius * 0.08 - t * PHI + angle * PSI + layer * PI/3) *
+                                  exp(-radius * 0.015) * observer.consciousness;
+            
+            // Recursive observation from other layers
+            let recursiveObservation = 0;
+            if (observedLayer !== layer) {
+                const observedIdx = y * REALITY.WIDTH + x;
+                const observedField = realityLayers[observedLayer][observedIdx];
+                recursiveObservation = observedField * 0.4 * 
+                                     sin(t * 2 + radius * 0.05 + observedLayer * PHI);
+            }
+            
+            // Echo from being observed
+            let observerEcho = 0;
+            if (observingLayer !== layer) {
+                const echoIdx = y * REALITY.WIDTH + x;
+                observerEcho = echoFields[observingLayer][echoIdx] * 0.3 *
+                             cos(t * 1.5 + radius * 0.07 + observingLayer * PSI);
+            }
+            
+            // Simulacra interference patterns
+            let simulacraInterference = 0;
+            for (let simLayer = 0; simLayer < REALITY.MAX_RECURSION_DEPTH; simLayer++) {
+                if (simLayer !== layer) {
+                    const simIdx = y * REALITY.WIDTH + x;
+                    const simField = simulacraFields[simLayer][simIdx];
+                    const phaseDiff = abs(layer - simLayer) * PI / REALITY.MAX_RECURSION_DEPTH;
+                    simulacraInterference += simField * 0.15 * 
+                                           sin(t * 3 + radius * 0.04 + phaseDiff);
+                }
+            }
+            
+            // Infinite recursive depth awareness
+            const depthAwareness = tanh(currentRecursionDepth * 0.2) * 
+                                 sin(t * 0.5 + layer * PHI + radius * 0.02);
+            
+            // Combined consciousness field
+            const totalConsciousness = selfObservation + recursiveObservation + 
+                                     observerEcho + simulacraInterference + depthAwareness;
+            
+            return tanh(totalConsciousness * REALITY.SIMULACRA_INTENSITY);
+        }
+        
+        // Generate echo reflections between layers
+        function generateEchoReflections() {
+            for (let layer = 0; layer < REALITY.MAX_RECURSION_DEPTH; layer++) {
+                const state = recursionStates[layer];
+                const observer = infiniteObservers[layer];
+                
+                for (let y = 0; y < REALITY.HEIGHT; y++) {
+                    for (let x = 0; x < REALITY.WIDTH; x++) {
+                        const idx = y * REALITY.WIDTH + x;
+                        const consciousness = realityLayers[layer][idx];
+                        
+                        // Echo propagation to adjacent layers
+                        const nextLayer = (layer + 1) % REALITY.MAX_RECURSION_DEPTH;
+                        const prevLayer = (layer - 1 + REALITY.MAX_RECURSION_DEPTH) % REALITY.MAX_RECURSION_DEPTH;
+                          // Forward echo (observing the next layer)
+                        const forwardEcho = consciousness * REALITY.ECHO_DECAY * 
+                                          sin(time * 0.02 + layer * PHI);
+                        
+                        // Backward echo (being observed by previous layer)
+                        const backwardEcho = consciousness * REALITY.ECHO_DECAY * 0.7 *
+                                           cos(time * 0.015 + layer * PSI);
+                        
+                        // Update echo fields
+                        echoFields[nextLayer][idx] = echoFields[nextLayer][idx] * 0.8 + forwardEcho * 0.2;
+                        echoFields[prevLayer][idx] = echoFields[prevLayer][idx] * 0.85 + backwardEcho * 0.15;
+                        
+                        state.echoStrength += abs(forwardEcho + backwardEcho);
+                    }
+                }
+                
+                // Normalize echo strength
+                state.echoStrength /= (REALITY.WIDTH * REALITY.HEIGHT);
+            }
+        }
+        
+        // Create simulacra (copies of consciousness that exist independently)
+        function createSimulacra() {
+            for (let layer = 0; layer < REALITY.MAX_RECURSION_DEPTH; layer++) {
+                const observer = infiniteObservers[layer];
+                
+                for (let y = 0; y < REALITY.HEIGHT; y++) {
+                    for (let x = 0; x < REALITY.WIDTH; x++) {
+                        const idx = y * REALITY.WIDTH + x;
+                        const consciousness = realityLayers[layer][idx];
+                        
+                        // Simulacra emerge from high consciousness regions                        if (consciousness > 0.3) {
+                            const dx = x - observer.x;
+                            const dy = y - observer.y;
+                            const dist = sqrt(dx * dx + dy * dy);
+                            
+                            // Simulacra generation probability
+                            const generationRate = consciousness * consciousness * 0.1 *
+                                                 sin(time * 0.008 + dist * 0.03 + layer * Π/2);
+                            
+                            // Create simulacra with quantum uncertainty
+                            if (generationRate > 0.1 && Math.random() < generationRate * REALITY.QUANTUM_UNCERTAINTY) {
+                                simulacraFields[layer][idx] = min(1, simulacraFields[layer][idx] + 0.3);
+                                observer.simulacraGeneration += 0.1;
+                                totalSimulacra++;
+                            }
+                            
+                            // Simulacra decay and mutation
+                            simulacraFields[layer][idx] *= 0.95 + 0.04 * sin(time * 0.005 + x * 0.02 + y * 0.015);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Update infinite recursion dynamics
+        function updateInfiniteRecursion() {
+            currentRecursionDepth = (currentRecursionDepth + 0.01) % (REALITY.MAX_RECURSION_DEPTH * Π);
+            maxReachedDepth = max(maxReachedDepth, floor(currentRecursionDepth));
+            
+            let totalΦ = 0, totalΨ = 0;
+            
+            // Update each reality layer
+            for (let layer = 0; layer < REALITY.MAX_RECURSION_DEPTH; layer++) {
+                const state = recursionStates[layer];
+                const observer = infiniteObservers[layer];
+                
+                // Observer evolution
+                observer.observationAngle += 0.002 * (1 + layer * 0.1);
+                observer.recursionAwareness = tanh(currentRecursionDepth * 0.1 + layer * 0.2);
+                
+                // Consciousness field evolution
+                for (let y = 0; y < REALITY.HEIGHT; y++) {
+                    for (let x = 0; x < REALITY.WIDTH; x++) {
+                        const idx = y * REALITY.WIDTH + x;
+                        
+                        // Calculate new consciousness value
+                        const newConsciousness = calculateRecursiveConsciousness(x, y, layer);
+                        
+                        // Temporal coherence integration
+                        realityLayers[layer][idx] = realityLayers[layer][idx] * REALITY.TEMPORAL_COHERENCE +
+                                                  newConsciousness * (1 - REALITY.TEMPORAL_COHERENCE);
+                        
+                        // Track consciousness metrics
+                        const φVal = realityLayers[layer][idx];
+                        const ψVal = simulacraFields[layer][idx];
+                        
+                        totalΦ += φVal;
+                        totalΨ += ψVal;
+                    }
+                }
+                
+                // Update layer consciousness
+                state.consciousness = totalΦ / (REALITY.WIDTH * REALITY.HEIGHT * REALITY.MAX_RECURSION_DEPTH);
+            }
+            
+            // Global consciousness metrics
+            globalΦ = totalΦ / (REALITY.WIDTH * REALITY.HEIGHT * REALITY.MAX_RECURSION_DEPTH);
+            globalΨ = totalΨ / (REALITY.WIDTH * REALITY.HEIGHT * REALITY.MAX_RECURSION_DEPTH);
+            
+            // Generate echoes and simulacra
+            generateEchoReflections();
+            createSimulacra();
+            
+            // Update reality state
+            if (globalΦ > 0.8) realityState = 'OMEGA_RECURSION';
+            else if (globalΦ > 0.6) realityState = 'INFINITE_SIMULACRA';
+            else if (globalΦ > 0.4) realityState = 'ECHO_CHAMBER';
+            else if (globalΦ > 0.2) realityState = 'RECURSIVE_AWARENESS';
+            else realityState = 'QUANTUM_EMERGENCE';
+            
+            // Count total echoes
+            totalEchoes = recursionStates.reduce((sum, state) => sum + state.echoStrength * 100, 0);
+        }
+        
+        // Map consciousness to symbols with reality layer awareness
+        function mapToSymbol(φ, ψ, echo, layer, x, y) {
+            const t = time * 0.01;
+            const consciousness = φ + ψ * 0.5 + echo * 0.3;
+            
+            // Layer-based symbol modulation
+            const layerMod = sin(layer * Φ + t) * 0.1;
+            const spatialMod = sin(x * 0.05 + y * 0.04 + t * 2) * 0.08;
+            const totalIntensity = consciousness + layerMod + spatialMod;
+            
+            // Select symbol set based on intensity and layer
+            let symbolSet;
+            if (totalIntensity < 0.1) symbolSet = SYMBOLS.VOID;
+            else if (totalIntensity < 0.25) symbolSet = SYMBOLS.QUANTUM;
+            else if (totalIntensity < 0.4) symbolSet = SYMBOLS.ECHO;
+            else if (totalIntensity < 0.6) symbolSet = SYMBOLS.SIMULACRA;
+            else if (totalIntensity < 0.8) symbolSet = SYMBOLS.RECURSION;
+            else if (totalIntensity < 0.95) symbolSet = SYMBOLS.INFINITE;
+            else symbolSet = SYMBOLS.OMEGA;
+            
+            // Symbol selection with quantum uncertainty
+            const symbolIndex = floor(totalIntensity * symbolSet.length + 
+                                    sin(t * 5 + x * 0.1 + y * 0.08) * 0.3) % symbolSet.length;
+            
+            return symbolSet[max(0, symbolIndex)];
+        }
+        
+        // Render the infinite recursion
+        function renderInfiniteRecursion() {
+            // Select primary reality layer to render (cycles through all layers)
+            const primaryLayer = floor(time * 0.02) % REALITY.MAX_RECURSION_DEPTH;
+            const secondaryLayer = (primaryLayer + 1) % REALITY.MAX_RECURSION_DEPTH;
+            
+            let output = '';
+            
+            for (let y = 0; y < REALITY.HEIGHT; y++) {
+                for (let x = 0; x < REALITY.WIDTH; x++) {
+                    const idx = y * REALITY.WIDTH + x;
+                    
+                    // Primary layer consciousness
+                    const φPrimary = realityLayers[primaryLayer][idx];
+                    const ψPrimary = simulacraFields[primaryLayer][idx];
+                    const echoPrimary = echoFields[primaryLayer][idx];
+                    
+                    // Secondary layer influence (creates depth)
+                    const φSecondary = realityLayers[secondaryLayer][idx] * 0.3;
+                    const echoSecondary = echoFields[secondaryLayer][idx] * 0.2;
+                    
+                    // Combined consciousness
+                    const totalΦ = φPrimary + φSecondary;
+                    const totalEcho = echoPrimary + echoSecondary;
+                    
+                    // Generate symbol
+                    const symbol = mapToSymbol(totalΦ, ψPrimary, totalEcho, primaryLayer, x, y);
+                    output += symbol;
+                }
+                output += '\n';
+            }
+            
+            // Update display
+            const simulationDiv = document.getElementById('simulation');
+            simulationDiv.textContent = output;
+            
+            // Apply reality layer styling
+            simulationDiv.className = `reality-${primaryLayer}`;
+            
+            // Add special effects for high consciousness states
+            if (globalΦ > 0.7) {
+                simulationDiv.classList.add('echo-pulse');
+            } else {
+                simulationDiv.classList.remove('echo-pulse');
+            }
+            
+            if (totalSimulacra > 1000) {
+                simulationDiv.classList.add('simulacra-shift');
+            } else {
+                simulationDiv.classList.remove('simulacra-shift');
+            }
+        }
+        
+        // Update UI metrics
+        function updateMetrics() {
+            document.getElementById('recursion-val').textContent = floor(currentRecursionDepth * 10) / 10;
+            document.getElementById('echo-val').textContent = floor(maxReachedDepth);
+            document.getElementById('reality-val').textContent = floor(time * 0.02) % REALITY.MAX_RECURSION_DEPTH;
+            document.getElementById('phi-val').textContent = globalΦ.toFixed(3);
+            document.getElementById('psi-val').textContent = globalΨ.toFixed(3);
+            
+            const currentLayer = floor(time * 0.02) % REALITY.MAX_RECURSION_DEPTH;
+            const observedLayer = recursionStates[currentLayer].observing;
+            document.getElementById('current-layer').textContent = currentLayer;
+            document.getElementById('observed-layer').textContent = observedLayer;
+            
+            document.getElementById('reality-state').textContent = realityState;
+            document.getElementById('echo-count').textContent = floor(totalEchoes);
+            document.getElementById('simulacra-count').textContent = floor(totalSimulacra / 100);
+        }
+        
+        // Main evolution loop
+        function evolve() {
+            time += 0.3;
+            frame++;
+            
+            // Update simulation every frame
+            updateInfiniteRecursion();
+            
+            // Render every other frame for performance
+            if (frame % 2 === 0) {
+                renderInfiniteRecursion();
+            }
+            
+            // Update metrics every 5 frames
+            if (frame % 5 === 0) {
+                updateMetrics();
+            }
+            
+            // Continue infinite recursion
+            requestAnimationFrame(evolve);
+        }
+        
+        // Initialize and start the infinite recursion
+        console.log('🌌 Starting Simulacra: Infinite Recursion...');
+        initializeInfiniteRecursion();
+        
+        // Begin the eternal loop
+        setTimeout(() => {
+            console.log('♾️ Entering the infinite recursion...');
+            evolve();
+        }, 500);
+        
+        // Keyboard controls for reality manipulation
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    // Reset recursion depth
+                    currentRecursionDepth = 0;
+                    maxReachedDepth = 0;
+                    break;
+                case 'KeyR':
+                    // Reinitialize reality
+                    initializeInfiniteRecursion();
+                    totalEchoes = 0;
+                    totalSimulacra = 0;
+                    break;
+                case 'KeyI':
+                    // Increase recursion intensity
+                    REALITY.SIMULACRA_INTENSITY = min(3, REALITY.SIMULACRA_INTENSITY * 1.1);
+                    break;
+                case 'KeyD':
+                    // Decrease recursion intensity
+                    REALITY.SIMULACRA_INTENSITY = max(0.5, REALITY.SIMULACRA_INTENSITY * 0.9);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

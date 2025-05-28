@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacra Gen11 - Whispering Sands of Time</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #c2b280, #a08f6b); /* Sandy colors */
+            color: #4a3b2a; /* Dark brown for text */
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            animation: desertWind 30s infinite alternate ease-in-out;
+        }
+
+        @keyframes desertWind {
+            0% { background: linear-gradient(to bottom, #c2b280, #a08f6b); }
+            50% { background: linear-gradient(to bottom, #d2c290, #b09f7b); }
+            100% { background: linear-gradient(to bottom, #c2b280, #a08f6b); }
+        }
+
+        #canvas {
+            white-space: pre;
+            font-size: 8px; /* Slightly larger for particle visibility */
+            line-height: 0.8;
+            letter-spacing: 0px;
+            text-align: center;
+            text-shadow: 0 0 1px rgba(74, 59, 42, 0.3);
+            filter: blur(0.05px);
+            transition: transform 0.4s ease, text-shadow 0.4s ease;
+        }
+
+        #canvas:hover {
+            transform: scale(1.01);
+            text-shadow: 0 0 2px rgba(74, 59, 42, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 150, H = 75;
+        let time = 0;
+        const symbols = [' ', '.', '·', ':', ';', '*', '\'', '`']; // Sand-like particles
+
+        // Particle system
+        const MAX_PARTICLES = 1500;
+        let particles = [];
+
+        function createParticle() {
+            return {
+                x: Math.random() * W,
+                y: Math.random() * H, // Start particles anywhere, they will fall
+                vx: (Math.random() - 0.5) * 0.2, // Slight horizontal drift
+                vy: Math.random() * 0.1 + 0.05, // Downward velocity
+                age: 0,
+                maxAge: 100 + Math.random() * 100, // Lifespan
+                char: symbols[Math.floor(Math.random() * (symbols.length -1)) + 1] // Random sand grain
+            };
+        }
+
+        function initializeSands() {
+            for (let i = 0; i < MAX_PARTICLES; i++) {
+                particles.push(createParticle());
+            }
+        }
+
+        function updateSands() {
+            const t = time * 0.01;
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.age++;
+
+                // Temporal wind effect
+                const windStrength = 0.05 + Math.sin(p.y * 0.1 + t) * 0.03;
+                const windDirection = Math.cos(p.x * 0.05 + t * 0.5);
+                p.vx += windDirection * windStrength * 0.1;
+                p.vy += 0.005; // Gravity
+
+                // Dampen velocity
+                p.vx *= 0.95;
+                p.vy *= 0.98;
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Boundary conditions & particle reset
+                if (p.y >= H || p.age > p.maxAge || p.x < 0 || p.x >= W) {
+                    particles[i] = createParticle();
+                    particles[i].y = Math.random() * 5; // Re-spawn at the top
+                    particles[i].x = Math.random() * W;
+                }
+            }
+        }
+
+        function render() {
+            let grid = Array(H).fill(null).map(() => Array(W).fill(symbols[0]));
+
+            for (const p of particles) {
+                const x = Math.floor(p.x);
+                const y = Math.floor(p.y);
+                if (x >= 0 && x < W && y >= 0 && y < H) {
+                    grid[y][x] = p.char;
+                }
+            }
+
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                output += grid[y].join('') + '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+
+        function animate() {
+            updateSands();
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        initializeSands();
+        animate();
+    </script>
+</body>
+</html>

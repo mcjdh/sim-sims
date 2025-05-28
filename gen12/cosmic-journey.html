@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cosmic Journey</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #000022, #000);
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 4px rgba(255,255,255,0.3);
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">Use arrow keys to navigate the stars</div>
+    <script>
+        const W = 80, H = 40;
+        let playerX = Math.floor(W / 2), playerY = Math.floor(H / 2);
+        let stars = Array.from({ length: W * H }, () => Math.random() > 0.95 ? '*' : ' ');
+
+        function render() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    if (x === playerX && y === playerY) {
+                        output += '@';
+                    } else {
+                        output += stars[y * W + x];
+                    }
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+        }
+
+        function movePlayer(dx, dy) {
+            playerX = Math.max(0, Math.min(W - 1, playerX + dx));
+            playerY = Math.max(0, Math.min(H - 1, playerY + dy));
+            render();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') movePlayer(0, -1);
+            if (e.key === 'ArrowDown') movePlayer(0, 1);
+            if (e.key === 'ArrowLeft') movePlayer(-1, 0);
+            if (e.key === 'ArrowRight') movePlayer(1, 0);
+        });
+
+        render();
+    </script>
+</body>
+</html>

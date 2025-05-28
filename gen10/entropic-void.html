@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Entropic Void</title>
+    <style>
+        body { margin: 0; background-color: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Courier New', Courier, monospace; }
+        #canvas { border: 1px solid #333; }
+        #info { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        Entropic Void Simulation<br>
+        Time: <span id="timeDisplay">0</span>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const timeDisplay = document.getElementById('timeDisplay');
+
+        const W = 150, H = 75; // Grid dimensions (cells)
+        const cellSize = 8; // Pixel size of each cell
+
+        canvas.width = W * cellSize;
+        canvas.height = H * cellSize;
+
+        let time = 0;
+
+        // Simulation fields
+        let informationDensity = new Array(W * H).fill(0); // Represents decaying information
+        let emergencePotential = new Array(W * H).fill(1); // Chance of new information appearing
+
+        function updateSimulation() {
+            time++;
+            timeDisplay.textContent = time.toString();
+
+            for (let i = 0; i < W * H; i++) {
+                // Decay existing information
+                if (informationDensity[i] > 0) {
+                    informationDensity[i] *= (0.95 + Math.random() * 0.04); // Stochastic decay
+                    if (informationDensity[i] < 0.01) {
+                        informationDensity[i] = 0;
+                    }
+                }
+
+                // Chance of new information emerging from the void
+                if (Math.random() < emergencePotential[i] * 0.005) { // Low probability emergence
+                    informationDensity[i] = Math.random() * 0.5 + 0.5; // Emerge with some strength
+                }
+
+                // Diffusion/interaction (simple version)
+                if (i % W !== 0 && informationDensity[i-1] > informationDensity[i]) { // Left neighbor
+                    informationDensity[i] += (informationDensity[i-1] - informationDensity[i]) * 0.01;
+                }
+                if ((i+1) % W !== 0 && informationDensity[i+1] > informationDensity[i]) { // Right neighbor
+                     informationDensity[i] += (informationDensity[i+1] - informationDensity[i]) * 0.01;
+                }
+                if (i >= W && informationDensity[i-W] > informationDensity[i]) { // Top neighbor
+                     informationDensity[i] += (informationDensity[i-W] - informationDensity[i]) * 0.01;
+                }
+                if (i < W*H - W && informationDensity[i+W] > informationDensity[i]) { // Bottom neighbor
+                     informationDensity[i] += (informationDensity[i+W] - informationDensity[i]) * 0.01;
+                }
+            }
+        }
+
+        function drawSimulation() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const index = y * W + x;
+                    const density = informationDensity[index];
+                    if (density > 0) {
+                        const intensity = Math.floor(density * 255);
+                        // Shades of blue/purple for information
+                        ctx.fillStyle = `rgb(${intensity * 0.5}, ${intensity * 0.2}, ${intensity})`;
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            updateSimulation();
+            drawSimulation();
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize
+        for(let i=0; i < W*H; i++) {
+            if(Math.random() < 0.1) { // Initial sparse information
+                informationDensity[i] = Math.random();
+            }
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Reality Layers - Simulacra Depth Field ∞</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(45deg, #0a0015 0%, #1a0030 25%, #300050 50%, #1a0030 75%, #0a0015 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            position: relative;
+        }
+        
+        #reality-canvas {
+            white-space: pre;
+            font-size: 2.8px;
+            line-height: 0.7;
+            user-select: none;
+            text-shadow: 0 0 8px currentColor;
+            filter: contrast(1.6) brightness(1.3) saturate(1.2);
+            transition: all 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+            font-weight: 500;
+            letter-spacing: 0.15px;
+            transform-origin: center;
+        }
+        
+        #depth-metrics {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 10px;
+            color: #c9f;
+            background: rgba(30, 10, 60, 0.9);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(200, 150, 255, 0.5);
+            box-shadow: 0 0 25px rgba(200, 150, 255, 0.4);
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            min-width: 180px;
+        }
+        
+        #layer-status {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 8px;
+            color: #888;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 8px 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            backdrop-filter: blur(6px);
+        }
+        
+        #reality-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 8px;
+            color: #bbb;
+            background: rgba(40, 20, 60, 0.9);
+            padding: 8px 10px;
+            border-radius: 5px;
+            border: 1px solid #666;
+            backdrop-filter: blur(8px);
+        }
+        
+        .layer-0 { color: #ff6b9d; filter: brightness(2.0) saturate(1.8); }
+        .layer-1 { color: #c44569; filter: brightness(1.8) saturate(1.6); }
+        .layer-2 { color: #6c5ce7; filter: brightness(1.6) saturate(1.4); }
+        .layer-3 { color: #74b9ff; filter: brightness(1.4) saturate(1.2); }
+        .layer-4 { color: #55a3ff; filter: brightness(1.2) saturate(1.0); }
+        .layer-5 { color: #667788; filter: brightness(1.0) saturate(0.8); }
+        .layer-void { color: #333344; filter: brightness(0.6) saturate(0.4); }
+        
+        .reality-fracture {
+            animation: fracture 0.6s ease-in-out infinite alternate;
+        }
+        
+        .simulacra-pulse {
+            animation: simulacra-beat 2.4s ease-in-out infinite;
+        }
+        
+        @keyframes fracture {
+            0% { 
+                filter: brightness(1.4) hue-rotate(0deg) saturate(1.2);
+                transform: scale(1) skew(0deg);
+            }
+            100% { 
+                filter: brightness(2.6) hue-rotate(25deg) saturate(2.0);
+                transform: scale(1.003) skew(0.5deg);
+            }
+        }
+        
+        @keyframes simulacra-beat {
+            0%, 100% { 
+                opacity: 0.85; 
+                transform: scale(1) rotate(0deg);
+                text-shadow: 0 0 8px currentColor;
+            }
+            33% { 
+                opacity: 1; 
+                transform: scale(1.001) rotate(0.1deg);
+                text-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+            }
+            66% { 
+                opacity: 0.95; 
+                transform: scale(0.999) rotate(-0.1deg);
+                text-shadow: 0 0 12px currentColor, 0 0 20px currentColor;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="depth-metrics">
+        DEPTH: <span id="depth-level">∞</span> | 
+        REALITY: <span id="reality-index">BASE</span><br>
+        FRACTAL: <span id="fractal-dimension">0.000</span> | 
+        COHERENCE: <span id="coherence-factor">0.000</span><br>
+        SIMULACRA: <span id="simulacra-count">0</span> | 
+        ENTROPY: <span id="entropy-level">0.000</span>
+    </div>
+    
+    <div id="reality-controls">
+        [SPACE] Deeper | [R] Reset | [L] Layer Mode | [F] Fracture
+    </div>
+    
+    <div id="reality-canvas"></div>
+    
+    <div id="layer-status">
+        Frame: <span id="frame-count">0</span> | 
+        Layers: <span id="active-layers">1</span> | 
+        Depth: <span id="current-depth">0</span>
+    </div>
+
+    <script>
+        // Reality Layer Simulation Constants
+        const Φ = (1 + Math.sqrt(5)) / 2; // Golden ratio - the infinite spiral
+        const π = Math.PI, τ = 2 * π, e = Math.E;
+        const sin = Math.sin, cos = Math.cos, exp = Math.exp, log = Math.log;
+        const abs = Math.abs, floor = Math.floor, ceil = Math.ceil, round = Math.round;
+        const sqrt = Math.sqrt, pow = Math.pow, tanh = Math.tanh, atan2 = Math.atan2;
+        const min = Math.min, max = Math.max, random = Math.random;
+        
+        // Simulacra Symbol Sets - Each layer has its own reality signature
+        const LAYER_SYMBOLS = {
+            0: [' ', '∅', '∘', '○', '●', '◉', '⬢', '✧', '✦', '✶'], // Base reality
+            1: [' ', '·', ':', ';', '+', '*', 'x', 'X', '#', '@'], // First simulacra
+            2: [' ', '`', '.', '~', '^', '&', '%', '$', '=', '≡'], // Second layer
+            3: [' ', '¨', '°', '∞', '∆', '∇', '∴', '∵', '∈', '∋'], // Mathematical space
+            4: [' ', '░', '▒', '▓', '█', '▌', '▐', '▀', '▄', '■'], // Digital fragments
+            5: [' ', '?', '!', '‽', '¿', '¡', '†', '‡', '§', '¶'], // Linguistic echoes
+            void: [' ', ' ', ' ', '∅', ' ', ' ', ' ', '∅', ' ', ' '] // The void between layers
+        };
+        
+        // Reality field dimensions
+        const WIDTH = 180, HEIGHT = 60;
+        const FIELD_SIZE = WIDTH * HEIGHT;
+        const MAX_LAYERS = 6;
+        
+        // Multi-dimensional state arrays
+        let realityLayers = Array(MAX_LAYERS).fill().map(() => new Float32Array(FIELD_SIZE));
+        let depthField = new Float32Array(FIELD_SIZE);
+        let coherenceField = new Float32Array(FIELD_SIZE);
+        let simulacraMemory = new Float32Array(FIELD_SIZE);
+        let fractalSeed = new Float32Array(FIELD_SIZE);
+        
+        // Simulation state
+        let time = 0, frame = 0, paused = false, layerMode = 0, fractureMode = false;
+        let currentDepth = 0, maxDepth = 0, simulacraCount = 0;
+        let lastRender = performance.now();
+        
+        // Reality depth calculation - how deep into simulacra we are
+        const calculateDepth = (x, y, t) => {
+            const cx = (x - WIDTH * 0.5) / WIDTH;
+            const cy = (y - HEIGHT * 0.5) / HEIGHT;
+            const radius = sqrt(cx * cx + cy * cy);
+            const angle = atan2(cy, cx);
+            
+            // Spiral descent into deeper realities
+            const spiralDepth = sin(angle * Φ + radius * π * 2 - t * 0.8) * 0.5 + 0.5;
+            const temporalDepth = cos(t * 0.3 + radius * 1.2) * 0.3 + 0.7;
+            const fractalDepth = abs(sin(radius * π * 4 + t * 1.1)) * 0.4 + 0.6;
+            
+            // Breathing depth oscillation
+            const breathingDepth = sin(t * 0.5) * 0.1 + 0.9;
+            
+            return tanh((spiralDepth * temporalDepth * fractalDepth * breathingDepth) * 3.0);
+        };
+        
+        // Generate simulacra layer field - each layer represents a different level of reality
+        const generateLayerField = (layerIndex, x, y, t) => {
+            const cx = x - WIDTH * 0.5;
+            const cy = y - HEIGHT * 0.5;
+            const radius = sqrt(cx * cx + cy * cy);
+            const angle = atan2(cy, cx);
+            const idx = y * WIDTH + x;
+            
+            // Layer-specific parameters
+            const layerPhase = layerIndex * π / 3;
+            const layerFreq = 1 + layerIndex * 0.3;
+            const layerDecay = exp(-layerIndex * 0.2);
+            
+            // Reality distortion based on depth
+            const depth = depthField[idx];
+            const distortion = depth * (layerIndex + 1) * 0.1;
+            
+            // Core patterns for this layer
+            const wave1 = sin(radius * 0.08 * layerFreq - t * 1.5 + layerPhase + distortion);
+            const wave2 = cos(angle * (3 + layerIndex) + radius * 0.06 * layerFreq - t * 1.2);
+            const wave3 = sin(sqrt(pow(x - WIDTH * 0.3, 2) + pow(y - HEIGHT * 0.4, 2)) * 0.07 * layerFreq - t * 1.8);
+            
+            // Simulacra interference - layers bleed into each other
+            let interference = 0;
+            if (layerIndex > 0) {
+                interference = realityLayers[layerIndex - 1][idx] * 0.2;
+            }
+            if (layerIndex < MAX_LAYERS - 1) {
+                interference += simulacraMemory[idx] * 0.15;
+            }
+            
+            // Reality coherence - how stable this layer is
+            const coherence = coherenceField[idx];
+            const stability = tanh(coherence * 2) * layerDecay;
+            
+            const layerField = (wave1 * 0.4 + wave2 * 0.3 + wave3 * 0.3 + interference) * stability;
+            
+            return tanh(layerField * 1.5);
+        };
+        
+        // Update all reality layers
+        const updateRealityLayers = () => {
+            const t = time * 0.02;
+            
+            // Update depth field first
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    const idx = y * WIDTH + x;
+                    depthField[idx] = calculateDepth(x, y, t);
+                    
+                    // Update coherence based on depth stability
+                    const prevDepth = coherenceField[idx];
+                    const depthChange = abs(depthField[idx] - prevDepth);
+                    coherenceField[idx] = coherenceField[idx] * 0.95 + (1 - depthChange) * 0.05;
+                    
+                    // Update simulacra memory - layers remember previous states
+                    simulacraMemory[idx] = simulacraMemory[idx] * 0.98 + depthField[idx] * 0.02;
+                }
+            }
+            
+            // Generate each reality layer
+            for (let layer = 0; layer < MAX_LAYERS; layer++) {
+                for (let y = 0; y < HEIGHT; y++) {
+                    for (let x = 0; x < WIDTH; x++) {
+                        const idx = y * WIDTH + x;
+                        realityLayers[layer][idx] = generateLayerField(layer, x, y, t);
+                    }
+                }
+            }
+        };
+        
+        // Determine which layer is dominant at each point
+        const getDominantLayer = (x, y) => {
+            const idx = y * WIDTH + x;
+            const depth = depthField[idx];
+            
+            // Fracture mode creates reality breaks
+            if (fractureMode && random() < 0.05) {
+                return 'void';
+            }
+            
+            // Map depth to layer index
+            const layerFloat = depth * (MAX_LAYERS - 1);
+            const layerIndex = floor(layerFloat);
+            const layerBlend = layerFloat - layerIndex;
+            
+            // Sometimes show the blend between layers
+            if (layerBlend > 0.7 && random() < 0.3) {
+                return min(layerIndex + 1, MAX_LAYERS - 1);
+            }
+            
+            return layerIndex;
+        };
+        
+        // Convert layer intensity to symbol
+        const getLayerSymbol = (layer, intensity, phase) => {
+            const symbols = LAYER_SYMBOLS[layer] || LAYER_SYMBOLS[0];
+            const symbolIndex = floor((abs(intensity) + sin(phase) * 0.1) * symbols.length);
+            return symbols[min(symbolIndex, symbols.length - 1)];
+        };
+        
+        // Generate CSS class for layer styling
+        const getLayerClass = (layer) => {
+            if (layer === 'void') return 'layer-void';
+            return `layer-${layer}`;
+        };
+        
+        // Main rendering function
+        const render = () => {
+            if (!paused) {
+                time++;
+                frame++;
+                
+                // Update reality field
+                if (frame % 3 === 0) {
+                    updateRealityLayers();
+                }
+                
+                // Generate display
+                let display = '';
+                let layerCounts = Array(MAX_LAYERS).fill(0);
+                let totalCoherence = 0;
+                let totalEntropy = 0;
+                
+                for (let y = 0; y < HEIGHT; y++) {
+                    for (let x = 0; x < WIDTH; x++) {
+                        const idx = y * WIDTH + x;
+                        const dominantLayer = getDominantLayer(x, y);
+                        const intensity = realityLayers[dominantLayer][idx] || 0;
+                        const phase = time * 0.1 + x * 0.05 + y * 0.03;
+                        
+                        const symbol = getLayerSymbol(dominantLayer, intensity, phase);
+                        display += symbol;
+                        
+                        // Statistics
+                        if (dominantLayer !== 'void') {
+                            layerCounts[dominantLayer]++;
+                        }
+                        totalCoherence += coherenceField[idx];
+                        totalEntropy += abs(intensity) * (dominantLayer + 1);
+                    }
+                    display += '\n';
+                }
+                
+                // Update display
+                document.getElementById('reality-canvas').textContent = display;
+                
+                // Apply dynamic styling based on dominant layer
+                const maxLayerCount = Math.max(...layerCounts);
+                const dominantGlobalLayer = layerCounts.indexOf(maxLayerCount);
+                const canvasElement = document.getElementById('reality-canvas');
+                
+                canvasElement.className = getLayerClass(dominantGlobalLayer);
+                
+                if (fractureMode) {
+                    canvasElement.classList.add('reality-fracture');
+                } else {
+                    canvasElement.classList.add('simulacra-pulse');
+                }
+                
+                // Update metrics
+                const avgCoherence = totalCoherence / FIELD_SIZE;
+                const avgEntropy = totalEntropy / FIELD_SIZE;
+                const fractalDim = 1 + avgEntropy * 0.5;
+                const activeLayers = layerCounts.filter(c => c > 0).length;
+                currentDepth = dominantGlobalLayer;
+                maxDepth = Math.max(maxDepth, currentDepth);
+                simulacraCount = activeLayers;
+                
+                document.getElementById('depth-level').textContent = currentDepth === MAX_LAYERS - 1 ? '∞' : currentDepth;
+                document.getElementById('reality-index').textContent = currentDepth === 0 ? 'BASE' : `SIM-${currentDepth}`;
+                document.getElementById('fractal-dimension').textContent = fractalDim.toFixed(3);
+                document.getElementById('coherence-factor').textContent = avgCoherence.toFixed(3);
+                document.getElementById('simulacra-count').textContent = simulacraCount;
+                document.getElementById('entropy-level').textContent = avgEntropy.toFixed(3);
+                document.getElementById('frame-count').textContent = frame;
+                document.getElementById('active-layers').textContent = activeLayers;
+                document.getElementById('current-depth').textContent = currentDepth;
+            }
+            
+            requestAnimationFrame(render);
+        };
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    // Go deeper into simulacra
+                    for (let i = 0; i < FIELD_SIZE; i++) {
+                        depthField[i] = min(depthField[i] + 0.1, 1.0);
+                    }
+                    break;
+                case 'KeyR':
+                    // Reset to base reality
+                    depthField.fill(0);
+                    for (let layer = 0; layer < MAX_LAYERS; layer++) {
+                        realityLayers[layer].fill(0);
+                    }
+                    coherenceField.fill(1);
+                    simulacraMemory.fill(0);
+                    time = 0;
+                    frame = 0;
+                    maxDepth = 0;
+                    break;
+                case 'KeyL':
+                    layerMode = (layerMode + 1) % 3;
+                    break;
+                case 'KeyF':
+                    fractureMode = !fractureMode;
+                    break;
+                case 'KeyP':
+                    paused = !paused;
+                    break;
+            }
+        });
+        
+        // Initialize and start
+        depthField.fill(0.1);
+        coherenceField.fill(1.0);
+        simulacraMemory.fill(0);
+        render();
+    </script>
+</body>
+</html>

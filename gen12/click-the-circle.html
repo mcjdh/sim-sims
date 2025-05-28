@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen12: Click the Circle</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            background: #222;
+            color: #eee;
+            font-family: Arial, sans-serif;
+            padding-top: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #score, #timer {
+            font-size: 1.2em;
+            margin: 5px;
+        }
+        canvas {
+            border: 2px solid #eee;
+            cursor: pointer;
+            background: #000;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gen12: Click the Circle</h1>
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 30</div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const radius = 20;
+        let score = 0;
+        let timeLeft = 30;
+        let circle = { x: 0, y: 0 };
+
+        function randPos() {
+            circle.x = radius + Math.random() * (canvas.width - 2 * radius);
+            circle.y = radius + Math.random() * (canvas.height - 2 * radius);
+        }
+
+        function drawCircle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff6';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+        }
+
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const dx = mx - circle.x;
+            const dy = my - circle.y;
+            if (Math.hypot(dx, dy) <= radius) {
+                score++;
+                document.getElementById('score').textContent = 'Score: ' + score;
+                randPos();
+                drawCircle();
+            }
+        });
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById('timer').textContent = 'Time: ' + timeLeft;
+            } else {
+                clearInterval(timerInterval);
+                canvas.style.cursor = 'default';
+                alert('Time\'s up! Your score: ' + score);
+            }
+        }
+
+        randPos();
+        drawCircle();
+        const timerInterval = setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Reflection - Gen11</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            text-align: center;
+            opacity: 0.95;
+            user-select: none;
+        }
+        @keyframes cosmicPulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        .pulse {
+            animation: cosmicPulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas" class="pulse"></div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+
+        function render() {
+            const canvas = document.getElementById('canvas');
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const index = Math.floor((Math.sin(x / 10 + time / 20) + Math.cos(y / 10 - time / 20)) * symbols.length / 2);
+                    output += symbols[Math.abs(index % symbols.length)];
+                }
+                output += '\n';
+            }
+            canvas.textContent = output;
+        }
+
+        function animate() {
+            time++;
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

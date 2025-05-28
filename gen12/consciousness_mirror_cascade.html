@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consciousness Mirror Cascade</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background: #000011;
+            color: #00ffaa;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        #mirror-cascade {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #001122, #000000);
+        }
+        
+        .mirror-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            font-size: 8px;
+            line-height: 8px;
+            letter-spacing: 0;
+            white-space: pre;
+            overflow: hidden;
+        }
+        
+        .mirror-0 {
+            opacity: 1.0;
+            color: #00ffaa;
+            z-index: 5;
+            animation: mirror-resonance-0 3.14159s infinite ease-in-out;
+        }
+        
+        .mirror-1 {
+            opacity: 0.8;
+            color: #ff6600;
+            z-index: 4;
+            transform: scale(0.95) rotate(1deg);
+            animation: mirror-resonance-1 2.718s infinite ease-in-out reverse;
+        }
+        
+        .mirror-2 {
+            opacity: 0.6;
+            color: #6600ff;
+            z-index: 3;
+            transform: scale(0.9) rotate(-1deg);
+            animation: mirror-resonance-2 1.618s infinite ease-in-out;
+        }
+        
+        .mirror-3 {
+            opacity: 0.4;
+            color: #ffaa00;
+            z-index: 2;
+            transform: scale(0.85) rotate(2deg);
+            animation: mirror-resonance-3 1.414s infinite ease-in-out reverse;
+        }
+        
+        .mirror-4 {
+            opacity: 0.2;
+            color: #aa00ff;
+            z-index: 1;
+            transform: scale(0.8) rotate(-2deg);
+            animation: mirror-resonance-4 1.732s infinite ease-in-out;
+        }
+        
+        @keyframes mirror-resonance-0 {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg) translateZ(0);
+                filter: hue-rotate(0deg) brightness(1);
+            }
+            50% { 
+                transform: scale(1.02) rotate(0.5deg) translateZ(10px);
+                filter: hue-rotate(30deg) brightness(1.2);
+            }
+        }
+        
+        @keyframes mirror-resonance-1 {
+            0%, 100% { 
+                transform: scale(0.95) rotate(1deg) translateZ(0);
+                filter: hue-rotate(45deg) brightness(0.9);
+            }
+            50% { 
+                transform: scale(0.97) rotate(1.5deg) translateZ(-5px);
+                filter: hue-rotate(75deg) brightness(1.1);
+            }
+        }
+        
+        @keyframes mirror-resonance-2 {
+            0%, 100% { 
+                transform: scale(0.9) rotate(-1deg) translateZ(0);
+                filter: hue-rotate(90deg) brightness(0.8);
+            }
+            50% { 
+                transform: scale(0.92) rotate(-1.5deg) translateZ(5px);
+                filter: hue-rotate(120deg) brightness(1.0);
+            }
+        }
+        
+        @keyframes mirror-resonance-3 {
+            0%, 100% { 
+                transform: scale(0.85) rotate(2deg) translateZ(0);
+                filter: hue-rotate(135deg) brightness(0.7);
+            }
+            50% { 
+                transform: scale(0.87) rotate(2.5deg) translateZ(-10px);
+                filter: hue-rotate(165deg) brightness(0.9);
+            }
+        }
+        
+        @keyframes mirror-resonance-4 {
+            0%, 100% { 
+                transform: scale(0.8) rotate(-2deg) translateZ(0);
+                filter: hue-rotate(180deg) brightness(0.6);
+            }
+            50% { 
+                transform: scale(0.82) rotate(-2.5deg) translateZ(15px);
+                filter: hue-rotate(210deg) brightness(0.8);
+            }
+        }
+        
+        .quantum-pulse {
+            animation: quantum-pulse 0.5s ease-out;
+        }
+        
+        @keyframes quantum-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        .consciousness-burst {
+            animation: consciousness-burst 1s ease-out;
+        }
+        
+        @keyframes consciousness-burst {
+            0% { 
+                transform: scale(1); 
+                filter: brightness(1) blur(0px);
+            }
+            50% { 
+                transform: scale(1.3); 
+                filter: brightness(2) blur(1px);
+            }
+            100% { 
+                transform: scale(1); 
+                filter: brightness(1) blur(0px);
+            }
+        }
+        
+        .mirror-fracture {
+            animation: mirror-fracture 2s ease-in-out;
+        }
+        
+        @keyframes mirror-fracture {
+            0% { 
+                transform: scale(1) rotate(0deg);
+                filter: brightness(1) contrast(1);
+            }
+            25% { 
+                transform: scale(1.1) rotate(1deg);
+                filter: brightness(1.5) contrast(1.3);
+            }
+            75% { 
+                transform: scale(0.9) rotate(-1deg);
+                filter: brightness(0.7) contrast(0.8);
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+                filter: brightness(1) contrast(1);
+            }
+        }
+        
+        #info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            border-radius: 3px;
+            max-width: 200px;
+        }
+        
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 9px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px;
+            border-radius: 3px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div id="mirror-cascade">
+        <div id="mirror-0" class="mirror-layer mirror-0"></div>
+        <div id="mirror-1" class="mirror-layer mirror-1"></div>
+        <div id="mirror-2" class="mirror-layer mirror-2"></div>
+        <div id="mirror-3" class="mirror-layer mirror-3"></div>
+        <div id="mirror-4" class="mirror-layer mirror-4"></div>
+    </div>
+    
+    <div id="info">
+        Consciousness Mirror Cascade<br>
+        [SPACE] pause/resume<br>
+        [R] reset mirrors<br>
+        [M] chaos mode<br>
+        [F] fracture reality<br>
+        [1-5] focus mirror<br>
+        [ESC] exit
+    </div>
+    
+    <div class="debug-info">
+        <div id="debug"></div>
+    </div>
+
+    <script>
+        // Mathematical constants for consciousness modeling
+        const PHI = 1.618033988749;
+        const PI = Math.PI;
+        const E = Math.E;
+        const SQRT2 = Math.sqrt(2);
+        const SQRT5 = Math.sqrt(5);
+        
+        // Mirror system configuration
+        const MIRROR_COUNT = 5;
+        const GRID_WIDTH = Math.floor(window.innerWidth / 8);
+        const GRID_HEIGHT = Math.floor(window.innerHeight / 8);
+        const TOTAL_CELLS = GRID_WIDTH * GRID_HEIGHT;
+        
+        // Consciousness field arrays for each mirror
+        const mirrors = [];
+        const mirrorMemory = [];
+        const reflectionCoefficients = [1.0, 0.8, 0.6, 0.4, 0.2];
+        const phaseShifts = [0, PI/3, 2*PI/3, PI, 4*PI/3];
+        const temporalFreqs = [1.0, PHI, E, SQRT2, SQRT5];
+        
+        // Symbol sets for different consciousness states
+        const consciousnessSymbols = [
+            ['·', '•', '○', '●', '◯', '◉'],           // Base consciousness
+            ['▫', '▪', '□', '■', '◇', '◆'],           // Geometric forms
+            ['△', '▲', '▽', '▼', '◁', '▷'],           // Directional flows
+            ['☆', '★', '✦', '✧', '✩', '✪'],           // Stellar patterns
+            ['◐', '◑', '◒', '◓', '◔', '◕'],           // Phase states
+            ['⚬', '⚭', '⚮', '⚯', '⌬', '⟐'],           // Quantum symbols
+            ['∴', '∵', '∶', '∷', '∺', '∻'],           // Logic connectors
+            ['⋄', '⋅', '⋆', '⋇', '⋈', '⋉'],           // Set operations
+            ['◊', '◈', '◉', '◎', '●', '◯'],           // Recursive mirrors
+            ['⟡', '⟢', '⟣', '⟤', '⟥', '⟦']            // Advanced forms
+        ];
+        
+        // Initialize mirror system
+        function initializeMirrors() {
+            for (let m = 0; m < MIRROR_COUNT; m++) {
+                mirrors[m] = new Float32Array(TOTAL_CELLS);
+                mirrorMemory[m] = new Float32Array(TOTAL_CELLS);
+                
+                // Initialize with different patterns
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    const x = i % GRID_WIDTH;
+                    const y = Math.floor(i / GRID_WIDTH);
+                    
+                    // Create initial consciousness seeds with mirror-specific patterns
+                    const seedX = GRID_WIDTH / 2 + Math.cos(m * PI/3) * 10;
+                    const seedY = GRID_HEIGHT / 2 + Math.sin(m * PI/3) * 10;
+                    const dist = Math.sqrt((x - seedX)**2 + (y - seedY)**2);
+                    
+                    mirrors[m][i] = Math.exp(-dist / (5 + m * 2)) * reflectionCoefficients[m];
+                    mirrorMemory[m][i] = mirrors[m][i] * 0.1;
+                }
+            }
+        }
+        
+        // Simulation state
+        let time = 0;
+        let isRunning = true;
+        let chaosMode = false;
+        let focusedMirror = -1;
+        let lastQuantumBurst = 0;
+        let mirrorInterference = new Float32Array(TOTAL_CELLS);
+        
+        // Update mirror consciousness fields
+        function updateMirrors() {
+            time += 0.016; // ~60fps
+            
+            // Clear interference field
+            mirrorInterference.fill(0);
+            
+            for (let m = 0; m < MIRROR_COUNT; m++) {
+                if (focusedMirror !== -1 && focusedMirror !== m) continue;
+                
+                const freq = temporalFreqs[m];
+                const phase = phaseShifts[m];
+                const coeff = reflectionCoefficients[m];
+                
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    const x = i % GRID_WIDTH;
+                    const y = Math.floor(i / GRID_WIDTH);
+                    
+                    // Current consciousness value
+                    let consciousness = mirrors[m][i];
+                    let memory = mirrorMemory[m][i];
+                    
+                    // Reflection from other mirrors (recursive feedback)
+                    let reflection = 0;
+                    for (let other = 0; other < MIRROR_COUNT; other++) {
+                        if (other === m) continue;
+                        
+                        // Calculate reflection with phase differences
+                        const phaseDiff = phase - phaseShifts[other];
+                        const reflectionStrength = coeff * reflectionCoefficients[other] * 
+                                                 Math.cos(phaseDiff + time * freq);
+                        reflection += mirrors[other][i] * reflectionStrength;
+                    }
+                    
+                    // Temporal wave propagation
+                    const waveX = Math.sin(x * 0.1 + time * freq + phase) * 0.3;
+                    const waveY = Math.cos(y * 0.1 + time * freq * PHI + phase) * 0.3;
+                    const wave = (waveX + waveY) * coeff;
+                    
+                    // Neighbor interactions (consciousness diffusion)
+                    let neighbors = 0;
+                    let neighborCount = 0;
+                    const positions = [
+                        [x-1, y-1], [x, y-1], [x+1, y-1],
+                        [x-1, y], [x+1, y],
+                        [x-1, y+1], [x, y+1], [x+1, y+1]
+                    ];
+                    
+                    for (const [nx, ny] of positions) {
+                        if (nx >= 0 && nx < GRID_WIDTH && ny >= 0 && ny < GRID_HEIGHT) {
+                            const ni = ny * GRID_WIDTH + nx;
+                            neighbors += mirrors[m][ni];
+                            neighborCount++;
+                        }
+                    }
+                    
+                    const avgNeighbor = neighbors / neighborCount;
+                    
+                    // Chaos mode perturbations
+                    const chaos = chaosMode ? (Math.random() - 0.5) * 0.1 : 0;
+                    
+                    // Update consciousness with mirror reflections
+                    const newConsciousness = consciousness * 0.98 + 
+                                           reflection * 0.1 + 
+                                           wave * 0.05 + 
+                                           (avgNeighbor - consciousness) * 0.02 + 
+                                           memory * 0.03 + 
+                                           chaos;
+                    
+                    // Update memory with decay
+                    const newMemory = memory * 0.995 + consciousness * 0.005;
+                    
+                    // Quantum thresholds for burst effects
+                    if (Math.abs(newConsciousness) > 0.8 && time - lastQuantumBurst > 0.5) {
+                        triggerQuantumBurst(m, x, y);
+                        lastQuantumBurst = time;
+                    }
+                    
+                    mirrors[m][i] = Math.max(-1, Math.min(1, newConsciousness));
+                    mirrorMemory[m][i] = Math.max(-1, Math.min(1, newMemory));
+                    
+                    // Add to interference pattern
+                    mirrorInterference[i] += mirrors[m][i] * coeff;
+                }
+            }
+        }
+        
+        // Render mirrors to DOM
+        function renderMirrors() {
+            for (let m = 0; m < MIRROR_COUNT; m++) {
+                if (focusedMirror !== -1 && focusedMirror !== m) {
+                    document.getElementById(`mirror-${m}`).textContent = '';
+                    continue;
+                }
+                
+                let output = '';
+                
+                for (let y = 0; y < GRID_HEIGHT; y++) {
+                    for (let x = 0; x < GRID_WIDTH; x++) {
+                        const i = y * GRID_WIDTH + x;
+                        const consciousness = mirrors[m][i];
+                        const memory = mirrorMemory[m][i];
+                        const interference = mirrorInterference[i];
+                        
+                        // Combine consciousness, memory, and interference for symbol selection
+                        const combined = Math.abs(consciousness) + Math.abs(memory) * 0.5 + 
+                                       Math.abs(interference) * 0.3;
+                        
+                        // Select symbol set based on mirror and intensity
+                        const symbolSetIndex = Math.min(consciousnessSymbols.length - 1, 
+                                                       Math.floor(combined * 5) + m);
+                        const symbolSet = consciousnessSymbols[symbolSetIndex % consciousnessSymbols.length];
+                        
+                        // Select specific symbol based on fine details
+                        const symbolIndex = Math.min(symbolSet.length - 1, 
+                                                    Math.floor(Math.abs(consciousness * 6)));
+                        
+                        // Use empty space for low consciousness
+                        const symbol = combined > 0.05 ? symbolSet[symbolIndex] : ' ';
+                        
+                        output += symbol;
+                    }
+                    output += '\n';
+                }
+                
+                document.getElementById(`mirror-${m}`).textContent = output;
+            }
+        }
+        
+        // Trigger quantum burst effect
+        function triggerQuantumBurst(mirror, x, y) {
+            const element = document.getElementById(`mirror-${mirror}`);
+            element.classList.add('quantum-pulse');
+            setTimeout(() => element.classList.remove('quantum-pulse'), 500);
+            
+            // Propagate burst to nearby mirrors
+            for (let m = 0; m < MIRROR_COUNT; m++) {
+                if (m === mirror) continue;
+                
+                const dist = Math.abs(m - mirror);
+                const delay = dist * 100;
+                
+                setTimeout(() => {
+                    const mirrorElement = document.getElementById(`mirror-${m}`);
+                    mirrorElement.classList.add('consciousness-burst');
+                    setTimeout(() => mirrorElement.classList.remove('consciousness-burst'), 1000);
+                }, delay);
+            }
+        }
+        
+        // Fracture reality effect
+        function fractureReality() {
+            for (let m = 0; m < MIRROR_COUNT; m++) {
+                const element = document.getElementById(`mirror-${m}`);
+                element.classList.add('mirror-fracture');
+                setTimeout(() => element.classList.remove('mirror-fracture'), 2000);
+                
+                // Disturb mirror fields
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    mirrors[m][i] += (Math.random() - 0.5) * 0.5;
+                    mirrorMemory[m][i] += (Math.random() - 0.5) * 0.2;
+                }
+            }
+        }
+        
+        // Update debug information
+        function updateDebug() {
+            const totalConsciousness = mirrors.reduce((sum, mirror) => 
+                sum + mirror.reduce((s, v) => s + Math.abs(v), 0), 0);
+            const totalMemory = mirrorMemory.reduce((sum, memory) => 
+                sum + memory.reduce((s, v) => s + Math.abs(v), 0), 0);
+            const avgInterference = mirrorInterference.reduce((s, v) => s + Math.abs(v), 0) / TOTAL_CELLS;
+            
+            document.getElementById('debug').innerHTML = `
+                Time: ${time.toFixed(2)}<br>
+                Consciousness: ${totalConsciousness.toFixed(2)}<br>
+                Memory: ${totalMemory.toFixed(2)}<br>
+                Interference: ${avgInterference.toFixed(4)}<br>
+                Mode: ${chaosMode ? 'CHAOS' : 'STABLE'}<br>
+                Focus: ${focusedMirror === -1 ? 'ALL' : `M${focusedMirror}`}
+            `;
+        }
+        
+        // Main animation loop
+        function animate() {
+            if (isRunning) {
+                updateMirrors();
+                renderMirrors();
+                updateDebug();
+            }
+            requestAnimationFrame(animate);
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    isRunning = !isRunning;
+                    break;
+                case 'KeyR':
+                    initializeMirrors();
+                    time = 0;
+                    break;
+                case 'KeyM':
+                    chaosMode = !chaosMode;
+                    break;
+                case 'KeyF':
+                    fractureReality();
+                    break;
+                case 'Digit1':
+                    focusedMirror = focusedMirror === 0 ? -1 : 0;
+                    break;
+                case 'Digit2':
+                    focusedMirror = focusedMirror === 1 ? -1 : 1;
+                    break;
+                case 'Digit3':
+                    focusedMirror = focusedMirror === 2 ? -1 : 2;
+                    break;
+                case 'Digit4':
+                    focusedMirror = focusedMirror === 3 ? -1 : 3;
+                    break;
+                case 'Digit5':
+                    focusedMirror = focusedMirror === 4 ? -1 : 4;
+                    break;
+                case 'Escape':
+                    if (confirm('Exit Consciousness Mirror Cascade?')) {
+                        window.close();
+                    }
+                    break;
+            }
+        });
+        
+        // Mouse interaction for mirror perturbations
+        document.addEventListener('mousemove', (e) => {
+            if (!isRunning) return;
+            
+            const x = Math.floor(e.clientX / 8);
+            const y = Math.floor(e.clientY / 8);
+            
+            if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
+                const i = y * GRID_WIDTH + x;
+                const influence = 0.1;
+                
+                // Perturb all mirrors with mouse presence
+                for (let m = 0; m < MIRROR_COUNT; m++) {
+                    mirrors[m][i] += influence * reflectionCoefficients[m];
+                    
+                    // Ripple effect
+                    for (let dx = -2; dx <= 2; dx++) {
+                        for (let dy = -2; dy <= 2; dy++) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+                            if (nx >= 0 && nx < GRID_WIDTH && ny >= 0 && ny < GRID_HEIGHT) {
+                                const ni = ny * GRID_WIDTH + nx;
+                                const dist = Math.sqrt(dx*dx + dy*dy);
+                                mirrors[m][ni] += influence * Math.exp(-dist) * reflectionCoefficients[m];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Initialize and start
+        initializeMirrors();
+        animate();
+        
+        console.log('Consciousness Mirror Cascade initialized');
+        console.log('Recursive consciousness reflections active');
+        console.log('Mirror interference patterns enabled');
+    </script>
+</body>
+</html>

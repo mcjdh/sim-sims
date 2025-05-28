@@ -1,0 +1,171 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# No Unicode Math Symbols Rule
+
+## Overview
+Avoid using Unicode mathematical symbols in JavaScript/code as they cause linter errors and compatibility issues. Always use ASCII alternatives for variable names and mathematical notation.
+
+## Prohibited Unicode Math Symbols
+**DO NOT USE** these Unicode symbols in code:
+
+### Greek Letters
+- `φ` (phi) → use `F` or `phi`
+- `π` (pi) → use `P` or `pi` 
+- `τ` (tau) → use `T` or `tau`
+- `ψ` (psi) → use `Y` or `psi`
+- `Φ` (Phi) → use `FF` or `Phi`
+- `Ψ` (Psi) → use `YY` or `Psi`
+- `Ω` (Omega) → use `W` or `omega`
+- `Δ` (Delta) → use `D` or `delta`
+- `θ` (theta) → use `Q` or `theta`
+- `α` (alpha) → use `A` or `alpha`
+- `β` (beta) → use `B` or `beta`
+- `γ` (gamma) → use `G` or `gamma`
+- `λ` (lambda) → use `L` or `lambda`
+- `μ` (mu) → use `M` or `mu`
+- `ν` (nu) → use `N` or `nu`
+- `ρ` (rho) → use `R` or `rho`
+- `σ` (sigma) → use `S` or `sigma`
+
+### Math Operators
+- `√` (square root) → use `sqrt` or `rt`
+- `∫` (integral) → use `int` or `integral`
+- `∞` (infinity) → use `inf` or `Infinity`
+- `≤` (less than or equal) → use `<=`
+- `≥` (greater than or equal) → use `>=`
+- `≠` (not equal) → use `!==` or `!=`
+- `±` (plus minus) → use `+-` or `plusMinus`
+- `×` (multiplication) → use `*` or `x`
+- `÷` (division) → use `/`
+
+### Special Symbols
+- `∑` (summation) → use `sum` or `S_`
+- `∏` (product) → use `prod` or `P_`
+- `∂` (partial derivative) → use `d` or `partial`
+- `∇` (nabla/gradient) → use `grad` or `V_`
+
+## Error-Free ASCII Symbol Alternatives
+
+### Mathematical Constants (Single Characters)
+```javascript
+// Preferred ASCII symbols for mathematical constants:
+const F = 1.618;        // Golden ratio (phi)
+const P = Math.PI;      // Pi
+const T = 2 * Math.PI;  // Tau
+const E = Math.E;       // Euler's number
+const Y = 0;            // Psi variable
+const W = 0;            // Omega variable
+const D = 0;            // Delta variable
+const Q = 0;            // Theta variable
+```
+
+### Mathematical Operations (Short Symbols)
+```javascript
+// Function shortcuts:
+const rt = Math.sqrt;   // Square root
+const ln = Math.log;    // Natural logarithm
+const ex = Math.exp;    // Exponential
+const ab = Math.abs;    // Absolute value
+const mx = Math.max;    // Maximum
+const mn = Math.min;    // Minimum
+const fl = Math.floor;  // Floor
+const cl = Math.ceil;   // Ceiling
+const rd = Math.round;  // Round
+const pw = Math.pow;    // Power
+const s = Math.sin;     // Sine
+const c = Math.cos;     // Cosine
+const t = Math.tan;     // Tangent
+```
+
+### Composite Symbols
+```javascript
+// For more complex mathematical expressions:
+const F_ = 1.618;       // Phi with underscore
+const P_ = Math.PI;     // Pi with underscore
+const T_ = 2 * Math.PI; // Tau with underscore
+const dT = 0.016;       // Delta time
+const dX = 1;           // Delta X
+const dY = 1;           // Delta Y
+```
+
+## Correct Usage Examples
+
+### ❌ Incorrect (Unicode symbols)
+```javascript
+const φ = 1.618;
+const π = Math.PI;
+const √ = Math.sqrt;
+let ψ = calculatePsi(x, y);
+const Δt = timeStep;
+```
+
+### ✅ Correct (ASCII word alternatives)
+```javascript
+const phi = 1.618;
+const pi = Math.PI;
+const sqrt = Math.sqrt;
+let psi = calculatePsi(x, y);
+const deltaTime = timeStep;
+```
+
+### ✅ Correct (ASCII symbol alternatives)
+```javascript
+const F = 1.618;        // Golden ratio
+const P = Math.PI;      // Pi
+const rt = Math.sqrt;   // Square root
+let Y = calculatePsi(x, y); // Psi
+const dT = timeStep;    // Delta time
+```
+
+## Symbol Selection Guidelines
+
+### Single Character Symbols
+Choose symbols that:
+1. Are visually similar to the Unicode equivalent
+2. Are memorable and intuitive
+3. Don't conflict with common variable names
+4. Are easily typed on standard keyboards
+
+### Recommended Mappings
+- `F` for φ (phi) - Similar shape, F for "phi"
+- `P` for π (pi) - P for "pi"
+- `T` for τ (tau) - T for "tau"
+- `W` for Ω (omega) - W resembles Ω
+- `Y` for ψ (psi) - Y resembles ψ
+- `D` for Δ (delta) - D for "delta", triangle-like
+- `Q` for θ (theta) - Q for "theta"
+
+## Mathematical Constants
+Use these ASCII alternatives for common mathematical constants:
+- `F` or `phi` for golden ratio (1.618...)
+- `P` or `pi` for π (3.14159...)
+- `E` or `e` for Euler's number (2.718...)
+- `T` or `tau` for τ (2π)
+
+## Function Naming
+When creating mathematical functions:
+- `calcF()` or `calculatePhi()` instead of `calculateΦ()`
+- `compD()` or `computeDelta()` instead of `computeΔ()`
+- `getQ()` or `getTheta()` instead of `getθ()`
+
+## Rationale
+1. **Linter Compatibility**: Unicode symbols cause "Invalid character" and "Variable declaration expected" errors
+2. **Code Readability**: ASCII symbols are universally readable and concise
+3. **Team Collaboration**: All developers can easily type ASCII symbols
+4. **Tool Compatibility**: Better support across IDEs, terminals, and version control systems
+5. **Performance**: ASCII parsing is faster than Unicode
+6. **Mathematical Clarity**: Single-character symbols maintain mathematical notation feel
+
+## Special Cases
+- Unicode symbols are acceptable in **comments** and **string literals** for documentation
+- Mathematical formulas in comments can use Unicode for clarity: `// F = (1 + √5) / 2`
+- User-facing text and UI can still use Unicode symbols
+- Choose between word (`phi`) and symbol (`F`) alternatives based on context and team preference
+
+## Reference Files
+This rule was created based on issues encountered in [gen9/dynamic-consciousness.html](mdc:gen9/dynamic-consciousness.html) where Unicode math symbols caused multiple linter errors and required systematic replacement with ASCII alternatives.
+
+

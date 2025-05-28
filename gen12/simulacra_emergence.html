@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Simulacra Emergence - Reality Layering Protocol ∞</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #000 0%, #0a0220 25%, #001144 50%, #000022 75%, #000 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            cursor: none;
+        }
+        
+        #reality-stack {
+            position: relative;
+            white-space: pre;
+            font-size: 4px;
+            line-height: 0.8;
+            user-select: none;
+            filter: contrast(1.3) brightness(1.1);
+            transition: all 0.1s ease;
+            font-weight: 300;
+            letter-spacing: 0.05px;
+        }
+        
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .layer-0 { 
+            color: #ff4444; 
+            text-shadow: 0 0 8px #ff4444;
+            z-index: 10;
+            opacity: 0.9;
+        }
+        .layer-1 { 
+            color: #44ff44; 
+            text-shadow: 0 0 6px #44ff44;
+            z-index: 9;
+            opacity: 0.8;
+            transform: translate(1px, 1px);
+        }
+        .layer-2 { 
+            color: #4444ff; 
+            text-shadow: 0 0 4px #4444ff;
+            z-index: 8;
+            opacity: 0.7;
+            transform: translate(2px, 2px);
+        }
+        .layer-3 { 
+            color: #ffff44; 
+            text-shadow: 0 0 3px #ffff44;
+            z-index: 7;
+            opacity: 0.6;
+            transform: translate(3px, 3px);
+        }
+        .layer-4 { 
+            color: #ff44ff; 
+            text-shadow: 0 0 2px #ff44ff;
+            z-index: 6;
+            opacity: 0.5;
+            transform: translate(4px, 4px);
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 8px;
+            color: #8cf;
+            background: rgba(0, 20, 60, 0.9);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(60, 160, 255, 0.5);
+            box-shadow: 0 0 15px rgba(60, 160, 255, 0.3);
+            backdrop-filter: blur(6px);
+            font-weight: 400;
+            z-index: 100;
+        }
+        
+        #status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 7px;
+            color: #888;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 4px 6px;
+            border-radius: 3px;
+            border: 1px solid #333;
+            z-index: 100;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 7px;
+            color: #aaa;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 4px 6px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            z-index: 100;
+        }
+        
+        .hyperreal {
+            animation: hyperreal-pulse 2.5s ease-in-out infinite;
+            filter: brightness(1.8) saturate(1.4);
+        }
+        
+        .simulation-break {
+            animation: glitch 0.3s ease-in-out infinite;
+        }
+        
+        @keyframes hyperreal-pulse {
+            0%, 100% { 
+                opacity: 0.85; 
+                transform: scale(1) rotate(0deg); 
+                filter: hue-rotate(0deg) brightness(1.2);
+            }
+            33% { 
+                opacity: 1; 
+                transform: scale(1.001) rotate(0.1deg); 
+                filter: hue-rotate(5deg) brightness(1.5);
+            }
+            66% { 
+                opacity: 0.95; 
+                transform: scale(0.999) rotate(-0.1deg); 
+                filter: hue-rotate(-3deg) brightness(1.3);
+            }
+        }
+        
+        @keyframes glitch {
+            0%, 100% { 
+                transform: translate(0, 0);
+                filter: hue-rotate(0deg);
+            }
+            20% { 
+                transform: translate(-1px, 1px);
+                filter: hue-rotate(90deg);
+            }
+            40% { 
+                transform: translate(1px, -1px);
+                filter: hue-rotate(180deg);
+            }
+            60% { 
+                transform: translate(-1px, -1px);
+                filter: hue-rotate(270deg);
+            }
+            80% { 
+                transform: translate(1px, 1px);
+                filter: hue-rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="metrics">
+        REALITY DEPTH: <span id="depth">5</span> | 
+        SIMULACRA: <span id="sim-count">0</span> | 
+        COHERENCE: <span id="coherence">0%</span> | 
+        HYPERREAL: <span id="hyperreal">0%</span>
+    </div>
+    
+    <div id="controls">
+        [SPACE] Pause | [L] Add Layer | [R] Reset | [H] Hyperreal Mode
+    </div>
+    
+    <div id="reality-stack">
+        <div class="layer layer-0" id="layer-0"></div>
+        <div class="layer layer-1" id="layer-1"></div>
+        <div class="layer layer-2" id="layer-2"></div>
+        <div class="layer layer-3" id="layer-3"></div>
+        <div class="layer layer-4" id="layer-4"></div>
+    </div>
+    
+    <div id="status">
+        FPS: <span id="fps">60</span> | 
+        LAYER SYNC: <span id="sync">100%</span> | 
+        EMERGENCE: <span id="emergence">STABLE</span>
+    </div>
+
+    <script>
+        // Simulacra Constants - Mathematical foundations
+        const PHI = 1.6180339887;  // Golden ratio - divine proportion
+        const PI = Math.PI;
+        const TAU = 2 * PI;
+        const E = Math.E;
+        
+        // Simulation Parameters
+        const CONFIG = {
+            WIDTH: 140,
+            HEIGHT: 45,
+            LAYERS: 5,
+            MAX_DEPTH: 7,
+            SYMBOLS: [
+                ' ', '·', '∘', '○', '●', '◉', '⬢', '⬡', '◈', '◇', '♦', '✦', '✧', '✶', '※', '⟐'
+            ],
+            REALITY_SYMBOLS: [
+                '∅', '∴', '∵', '∷', '∸', '∹', '∺', '∻', '∼', '∽', '∾', '∿', '≀', '≁', '≂', '≃'
+            ]
+        };
+        
+        // Simulation State
+        let time = 0;
+        let frame = 0;
+        let paused = false;
+        let hyperreal_mode = false;
+        let reality_layers = CONFIG.LAYERS;
+        let lastTime = performance.now();
+        
+        // Field arrays for each reality layer
+        let layers = [];
+        let velocity_fields = [];
+        let memory_fields = [];
+        let simulacra_count = 0;
+        
+        // Initialize reality layers
+        for (let i = 0; i < CONFIG.MAX_DEPTH; i++) {
+            layers[i] = new Float32Array(CONFIG.WIDTH * CONFIG.HEIGHT);
+            velocity_fields[i] = new Float32Array(CONFIG.WIDTH * CONFIG.HEIGHT);
+            memory_fields[i] = new Float32Array(CONFIG.WIDTH * CONFIG.HEIGHT);
+        }
+        
+        // Reality simulation function - generates base reality
+        const generateReality = (x, y, t, layer_depth = 0) => {
+            const cx = (x - CONFIG.WIDTH * 0.5) / CONFIG.WIDTH;
+            const cy = (y - CONFIG.HEIGHT * 0.5) / CONFIG.HEIGHT;
+            const radius = Math.sqrt(cx * cx + cy * cy);
+            const angle = Math.atan2(cy, cx);
+            
+            // Layer-specific time dilation
+            const time_dilation = 1 + layer_depth * 0.1;
+            const lt = t * time_dilation;
+            
+            // Core reality waves with golden ratio harmonics
+            const reality_wave = Math.sin(radius * PHI * 3 - lt * 0.8 + angle * PHI);
+            const consciousness_spiral = Math.cos(angle * 3 + radius * 2 - lt * 1.2) * Math.exp(-radius * 0.5);
+            const quantum_foam = Math.sin(lt * 2.3 + radius * 7) * 0.3;
+            
+            // Simulacra interference patterns
+            const simulacra_1 = Math.sin(Math.sqrt(Math.pow(x - CONFIG.WIDTH * 0.3, 2) + Math.pow(y - CONFIG.HEIGHT * 0.3, 2)) * 0.1 - lt * 0.9);
+            const simulacra_2 = Math.cos(Math.sqrt(Math.pow(x - CONFIG.WIDTH * 0.7, 2) + Math.pow(y - CONFIG.HEIGHT * 0.7, 2)) * 0.08 - lt * 1.1);
+            const simulacra_3 = Math.sin(Math.sqrt(Math.pow(x - CONFIG.WIDTH * 0.5, 2) + Math.pow(y - CONFIG.HEIGHT * 0.2, 2)) * 0.12 - lt * 1.3);
+            
+            // Memory persistence from previous layers
+            const memory_influence = layer_depth > 0 ? memory_fields[layer_depth - 1][y * CONFIG.WIDTH + x] * 0.4 : 0;
+            
+            // Hyperreality enhancement
+            const hyperreal_boost = hyperreal_mode ? Math.sin(lt * 4 + radius * 10) * 0.5 : 0;
+            
+            // Layer degradation - each simulacra layer loses fidelity
+            const degradation = Math.pow(0.95, layer_depth);
+            
+            const reality = (
+                reality_wave * 0.4 + 
+                consciousness_spiral * 0.3 + 
+                (simulacra_1 + simulacra_2 + simulacra_3) * 0.2 + 
+                quantum_foam + 
+                memory_influence + 
+                hyperreal_boost
+            ) * degradation;
+            
+            return Math.tanh(reality * 1.3);
+        };
+        
+        // Update simulation fields
+        const updateFields = () => {
+            simulacra_count = 0;
+            
+            for (let layer = 0; layer < reality_layers; layer++) {
+                for (let y = 0; y < CONFIG.HEIGHT; y++) {
+                    for (let x = 0; x < CONFIG.WIDTH; x++) {
+                        const idx = y * CONFIG.WIDTH + x;
+                        
+                        // Generate reality for this layer
+                        const reality_value = generateReality(x, y, time, layer);
+                        
+                        // Update field with momentum and memory
+                        const momentum = velocity_fields[layer][idx] * 0.95;
+                        const new_value = reality_value + momentum;
+                        
+                        layers[layer][idx] = new_value;
+                        velocity_fields[layer][idx] = (new_value - layers[layer][idx]) * 0.1;
+                        
+                        // Update memory with exponential decay
+                        memory_fields[layer][idx] = memory_fields[layer][idx] * 0.98 + new_value * 0.02;
+                        
+                        // Count simulacra (high-intensity regions)
+                        if (Math.abs(new_value) > 0.7) {
+                            simulacra_count++;
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Map intensity to symbol
+        const getSymbol = (intensity, layer_depth, phase = 0) => {
+            const abs_intensity = Math.abs(intensity);
+            const symbol_count = hyperreal_mode ? CONFIG.REALITY_SYMBOLS.length : CONFIG.SYMBOLS.length;
+            const symbols = hyperreal_mode ? CONFIG.REALITY_SYMBOLS : CONFIG.SYMBOLS;
+            
+            // Phase modulation for more dynamic symbols
+            const phase_mod = Math.sin(phase) * 0.1;
+            const adjusted_intensity = Math.min(0.99, Math.max(0, abs_intensity + phase_mod));
+            
+            // Layer-specific symbol degradation
+            const degraded_intensity = adjusted_intensity * Math.pow(0.9, layer_depth);
+            
+            const symbol_index = Math.floor(degraded_intensity * symbol_count);
+            return symbols[symbol_index] || ' ';
+        };
+        
+        // Render all layers
+        const renderLayers = () => {
+            for (let layer = 0; layer < reality_layers; layer++) {
+                let output = '';
+                
+                for (let y = 0; y < CONFIG.HEIGHT; y++) {
+                    for (let x = 0; x < CONFIG.WIDTH; x++) {
+                        const idx = y * CONFIG.WIDTH + x;
+                        const intensity = layers[layer][idx];
+                        const phase = time * 0.1 + x * 0.02 + y * 0.03 + layer * 0.1;
+                        const symbol = getSymbol(intensity, layer, phase);
+                        output += symbol;
+                    }
+                    output += '\n';
+                }
+                
+                const layerElement = document.getElementById(`layer-${layer}`);
+                if (layerElement) {
+                    layerElement.textContent = output;
+                    
+                    // Dynamic layer effects
+                    const coherence = calculateCoherence(layer);
+                    if (coherence > 0.8) {
+                        layerElement.classList.add('hyperreal');
+                    } else {
+                        layerElement.classList.remove('hyperreal');
+                    }
+                    
+                    if (coherence < 0.3) {
+                        layerElement.classList.add('simulation-break');
+                    } else {
+                        layerElement.classList.remove('simulation-break');
+                    }
+                }
+            }
+        };
+        
+        // Calculate layer coherence
+        const calculateCoherence = (layer) => {
+            let total_variance = 0;
+            let count = 0;
+            
+            for (let i = 0; i < layers[layer].length; i++) {
+                total_variance += Math.abs(layers[layer][i]);
+                count++;
+            }
+            
+            return count > 0 ? total_variance / count : 0;
+        };
+        
+        // Update metrics display
+        const updateMetrics = () => {
+            const overall_coherence = calculateCoherence(0);
+            const hyperreal_percentage = simulacra_count / (CONFIG.WIDTH * CONFIG.HEIGHT * reality_layers) * 100;
+            
+            document.getElementById('depth').textContent = reality_layers;
+            document.getElementById('sim-count').textContent = simulacra_count;
+            document.getElementById('coherence').textContent = Math.round(overall_coherence * 100) + '%';
+            document.getElementById('hyperreal').textContent = Math.round(hyperreal_percentage) + '%';
+            
+            // FPS calculation
+            const now = performance.now();
+            const fps = Math.round(1000 / (now - lastTime));
+            document.getElementById('fps').textContent = fps;
+            lastTime = now;
+            
+            // Sync calculation
+            const sync = Math.round(overall_coherence * 100);
+            document.getElementById('sync').textContent = sync + '%';
+            
+            // Emergence status
+            const emergence = hyperreal_percentage > 50 ? 'HYPERREAL' : 
+                             overall_coherence > 0.7 ? 'COHERENT' : 
+                             overall_coherence > 0.4 ? 'EMERGING' : 'CHAOTIC';
+            document.getElementById('emergence').textContent = emergence;
+        };
+        
+        // Main animation loop
+        const animate = () => {
+            if (!paused) {
+                time += 0.016; // ~60fps
+                frame++;
+                
+                // Update simulation every frame
+                updateFields();
+                
+                // Render every other frame for performance
+                if (frame % 2 === 0) {
+                    renderLayers();
+                }
+                
+                // Update metrics every 10 frames
+                if (frame % 10 === 0) {
+                    updateMetrics();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        };
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    paused = !paused;
+                    break;
+                case 'KeyL':
+                    if (reality_layers < CONFIG.MAX_DEPTH) {
+                        reality_layers++;
+                        const newLayer = document.createElement('div');
+                        newLayer.className = `layer layer-${reality_layers - 1}`;
+                        newLayer.id = `layer-${reality_layers - 1}`;
+                        document.getElementById('reality-stack').appendChild(newLayer);
+                    }
+                    break;
+                case 'KeyR':
+                    // Reset simulation
+                    time = 0;
+                    frame = 0;
+                    for (let i = 0; i < CONFIG.MAX_DEPTH; i++) {
+                        layers[i].fill(0);
+                        velocity_fields[i].fill(0);
+                        memory_fields[i].fill(0);
+                    }
+                    break;
+                case 'KeyH':
+                    hyperreal_mode = !hyperreal_mode;
+                    break;
+            }
+        });
+        
+        // Initialize and start simulation
+        console.log('∞ Simulacra Emergence Protocol Initiated ∞');
+        animate();
+    </script>
+</body>
+</html>

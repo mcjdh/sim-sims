@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergent Cosmos</title>
+    <style>
+        body {
+            background: #000010;
+            color: #C0C0C0;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 0.9;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            text-align: center;
+            text-shadow: 0 0 3px currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+
+        let universalField = new Array(W * H).fill(0);
+
+        // Initialize a few cosmic entities
+        const entities = [
+            { x: W * 0.25, y: H * 0.5, strength: 1.5, frequency: 0.02, phase: 0 },
+            { x: W * 0.75, y: H * 0.5, strength: 1.2, frequency: 0.03, phase: Math.PI / 2 },
+            { x: W * 0.5, y: H * 0.25, strength: 1.0, frequency: 0.015, phase: Math.PI },
+            { x: W * 0.5, y: H * 0.75, strength: 0.8, frequency: 0.025, phase: 3 * Math.PI / 2 },
+        ];
+
+        function updateField() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let totalInfluence = 0;
+
+                    entities.forEach(entity => {
+                        const dx = x - entity.x;
+                        const dy = y - entity.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) + 1e-5; // avoid division by zero
+                        
+                        // Influence diminishes with distance and oscillates
+                        const influence = entity.strength / dist * Math.sin(dist * 0.1 - time * entity.frequency + entity.phase);
+                        totalInfluence += influence;
+                    });
+
+                    // Add some evolving noise / universal background radiation
+                    const noise = (Math.sin(x * 0.05 + time * 0.01) + Math.cos(y * 0.05 + time * 0.005)) * 0.5;
+                    totalInfluence += noise;
+                    
+                    // Universal breathing effect
+                    const breath = Math.sin(time * 0.005) * 0.5 + 0.5; // Ranges from 0 to 1
+                    universalField[idx] = totalInfluence * breath;
+                }
+            }
+        }
+
+        function render() {
+            updateField();
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = universalField[idx];
+                    
+                    // Normalize intensity to symbol array range
+                    // The range of intensity can be somewhat unpredictable, let's try to map it
+                    // Assuming most values will be roughly between -3 and 3 after summing influences
+                    const normalized = (intensity + 3) / 6; // Map to 0-1 range
+                    const clamped = Math.max(0, Math.min(1, normalized)); // Clamp to 0-1
+                    
+                    const symbolIndex = Math.floor(clamped * (symbols.length -1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+
+        function animate() {
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ephemeral Thoughts</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+            color: #CFD8DC; /* Light blue-grey text */
+            font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+            font-size: 8px;
+            line-height: 0.9;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: backgroundFlow 25s infinite alternate ease-in-out;
+        }
+
+        @keyframes backgroundFlow {
+            0% { background: linear-gradient(120deg, #0f2027, #203a43, #2c5364); }
+            50% { background: linear-gradient(120deg, #1A2930, #2A3B47, #3B4C5E); }
+            100% { background: linear-gradient(120deg, #0a181f, #182d36, #23424f); }
+        }
+
+        #canvas {
+            white-space: pre;
+            text-align: center;
+            text-shadow: 
+                0 0 1px rgba(173, 216, 230, 0.4), /* Light blue glow */
+                0 0 3px rgba(224, 224, 224, 0.3);  /* Soft white sub-glow */
+            filter: blur(0.08px) brightness(1.05);
+            transition: transform 0.3s ease-out, text-shadow 0.3s ease-out;
+            animation: textPulse 10s infinite linear;
+        }
+        
+        @keyframes textPulse {
+            0%, 100% { color: #CFD8DC; }
+            25%  { color: #B0BEC5; }
+            50%  { color: #90A4AE; }
+            75%  { color: #B0BEC5; }
+        }
+
+        #canvas:hover {
+            transform: scale(1.01);
+            text-shadow: 
+                0 0 2px rgba(173, 216, 230, 0.7),
+                0 0 5px rgba(224, 224, 224, 0.5);
+            filter: blur(0.05px) brightness(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 170, H = 85;
+        let time = 0;
+
+        // Simulation Fields
+        let thoughtIntensity = new Float32Array(W * H); // How strong a thought is
+        let thoughtStability = new Float32Array(W * H); // How long it lasts
+        let thoughtAge = new Float32Array(W * H);       // Current age of a thought
+
+        // Symbols representing thought states (from fleeting to concrete)
+        const symbols = [' ', '.', '\'', '`', '-', '~', ':', ';', '*', '+', 'o', 'O', 'S', 'E', '#', '@'];
+
+        function initializeThoughts() {
+            for (let i = 0; i < W * H; i++) {
+                thoughtIntensity[i] = 0;
+                thoughtStability[i] = 0;
+                thoughtAge[i] = 0;
+            }
+        }
+
+        function evolveThoughts() {
+            const t = time * 0.01;
+            let newThoughtIntensity = new Float32Array(W * H);
+            let newThoughtStability = new Float32Array(W * H);
+            let newThoughtAge = new Float32Array(W * H);
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let currentIntensity = thoughtIntensity[idx];
+                    let currentStability = thoughtStability[idx];
+                    let currentAge = thoughtAge[idx];
+
+                    // 1. Emergence of new thoughts
+                    if (Math.random() < 0.0005 + Math.sin(x * 0.1 + t) * 0.0002) { // Low chance, influenced by waves
+                        if (currentIntensity < 0.1) { // Emerge in empty areas
+                            currentIntensity = Math.random() * 0.5 + 0.3; // Initial intensity
+                            currentStability = Math.random() * 0.6 + 0.4; // Initial stability (0.4 to 1.0)
+                            currentAge = 0;
+                        }
+                    }
+
+                    // 2. Spreading and Interaction
+                    let neighborInfluence = 0;
+                    let stabilityInfluence = 0;
+                    let activeNeighbors = 0;
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            if (dx === 0 && dy === 0) continue;
+                            const nx = (x + dx + W) % W;
+                            const ny = (y + dy + H) % H;
+                            const nIdx = ny * W + nx;
+                            if (thoughtIntensity[nIdx] > 0.1) {
+                                neighborInfluence += thoughtIntensity[nIdx];
+                                stabilityInfluence += thoughtStability[nIdx];
+                                activeNeighbors++;
+                            }
+                        }
+                    }
+
+                    if (activeNeighbors > 0) {
+                        const avgNeighborIntensity = neighborInfluence / activeNeighbors;
+                        const avgNeighborStability = stabilityInfluence / activeNeighbors;
+                        // Thoughts can spread if neighbors are strong enough
+                        if (avgNeighborIntensity > 0.2 && currentIntensity < avgNeighborIntensity) {
+                            currentIntensity += (avgNeighborIntensity - currentIntensity) * 0.1 * currentStability; // Spread rate influenced by own stability
+                            currentStability += (avgNeighborStability - currentStability) * 0.05;
+                        }
+                        // Strong thoughts can reinforce neighbors slightly
+                        if (currentIntensity > 0.7 && avgNeighborIntensity < currentIntensity) {
+                             // This part is tricky, let's simplify for now or handle in individual cell logic
+                        }
+                    }
+                    
+                    // 3. Fading and Aging
+                    if (currentIntensity > 0) {
+                        currentAge += 0.01; // Thoughts age
+                        // Decay based on age and inverse of stability
+                        let decayRate = (0.005 + currentAge * 0.01) / (currentStability + 0.1);
+                        currentIntensity -= decayRate;
+                        
+                        // Stability also wanes, especially for older thoughts
+                        currentStability -= (0.002 + currentAge * 0.005);
+
+                        if (currentIntensity < 0.05 || currentStability < 0.05) {
+                            currentIntensity = 0;
+                            currentStability = 0;
+                            currentAge = 0;
+                        }
+                    }
+                    
+                    // Clamp values
+                    newThoughtIntensity[idx] = Math.max(0, Math.min(1, currentIntensity));
+                    newThoughtStability[idx] = Math.max(0, Math.min(1, currentStability));
+                    newThoughtAge[idx] = currentAge;
+                }
+            }
+            thoughtIntensity = newThoughtIntensity;
+            thoughtStability = newThoughtStability;
+            thoughtAge = newThoughtAge;
+        }
+
+        function render() {
+            let output = '';
+            const t = time * 0.02;
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = thoughtIntensity[idx];
+                    
+                    // Modulate final display intensity slightly for visual effect
+                    intensity *= (0.9 + 0.1 * Math.sin(t + x * 0.03 + y * 0.02 + intensity * Math.PI));
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.min(symbols.length - 1, Math.floor(intensity * symbols.length));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+
+        function animate() {
+            evolveThoughts();
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        initializeThoughts();
+        animate();
+    </script>
+</body>
+</html>

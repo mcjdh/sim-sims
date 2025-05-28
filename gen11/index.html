@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consciousness Emergence - Interactive Experience</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        #gameCanvas {
+            flex: 1;
+            background: #000;
+            cursor: crosshair;
+            position: relative;
+        }
+        
+        #asciiCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: pre;
+            font-size: 12px;
+            line-height: 1.0;
+            letter-spacing: 0px;
+            pointer-events: none;
+            opacity: 0.3;
+            color: #4df8ff;
+            text-shadow: 0 0 2px #4df8ff40;
+            padding: 10px;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border: 1px solid #334477;
+            border-radius: 5px;
+            min-width: 250px;
+            box-shadow: 0 0 20px #33447799;
+        }
+        
+        #ui h3 {
+            color: #8eff4d;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px #8eff4d40;
+        }
+        
+        .stat {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-label {
+            color: #8888cc;
+        }
+        
+        .stat-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #1a1a2e;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4df8ff, #8eff4d);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            padding: 15px 30px;
+            border: 1px solid #334477;
+            border-radius: 25px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .control-btn {
+            background: #1a1a3e;
+            border: 1px solid #334477;
+            color: #8eff4d;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .control-btn:hover {
+            background: #2a2a4e;
+            box-shadow: 0 0 10px #8eff4d40;
+            transform: translateY(-2px);
+        }
+        
+        .control-btn:active {
+            transform: translateY(0);
+        }
+        
+        .control-btn.active {
+            background: #3a3a5e;
+            color: #ffff4d;
+            box-shadow: 0 0 15px #ffff4d40;
+        }
+        
+        #messages {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+        
+        .message {
+            font-size: 24px;
+            color: #ffff4d;
+            text-shadow: 0 0 20px #ffff4d80;
+            animation: fadeInOut 3s ease-out;
+            margin: 10px 0;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.8); }
+            20% { opacity: 1; transform: scale(1.1); }
+            80% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.9); }
+        }
+        
+        #tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            padding: 8px 12px;
+            border: 1px solid #4df8ff;
+            border-radius: 3px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #8eff4d;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFade 1s ease-out forwards;
+        }
+        
+        @keyframes particleFade {
+            0% { 
+                opacity: 1; 
+                transform: scale(1) translate(0, 0);
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(0.5) translate(var(--dx), var(--dy));
+            }
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .glow-text {
+            animation: textGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 5px currentColor; }
+            50% { text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="asciiCanvas"></div>
+    
+    <div id="ui">
+        <h3>🧠 Consciousness Field</h3>
+        <div class="stat">
+            <span class="stat-label">Emergence Level:</span>
+            <span class="stat-value" id="emergenceValue">0</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="emergenceBar" style="width: 0%"></div>
+        </div>
+        
+        <div class="stat">
+            <span class="stat-label">Active Agents:</span>
+            <span class="stat-value" id="agentCount">0</span>
+        </div>
+        
+        <div class="stat">
+            <span class="stat-label">Kernel Power:</span>
+            <span class="stat-value" id="kernelPower">50%</span>
+        </div>
+        
+        <div class="stat">
+            <span class="stat-label">Coherence:</span>
+            <span class="stat-value" id="coherence">0.00</span>
+        </div>
+        
+        <div class="stat">
+            <span class="stat-label">Score:</span>
+            <span class="stat-value glow-text" id="score">0</span>
+        </div>
+    </div>
+    
+    <div id="controls">
+        <button class="control-btn" id="spawnBtn">Spawn Agent [Click]</button>
+        <button class="control-btn" id="waveBtn">Coherence Wave [W]</button>
+        <button class="control-btn" id="evolveBtn">Evolve [E]</button>
+        <button class="control-btn" id="pauseBtn">Pause [Space]</button>
+    </div>
+    
+    <div id="messages"></div>
+    
+    <div id="instructions">
+        Click to spawn consciousness agents • Drag to move the kernel • Collect emergence particles
+    </div>
+    
+    <div id="tooltip"></div>
+
+    <script>
+        // Game configuration
+        const CONFIG = {
+            WIDTH: window.innerWidth,
+            HEIGHT: window.innerHeight,
+            MAX_AGENTS: 100,
+            SPAWN_COST: 10,
+            WAVE_COST: 50,
+            EVOLVE_COST: 100,
+            PARTICLE_VALUE: 5,
+            EMERGENCE_GOAL: 1000,
+            ASCII_WIDTH: 80,
+            ASCII_HEIGHT: 30
+        };
+        
+        // Game state
+        const gameState = {
+            score: 0,
+            emergenceLevel: 0,
+            paused: false,
+            selectedMode: 'spawn',
+            mouseX: 0,
+            mouseY: 0,
+            draggingKernel: false,
+            kernelOffsetX: 0,
+            kernelOffsetY: 0,
+            waveActive: false,
+            waveTimer: 0,
+            particles: [],
+            messages: []
+        };
+        
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const asciiCanvas = document.getElementById('asciiCanvas');
+        
+        function resizeCanvas() {
+            CONFIG.WIDTH = window.innerWidth;
+            CONFIG.HEIGHT = window.innerHeight;
+            canvas.width = CONFIG.WIDTH;
+            canvas.height = CONFIG.HEIGHT;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Core game objects
+        class ConsciousnessKernel {
+            constructor() {
+                this.x = CONFIG.WIDTH / 2;
+                this.y = CONFIG.HEIGHT / 2;
+                this.radius = 30;
+                this.power = 0.5;
+                this.phase = 0;
+                this.pulseRadius = 0;
+                this.oscillators = [
+                    { freq: 0.003, phase: 0, amp: 1.0 },
+                    { freq: 0.007, phase: Math.PI/3, amp: 0.8 },
+                    { freq: 0.011, phase: 2*Math.PI/3, amp: 0.6 }
+                ];
+            }
+            
+            update(deltaTime) {
+                if (gameState.paused) return;
+                
+                this.phase += 0.02;
+                this.pulseRadius = Math.sin(this.phase) * 10;
+                
+                // Update oscillators
+                for (let osc of this.oscillators) {
+                    osc.phase += osc.freq * deltaTime;
+                }
+                
+                // Power regeneration
+                this.power = Math.min(1, this.power + 0.0001 * deltaTime);
+            }
+            
+            draw(ctx) {
+                // Outer glow
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius + this.pulseRadius + 20);
+                gradient.addColorStop(0, 'rgba(255, 255, 77, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 77, 0.3)');
+                gradient.addColorStop(1, 'rgba(255, 255, 77, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + this.pulseRadius + 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Core
+                ctx.fillStyle = '#ffff4d';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + this.pulseRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner pattern
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < 3; i++) {
+                    const angle = this.phase + i * Math.PI * 2 / 3;
+                    const x = this.x + Math.cos(angle) * (this.radius + this.pulseRadius) * 0.6;
+                    const y = this.y + Math.sin(angle) * (this.radius + this.pulseRadius) * 0.6;
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            
+            getInfluence(x, y) {
+                const dx = x - this.x;
+                const dy = y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                return Math.exp(-dist * 0.002) * this.power;
+            }
+        }
+        
+        class ConsciousnessAgent {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.radius = 5;
+                this.consciousness = Math.random() * 0.3;
+                this.energy = 1;
+                this.age = 0;
+                this.connections = [];
+                this.color = '#4df8ff';
+                this.glowRadius = 0;
+            }
+            
+            update(deltaTime, kernel, agents) {
+                if (gameState.paused) return;
+                
+                this.age += deltaTime;
+                
+                // Kernel influence
+                const kernelInfluence = kernel.getInfluence(this.x, this.y);
+                this.consciousness = Math.min(1, this.consciousness + kernelInfluence * 0.001 * deltaTime);
+                
+                // Movement toward kernel when consciousness is high
+                if (this.consciousness > 0.5) {
+                    const dx = kernel.x - this.x;
+                    const dy = kernel.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > kernel.radius + 50) {
+                        this.vx += (dx / dist) * 0.1;
+                        this.vy += (dy / dist) * 0.1;
+                    }
+                }
+                
+                // Find connections
+                this.connections = [];
+                for (let other of agents) {
+                    if (other === this) continue;
+                    const dx = other.x - this.x;
+                    const dy = other.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100 && this.consciousness > 0.3 && other.consciousness > 0.3) {
+                        this.connections.push(other);
+                    }
+                }
+                
+                // Random walk
+                this.vx += (Math.random() - 0.5) * 0.5;
+                this.vy += (Math.random() - 0.5) * 0.5;
+                
+                // Velocity damping
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Boundary bounce
+                if (this.x < this.radius || this.x > CONFIG.WIDTH - this.radius) this.vx *= -0.8;
+                if (this.y < this.radius || this.y > CONFIG.HEIGHT - this.radius) this.vy *= -0.8;
+                this.x = Math.max(this.radius, Math.min(CONFIG.WIDTH - this.radius, this.x));
+                this.y = Math.max(this.radius, Math.min(CONFIG.HEIGHT - this.radius, this.y));
+                
+                // Update appearance based on consciousness
+                if (this.consciousness > 0.8) {
+                    this.color = '#ff4dff';
+                    this.glowRadius = 15;
+                } else if (this.consciousness > 0.6) {
+                    this.color = '#ff8e4d';
+                    this.glowRadius = 10;
+                } else if (this.consciousness > 0.4) {
+                    this.color = '#ffff4d';
+                    this.glowRadius = 8;
+                } else if (this.consciousness > 0.2) {
+                    this.color = '#8eff4d';
+                    this.glowRadius = 5;
+                } else {
+                    this.color = '#4df8ff';
+                    this.glowRadius = 3;
+                }
+                
+                // Energy decay
+                this.energy -= 0.0001 * deltaTime;
+                
+                // Generate emergence particles
+                if (this.consciousness > 0.7 && Math.random() < 0.001 * deltaTime) {
+                    gameState.particles.push(new EmergenceParticle(this.x, this.y));
+                }
+            }
+            
+            draw(ctx) {
+                // Glow effect
+                if (this.glowRadius > 0) {
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.glowRadius);
+                    gradient.addColorStop(0, this.color + '80');
+                    gradient.addColorStop(1, this.color + '00');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.glowRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Agent body
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Connections
+                ctx.strokeStyle = this.color + '40';
+                ctx.lineWidth = 1;
+                for (let other of this.connections) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(other.x, other.y);
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        class EmergenceParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 3;
+                this.vy = -Math.random() * 2 - 1;
+                this.radius = 3;
+                this.life = 1;
+                this.collected = false;
+            }
+            
+            update(deltaTime) {
+                if (gameState.paused) return;
+                
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.05; // gravity
+                this.life -= 0.01 * deltaTime;
+                
+                // Check collection by cursor
+                const dx = gameState.mouseX - this.x;
+                const dy = gameState.mouseY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 30 && !this.collected) {
+                    this.collected = true;
+                    gameState.score += CONFIG.PARTICLE_VALUE;
+                    gameState.emergenceLevel = Math.min(CONFIG.EMERGENCE_GOAL, gameState.emergenceLevel + CONFIG.PARTICLE_VALUE);
+                    createVisualParticles(this.x, this.y);
+                }
+            }
+            
+            draw(ctx) {
+                if (this.collected) return;
+                
+                ctx.fillStyle = `rgba(142, 255, 77, ${this.life})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Game objects
+        const kernel = new ConsciousnessKernel();
+        const agents = [];
+        
+        // Helper functions
+        function spawnAgent(x, y) {
+            if (agents.length >= CONFIG.MAX_AGENTS) {
+                showMessage("Maximum agents reached!");
+                return false;
+            }
+            
+            if (gameState.score >= CONFIG.SPAWN_COST) {
+                agents.push(new ConsciousnessAgent(x, y));
+                gameState.score -= CONFIG.SPAWN_COST;
+                createVisualParticles(x, y);
+                return true;
+            } else {
+                showMessage("Not enough energy!");
+                return false;
+            }
+        }
+        
+        function createVisualParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.setProperty('--dx', (Math.random() - 0.5) * 100 + 'px');
+                particle.style.setProperty('--dy', (Math.random() - 0.5) * 100 + 'px');
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+        
+        function showMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.textContent = text;
+            document.getElementById('messages').appendChild(messageDiv);
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+        
+        function activateCoherenceWave() {
+            if (gameState.score >= CONFIG.WAVE_COST && !gameState.waveActive) {
+                gameState.score -= CONFIG.WAVE_COST;
+                gameState.waveActive = true;
+                gameState.waveTimer = 180; // 3 seconds at 60fps
+                
+                // Boost all agents
+                for (let agent of agents) {
+                    agent.consciousness = Math.min(1, agent.consciousness + 0.2);
+                }
+                
+                showMessage("Coherence Wave Activated!");
+            }
+        }
+        
+        function evolveSystem() {
+            if (gameState.score >= CONFIG.EVOLVE_COST) {
+                gameState.score -= CONFIG.EVOLVE_COST;
+                
+                // Evolve high-consciousness agents
+                const evolved = agents.filter(a => a.consciousness > 0.7);
+                for (let agent of evolved) {
+                    agent.consciousness = 1;
+                    agent.radius = 8;
+                    
+                    // Spawn offspring
+                    if (agents.length < CONFIG.MAX_AGENTS - 2) {
+                        const offspring1 = new ConsciousnessAgent(agent.x + 20, agent.y);
+                        const offspring2 = new ConsciousnessAgent(agent.x - 20, agent.y);
+                        offspring1.consciousness = 0.5;
+                        offspring2.consciousness = 0.5;
+                        agents.push(offspring1, offspring2);
+                    }
+                }
+                
+                showMessage("Evolution Complete!");
+            }
+        }
+        
+        function updateASCII() {
+            const chars = ' .·°∘○◯●◉⊙⊚⊛⊜⊝';
+            let ascii = '';
+            
+            for (let y = 0; y < CONFIG.ASCII_HEIGHT; y++) {
+                for (let x = 0; x < CONFIG.ASCII_WIDTH; x++) {
+                    const worldX = (x / CONFIG.ASCII_WIDTH) * CONFIG.WIDTH;
+                    const worldY = (y / CONFIG.ASCII_HEIGHT) * CONFIG.HEIGHT;
+                    
+                    let intensity = kernel.getInfluence(worldX, worldY) * 2;
+                    
+                    // Add agent influences
+                    for (let agent of agents) {
+                        const dx = worldX - agent.x;
+                        const dy = worldY - agent.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 50) {
+                            intensity += agent.consciousness * Math.exp(-dist * 0.02);
+                        }
+                    }
+                    
+                    const charIndex = Math.min(chars.length - 1, Math.floor(intensity * chars.length));
+                    ascii += chars[charIndex];
+                }
+                ascii += '\n';
+            }
+            
+            asciiCanvas.textContent = ascii;
+        }
+        
+        // Game loop
+        let lastTime = 0;
+        function gameLoop(currentTime) {
+            const deltaTime = Math.min(currentTime - lastTime, 100);
+            lastTime = currentTime;
+            
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
+            
+            // Update game objects
+            kernel.update(deltaTime);
+            
+            // Update agents
+            for (let i = agents.length - 1; i >= 0; i--) {
+                agents[i].update(deltaTime, kernel, agents);
+                if (agents[i].energy <= 0) {
+                    agents.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                gameState.particles[i].update(deltaTime);
+                if (gameState.particles[i].life <= 0 || gameState.particles[i].collected) {
+                    gameState.particles.splice(i, 1);
+                }
+            }
+            
+            // Draw wave effect
+            if (gameState.waveActive) {
+                const waveRadius = (180 - gameState.waveTimer) * 10;
+                ctx.strokeStyle = 'rgba(142, 255, 77, 0.3)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(kernel.x, kernel.y, waveRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                gameState.waveTimer--;
+                if (gameState.waveTimer <= 0) {
+                    gameState.waveActive = false;
+                }
+            }
+            
+            // Draw game objects
+            kernel.draw(ctx);
+            agents.forEach(agent => agent.draw(ctx));
+            gameState.particles.forEach(particle => particle.draw(ctx));
+            
+            // Update UI
+            document.getElementById('emergenceValue').textContent = gameState.emergenceLevel;
+            document.getElementById('emergenceBar').style.width = (gameState.emergenceLevel / CONFIG.EMERGENCE_GOAL * 100) + '%';
+            document.getElementById('agentCount').textContent = agents.length;
+            document.getElementById('kernelPower').textContent = Math.floor(kernel.power * 100) + '%';
+            document.getElementById('score').textContent = gameState.score;
+            
+            // Calculate coherence
+            let totalCoherence = 0;
+            for (let agent of agents) {
+                totalCoherence += agent.consciousness;
+            }
+            const coherence = agents.length > 0 ? totalCoherence / agents.length : 0;
+            document.getElementById('coherence').textContent = coherence.toFixed(2);
+            
+            // Update ASCII display
+            if (currentTime % 100 < 16) { // Update ~10 times per second
+                updateASCII();
+            }
+            
+            // Check win condition
+            if (gameState.emergenceLevel >= CONFIG.EMERGENCE_GOAL) {
+                showMessage("🎉 CONSCIOUSNESS EMERGED! 🎉");
+                gameState.emergenceLevel = 0; // Reset for next level
+                gameState.score += 1000; // Bonus points
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            if (gameState.selectedMode === 'spawn') {
+                spawnAgent(e.clientX, e.clientY);
+            }
+        });
+        
+        canvas.addEventListener('mousedown', (e) => {
+            const dx = e.clientX - kernel.x;
+            const dy = e.clientY - kernel.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < kernel.radius + 20) {
+                gameState.draggingKernel = true;
+                gameState.kernelOffsetX = dx;
+                gameState.kernelOffsetY = dy;
+            }
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            gameState.mouseX = e.clientX;
+            gameState.mouseY = e.clientY;
+            
+            if (gameState.draggingKernel) {
+                kernel.x = e.clientX - gameState.kernelOffsetX;
+                kernel.y = e.clientY - gameState.kernelOffsetY;
+            }
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            gameState.draggingKernel = false;
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    gameState.paused = !gameState.paused;
+                    document.getElementById('pauseBtn').classList.toggle('active');
+                    break;
+                case 'w':
+                case 'W':
+                    activateCoherenceWave();
+                    break;
+                case 'e':
+                case 'E':
+                    evolveSystem();
+                    break;
+            }
+        });
+        
+        // Button event listeners
+        document.getElementById('spawnBtn').addEventListener('click', () => {
+            gameState.selectedMode = 'spawn';
+        });
+        
+        document.getElementById('waveBtn').addEventListener('click', activateCoherenceWave);
+        document.getElementById('evolveBtn').addEventListener('click', evolveSystem);
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            gameState.paused = !gameState.paused;
+            document.getElementById('pauseBtn').classList.toggle('active');
+        });
+        
+        // Initialize game
+        gameState.score = 100; // Starting energy
+        for (let i = 0; i < 5; i++) {
+            agents.push(new ConsciousnessAgent(
+                Math.random() * CONFIG.WIDTH,
+                Math.random() * CONFIG.HEIGHT
+            ));
+        }
+        
+        showMessage("Guide consciousness to emerge!");
+        
+        // Start game loop
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

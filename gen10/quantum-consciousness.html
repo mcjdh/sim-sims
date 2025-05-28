@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulacra: Quantum Consciousness</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0a0a18;
+            color: #e0e0ff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-size: 11px;
+            line-height: 1.1;
+            background: #11112a;
+            border: 1px solid #334477;
+            box-shadow: 0 0 20px #33447799;
+            margin-bottom: 16px;
+            padding: 10px;
+            min-width: 600px;
+        }
+        #info {
+            font-size: 12px;
+            color: #8888cc;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">Gen10 Simulacra: Quantum Consciousness | Space: pause | R: reset | D: deepen</div>
+    <script>
+        const W = 80, H = 32;
+        let time = 0;
+        let paused = false;
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@', '∞', '◈', '◉', '⊚', '★'];
+
+        function createField() {
+            return new Float32Array(W * H).fill(0);
+        }
+
+        let quantumField = createField();
+
+        function resetField() {
+            quantumField = createField();
+            time = 0;
+        }
+
+        function deepenField() {
+            for (let i = 0; i < quantumField.length; i++) {
+                quantumField[i] += Math.sin(i * 0.1 + time * 0.01) * 0.5;
+            }
+        }
+
+        function updateField() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    const wave = Math.sin(x * 0.1 + time * 0.01) * Math.cos(y * 0.1 + time * 0.01);
+                    quantumField[idx] = wave;
+                }
+            }
+        }
+
+        function renderField() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    const value = quantumField[idx];
+                    const normalized = (value + 1) / 2;
+                    const symbolIdx = Math.floor(normalized * (symbols.length - 1));
+                    output += symbols[symbolIdx];
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+        }
+
+        function animate() {
+            if (!paused) {
+                updateField();
+                renderField();
+                time++;
+            }
+            requestAnimationFrame(animate);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                paused = !paused;
+            } else if (e.key === 'r' || e.key === 'R') {
+                resetField();
+            } else if (e.key === 'd' || e.key === 'D') {
+                deepenField();
+            }
+        });
+
+        renderField();
+        animate();
+    </script>
+</body>
+</html>

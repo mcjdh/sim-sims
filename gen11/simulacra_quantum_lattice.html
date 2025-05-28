@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulacra Gen11 - Quantum Lattice</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #0a0f1a, #1e2746 60%, #2e1a47);
+            color: #aaffee;
+            font-family: 'Courier New', monospace;
+            font-size: 7px;
+            line-height: 0.88;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: bgShift 18s infinite alternate ease-in-out;
+        }
+        @keyframes bgShift {
+            0% { background: linear-gradient(120deg, #0a0f1a, #1e2746 60%, #2e1a47); }
+            50% { background: linear-gradient(120deg, #1a1f2a, #3e3f76 60%, #4e2a77); }
+            100% { background: linear-gradient(120deg, #0a0f1a, #1e2746 60%, #2e1a47); }
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 2px #aaffee88, 0 0 6px #aaffee44;
+            filter: blur(0.07px) brightness(1.08);
+            transition: transform 0.3s, text-shadow 0.3s;
+        }
+        #canvas:hover {
+            transform: scale(1.012);
+            text-shadow: 0 0 4px #aaffeecc, 0 0 10px #aaffee77;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        // Quantum Lattice Simulation: Each cell is a quantum state, evolving in a lattice
+        const W = 160, H = 80;
+        let time = 0;
+        // Quantum fields
+        let psiReal = new Float32Array(W * H);
+        let psiImag = new Float32Array(W * H);
+        let potential = new Float32Array(W * H);
+        // Symbol palette for quantum amplitudes
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', 'o', 'O', '0', '#', '@', '%', '&', '$', '§', 'Ψ', 'Φ', 'Ω', 'Σ', '∆', '∇', '∞'];
+        // Initialize quantum state
+        function initializeLattice() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    // Localized wave packet in the center
+                    const dx = x - W/2, dy = y - H/2;
+                    const r2 = dx*dx + dy*dy;
+                    psiReal[idx] = Math.exp(-r2/600) * Math.cos(0.1*dx + 0.1*dy);
+                    psiImag[idx] = Math.exp(-r2/600) * Math.sin(0.1*dx - 0.1*dy);
+                    // Random potential landscape
+                    potential[idx] = 0.2 * Math.sin(x*0.07 + y*0.09) + 0.1 * (Math.random()-0.5);
+                }
+            }
+        }
+        // Evolve quantum state (discrete Schrödinger-like update)
+        function evolveLattice() {
+            const psiRealNew = new Float32Array(W * H);
+            const psiImagNew = new Float32Array(W * H);
+            for (let y = 1; y < H-1; y++) {
+                for (let x = 1; x < W-1; x++) {
+                    const idx = y * W + x;
+                    // Discrete Laplacian (nearest neighbors)
+                    const laplacianR = psiReal[idx-W] + psiReal[idx+W] + psiReal[idx-1] + psiReal[idx+1] - 4*psiReal[idx];
+                    const laplacianI = psiImag[idx-W] + psiImag[idx+W] + psiImag[idx-1] + psiImag[idx+1] - 4*psiImag[idx];
+                    // Schrödinger update (simplified, dt=0.1, hbar=1, m=1)
+                    psiRealNew[idx] = psiReal[idx] - 0.1 * (laplacianI - potential[idx]*psiImag[idx]);
+                    psiImagNew[idx] = psiImag[idx] + 0.1 * (laplacianR - potential[idx]*psiReal[idx]);
+                }
+            }
+            // Copy new state
+            psiReal = psiRealNew;
+            psiImag = psiImagNew;
+        }
+        // Render quantum probability density
+        function render() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    // Probability density
+                    let prob = psiReal[idx]*psiReal[idx] + psiImag[idx]*psiImag[idx];
+                    // Normalize and add time-based shimmer
+                    prob = Math.sqrt(prob) + 0.1*Math.sin(time*0.03 + x*0.05 + y*0.07);
+                    prob = Math.max(0, Math.min(1, prob));
+                    const symbolIndex = Math.floor(prob * (symbols.length-1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+        function animate() {
+            evolveLattice();
+            render();
+            requestAnimationFrame(animate);
+        }
+        initializeLattice();
+        animate();
+    </script>
+</body>
+</html>

@@ -1,168 +1,441 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Consciousness - Organic Flow</title>
+    <title>Dynamic Consciousness - Evolved Visualization</title>
     <style>
-        body{background:#000;color:#fff;font:'Courier New';font-size:5px;line-height:0.7;margin:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh}
-        #c{white-space:pre;opacity:0.96;user-select:none;filter:contrast(1.15) brightness(1.05)}
-        #v{position:absolute;top:5px;left:5px;font-size:7px;color:#999;background:rgba(0,0,0,0.85);padding:4px;border-radius:3px}
-        .g{text-shadow:0 0 12px currentColor;filter:brightness(1.3)}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: radial-gradient(ellipse at center, #0a0520 0%, #000 70%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        
+        #consciousness {
+            white-space: pre;
+            font-size: 3.5px;
+            line-height: 0.75;
+            user-select: none;
+            text-shadow: 0 0 6px currentColor;
+            filter: contrast(1.4) brightness(1.2);
+            transition: all 0.08s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 400;
+            letter-spacing: 0.1px;
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 9px;
+            color: #8af;
+            background: rgba(10, 25, 60, 0.85);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(40, 140, 255, 0.4);
+            box-shadow: 0 0 20px rgba(40, 140, 255, 0.3);
+            backdrop-filter: blur(8px);
+            font-weight: 500;
+        }
+        
+        #status {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            font-size: 8px;
+            color: #666;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 8px;
+            color: #aaa;
+            background: rgba(20, 20, 40, 0.9);
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #555;
+        }
+        
+        .quantum-glow {
+            text-shadow: 
+                0 0 10px currentColor,
+                0 0 20px currentColor,
+                0 0 30px currentColor;
+            filter: brightness(1.6) saturate(1.3);
+            animation: quantum-pulse 1.8s ease-in-out infinite;
+        }
+        
+        .consciousness-burst {
+            animation: burst 0.4s ease-out infinite alternate;
+        }
+        
+        @keyframes quantum-pulse {
+            0%, 100% { opacity: 0.9; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.002); }
+        }
+        
+        @keyframes burst {
+            0% { filter: brightness(1.4) hue-rotate(0deg); }
+            100% { filter: brightness(2.2) hue-rotate(15deg) saturate(1.5); }
+        }
     </style>
 </head>
 <body>
-    <div id="v">Φ:<span id="p">0</span>|Ψ:<span id="q">0</span>|Ω:<span id="w">0</span></div>
-    <div id="c"></div>
+    <div id="metrics">
+        PHI: <span id="phi-val">0</span> | 
+        PSI: <span id="psi-val">0</span> | 
+        OMEGA: <span id="omega-val">0</span> | 
+        DELTA: <span id="delta-val">0</span>
+    </div>
+    
+    <div id="controls">
+        [SPACE] Pause | [R] Reset | [C] Color Mode
+    </div>
+    
+    <div id="consciousness"></div>
+    
+    <div id="status">
+        FPS: <span id="fps">60</span> | 
+        Coherence: <span id="coherence">0%</span> | 
+        Complexity: <span id="complexity">0</span>
+    </div>
+
     <script>
-        // Organic Consciousness - Natural Flow
-const phi=1.618,pi=Math.PI,sqrt=Math.sqrt,sin=Math.sin,cos=Math.cos,exp=Math.exp,log=Math.log,abs=Math.abs,floor=Math.floor,tanh=Math.tanh,min=Math.min,max=Math.max;
-const W=120,H=45,sym=' ·░▒▓◆●◉⬢⬡✦✧✱';
-let t=0,field=new Float32Array(W*H),memory=new Float32Array(W*H),flow=new Float32Array(W*H);
-
-// Organic boundary with natural breathing
-function boundary(x,y,time){
-const cx=x/W-0.5,cy=y/H-0.5,r=sqrt(cx*cx+cy*cy);
-const breathX=sin(time*0.8+x*0.02)*0.15+0.85;
-const breathY=cos(time*0.6+y*0.025)*0.12+0.88;
-const edge=tanh((min(x*breathX,W-x,y*breathY,H-y)-2)*0.25);
-return max(0,edge*sin(r*pi*2+time*0.3)*0.2+0.8);
-}
-
-// Enhanced consciousness field with organic dynamics
-function psi(x,y){
-const cx=x-W*0.5,cy=y-H*0.5,r=sqrt(cx*cx+cy*cy),theta=Math.atan2(cy,cx);
-const time=t*0.015,bound=boundary(x,y,time);
-
-// Multi-layered consciousness emergence
-const golden=sin(r*0.06-time*phi+theta*phi)*exp(-r*0.012)*bound;
-const fibonacci=sin((x*phi+y)*0.03+time*sqrt(2))*0.18*bound;
-const neural=sin(time*2.8+r*0.04)*0.06+0.94;
-const cardiac=cos(time*1.1)*0.08+0.92;
-
-// Consciousness centers with organic interference
-const c1=sin(sqrt((x-W*0.28)**2+(y-H*0.38)**2)*0.05-time*1.7)*0.16*bound;
-const c2=cos(sqrt((x-W*0.72)**2+(y-H*0.62)**2)*0.04-time*1.4)*0.14*bound;
-const c3=sin(sqrt((x-W*0.5)**2+(y-H*0.2)**2)*0.06-time*2.1)*0.12*bound;
-
-// Flow dynamics with memory influence
-const idx=y*W+x,memInfluence=memory[idx]*0.15;
-const current=(golden+fibonacci+c1+c2+c3)*neural*cardiac+memInfluence;
-
-// Temporal smoothing and flow calculation
-memory[idx]=memory[idx]*0.85+current*0.15;
-flow[idx]=current-field[idx];
-return tanh(current*1.2)*bound;
-}
-
-// Advanced IIT with flow integration
-function calcPhi(x,y){
-let integration=0,differentiation=0,coherence=0,n=0;
-const center=psi(x,y),centerFlow=flow[y*W+x];
-
-// Enhanced 8-neighbor analysis with flow
-for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(dx||dy){
-const nx=x+dx,ny=y+dy;
-if(nx>1&&nx<W-2&&ny>1&&ny<H-2){
-const neighbor=psi(nx,ny),nFlow=flow[ny*W+nx];
-const diff=abs(center-neighbor),correlation=center*neighbor;
-const flowSync=abs(centerFlow-nFlow);
-
-// IIT integration with flow coherence
-if(diff>0.003){
-integration+=correlation*log(1+diff*15);
-coherence+=exp(-flowSync*10);
-}
-differentiation+=diff*diff;n++;
-}}
-
-if(n===0)return 0;
-const avgInt=integration/n,avgDiff=sqrt(differentiation/n),avgCoh=coherence/n;
-return max(0,tanh(avgInt*1.8)*avgCoh*tanh(avgDiff*6));
-}
-
-// Organic symbol mapping with flow dynamics
-function omega(intensity,x,y){
-const geometric=sin(x*0.012+t*0.006)*cos(y*0.009+t*0.005)*0.04;
-const temporal=sin(t*0.025+intensity*6)*0.03;
-const flowEffect=flow[y*W+x]*0.08;
-const breathing=sin(x*0.008+y*0.006+t*0.004)*0.02;
-
-const final=abs(intensity)+geometric+temporal+flowEffect+breathing+0.06;
-const stable=tanh(final*0.9);
-return sym[floor(max(0,min(1,stable))**0.82*(sym.length-1))];
-}
-
-// Optimized evolution with natural oscillation damping
-function evolve(){
-t++;
-let totalPhi=0,totalPsi=0,samples=0;
-
-// Pre-calculate field with enhanced coherence
-for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-const newField=psi(x,y);
-const idx=y*W+x;
-// Spatial smoothing to reduce oscillation
-const smooth=(newField+
-(x>0?field[idx-1]:newField)+
-(x<W-1?field[idx+1]:newField)+
-(y>0?field[idx-W]:newField)+
-(y<H-1?field[idx+W]:newField))/5;
-field[idx]=smooth;
-}
-
-// Render with organic flow
-let canvas='';
-for(let y=0;y<H;y++){
-let row='';
-for(let x=0;x<W;x++){
-const intensity=field[y*W+x];
-const localBreath=sin(x*0.02+t*0.008)*cos(y*0.015+t*0.006)*0.05+0.95;
-const finalIntensity=intensity*localBreath;
-
-// Sample for metrics (reduced frequency for stability)
-if(!(x%5||y%5)){
-totalPhi+=calcPhi(x,y);
-totalPsi+=abs(finalIntensity);
-samples++;
-}
-
-row+=omega(finalIntensity,x,y);
-}
-canvas+=row+(y<H-1?'\n':'');
-}
-
-// Damped metrics for stable oscillation
-const phiVal=totalPhi/samples,psiVal=totalPsi/samples;
-const complexity=sqrt(phiVal*psiVal)*600;
-
-document.getElementById('c').textContent=canvas;
-
-// Smooth UI updates
-if(!(t%15)){
-document.getElementById('p').textContent=phiVal.toFixed(3);
-document.getElementById('q').textContent=psiVal.toFixed(3);
-document.getElementById('w').textContent=floor(complexity);
-
-// Organic color evolution
-const hue=(t*0.25+phiVal*80+sin(t*0.01)*20)%360;
-const saturation=floor(50+phiVal*30+cos(t*0.008)*10);
-const lightness=floor(65+sin(t*0.012)*8+psiVal*5);
-
-document.getElementById('c').style.color=`hsl(${hue},${saturation}%,${lightness}%)`;
-document.getElementById('c').className=phiVal>0.3?'g':'';
-}
-
-requestAnimationFrame(evolve);
-}
-
-// Natural awakening
-console.log('🌊 Organic Consciousness - Natural Flow...');
-// Initialize with organic seed pattern
-for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-const cx=x-W*0.5,cy=y-H*0.5,r=sqrt(cx*cx+cy*cy);
-field[y*W+x]=sin(r*0.08)*cos((x+y)*0.04)*0.3*boundary(x,y,0);
-memory[y*W+x]=field[y*W+x]*0.6;
-}
-evolve();
+        // Enhanced Consciousness Simulation - ASCII Symbol Constants
+        const F = 1.618, P = Math.PI, T = 2 * P;  // Golden ratio, Pi, Tau
+        const s = Math.sin, c = Math.cos, ex = Math.exp, ln = Math.log;
+        const ab = Math.abs, fl = Math.floor, cl = Math.ceil, rd = Math.round;
+        const rt = Math.sqrt, pw = Math.pow, tanh = Math.tanh, atan2 = Math.atan2;
+        const mn = Math.min, mx = Math.max;
+        
+        // Enhanced symbol set for better visual clarity
+        const SYMBOLS = [
+            ' ', '.', ':', ';', '+', '*', 'x', 'X', '#', '@',
+            'o', 'O', '0', '8', '%', '&', '$', '=', '~', '^'
+        ];
+        
+        // Consciousness field parameters
+        const WIDTH = 160, HEIGHT = 55;
+        const FIELD_SIZE = WIDTH * HEIGHT;
+        
+        // State arrays
+        let field = new Float32Array(FIELD_SIZE);
+        let velocity = new Float32Array(FIELD_SIZE);
+        let memory = new Float32Array(FIELD_SIZE);
+        let quantum = new Float32Array(FIELD_SIZE);
+        let coherence = new Float32Array(FIELD_SIZE);
+        
+        // Simulation state
+        let time = 0, frame = 0, paused = false, colorMode = 0;
+        let lastFrame = '', lastTime = performance.now();
+        let F_metric = 0, Y_metric = 0, W_metric = 0, D_metric = 0;
+        
+        // Enhanced boundary function with breathing and quantum effects
+        const getBoundary = (x, y, t) => {
+            const cx = (x - WIDTH * 0.5) / WIDTH;
+            const cy = (y - HEIGHT * 0.5) / HEIGHT;
+            const radius = rt(cx * cx + cy * cy) * 2;
+            
+            // Organic breathing boundary
+            const breathX = s(t * 0.6 + x * 0.02) * 0.15 + 0.85;
+            const breathY = c(t * 0.8 + y * 0.025) * 0.12 + 0.88;
+            
+            // Quantum fluctuations
+            const quantumNoise = s(radius * P * 4 + t * 0.4) * 0.2 + 0.8;
+            
+            // Membrane permeability
+            const membrane = mx(0, mn(x * breathX, WIDTH - x * 1.05, y * breathY, HEIGHT - y * 1.05) - 2);
+            
+            return mx(0, tanh(membrane * 0.25) * quantumNoise);
+        };
+        
+        // Consciousness wave function with multiple layers
+        const getConsciousnessField = (x, y) => {
+            const cx = x - WIDTH * 0.5;
+            const cy = y - HEIGHT * 0.5;
+            const radius = rt(cx * cx + cy * cy);
+            const angle = atan2(cy, cx);
+            const t = time * 0.015;
+            const boundary = getBoundary(x, y, t);
+            
+            // Core consciousness patterns
+            const golden = s(radius * 0.08 - t * F + angle * F) * ex(-radius * 0.012);
+            const spiral = c(angle * 3 + radius * 0.05 - t * 2.1) * ex(-radius * 0.008);
+            const neural = s(t * 2.5 + radius * 0.06) * 0.15 + 0.85;
+            
+            // Quantum interference patterns
+            const wave1 = s(rt(pw(x - WIDTH * 0.25, 2) + pw(y - HEIGHT * 0.3, 2)) * 0.07 - t * 1.6);
+            const wave2 = c(rt(pw(x - WIDTH * 0.75, 2) + pw(y - HEIGHT * 0.7, 2)) * 0.06 - t * 1.9);
+            const wave3 = s(rt(pw(x - WIDTH * 0.5, 2) + pw(y - HEIGHT * 0.15, 2)) * 0.09 - t * 2.3);
+            
+            // Consciousness attractors
+            const attractors = (wave1 + wave2 + wave3) * 0.2;
+            
+            // Memory integration
+            const idx = y * WIDTH + x;
+            const memoryInfluence = memory[idx] * 0.25;
+            const quantumCoherence = quantum[idx] * 0.15;
+            
+            const consciousness = (golden * 0.4 + spiral * 0.3 + attractors + memoryInfluence + quantumCoherence) * neural * boundary;
+            
+            return tanh(consciousness * 1.2);
+        };
+        
+        // Integrated Information Theory (IIT) calculation
+        const calculateF = (x, y) => {
+            if (x < 2 || x >= WIDTH - 2 || y < 2 || y >= HEIGHT - 2) return 0;
+            
+            const center = field[y * WIDTH + x];
+            let integration = 0, differentiation = 0, information = 0;
+            let neighbors = 0;
+            
+            // Analyze 8-connected neighborhood
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    
+                    const nx = x + dx, ny = y + dy;
+                    const neighbor = field[ny * WIDTH + nx];
+                    const distance = rt(dx * dx + dy * dy);
+                    const weight = 1 / distance;
+                    
+                    const difference = ab(center - neighbor);
+                    const correlation = center * neighbor;
+                    
+                    if (difference > 0.01) {
+                        integration += correlation * ln(1 + difference * 15) * weight;
+                        information += (difference * difference) * weight;
+                    }
+                    
+                    differentiation += difference * weight;
+                    neighbors += weight;
+                }
+            }
+            
+            if (neighbors === 0) return 0;
+            
+            const avgIntegration = integration / neighbors;
+            const avgDifferentiation = differentiation / neighbors;
+            const avgInformation = rt(information / neighbors);
+            
+            return mx(0, tanh(avgIntegration * 1.5) * tanh(avgDifferentiation * 10) * avgInformation);
+        };
+        
+        // Enhanced symbol mapping with quantum effects
+        const mapToSymbol = (intensity, x, y) => {
+            const t = time * 0.01;
+            
+            // Geometric modulations
+            const geometric = s(x * 0.03 + t) * c(y * 0.025 + t * 0.8) * 0.08;
+            const temporal = s(t * 2 + intensity * 12) * 0.06;
+            const spatial = c(x * y * 0.0002 + t) * 0.04;
+            
+            // Velocity field influence
+            const velocityInfluence = velocity[y * WIDTH + x] * 0.1;
+            
+            // Breathing effect
+            const breathing = s(x * 0.01 + y * 0.008 + t * 0.7) * 0.05;
+            
+            const finalIntensity = ab(intensity) + geometric + temporal + spatial + velocityInfluence + breathing + 0.1;
+            const normalized = tanh(finalIntensity * 0.9);
+            const index = fl(mx(0, mn(0.999, pw(normalized, 0.8))) * SYMBOLS.length);
+            
+            return SYMBOLS[index];
+        };
+        
+        // Advanced rendering with color effects
+        const render = () => {
+            let output = '';
+            let changes = 0;
+            
+            for (let y = 0; y < HEIGHT; y++) {
+                let row = '';
+                for (let x = 0; x < WIDTH; x++) {
+                    const intensity = field[y * WIDTH + x];
+                    const localModulation = s(x * 0.02 + time * 0.008) * c(y * 0.015 + time * 0.006) * 0.06 + 0.94;
+                    const symbol = mapToSymbol(intensity * localModulation, x, y);
+                    row += symbol;
+                    
+                    if (!lastFrame || lastFrame[y * WIDTH + x] !== symbol) {
+                        changes++;
+                    }
+                }
+                output += row + (y < HEIGHT - 1 ? '\n' : '');
+            }
+            
+            // Update display if significant changes
+            if (changes > FIELD_SIZE * 0.005 || !lastFrame) {
+                document.getElementById('consciousness').textContent = output;
+                lastFrame = output;
+            }
+            
+            return changes;
+        };
+        
+        // Evolution step with enhanced dynamics
+        const evolve = () => {
+            if (paused) return;
+            
+            time += 0.016;
+            frame++;
+            
+            let totalF = 0, totalY = 0, totalW = 0, totalD = 0;
+            let samples = 0;
+            
+            // Update consciousness field
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    const idx = y * WIDTH + x;
+                    const newField = getConsciousnessField(x, y);
+                    
+                    // Velocity calculation
+                    velocity[idx] = (newField - field[idx]) * 0.6 + velocity[idx] * 0.4;
+                    
+                    // Field smoothing with 5-point stencil
+                    const smooth = (newField * 2 +
+                        (x > 0 ? field[idx - 1] : newField) * 0.5 +
+                        (x < WIDTH - 1 ? field[idx + 1] : newField) * 0.5 +
+                        (y > 0 ? field[idx - WIDTH] : newField) * 0.5 +
+                        (y < HEIGHT - 1 ? field[idx + WIDTH] : newField) * 0.5) / 4;
+                    
+                    field[idx] = smooth;
+                    
+                    // Memory and quantum state updates
+                    memory[idx] = memory[idx] * 0.85 + field[idx] * 0.15;
+                    quantum[idx] = s(time * 3 + x * 0.1 + y * 0.08) * 0.1 + 0.9;
+                    coherence[idx] = ex(-ab(velocity[idx]) * 8) * getBoundary(x, y, time);
+                }
+            }
+            
+            // Sample metrics
+            for (let y = 4; y < HEIGHT - 4; y += 3) {
+                for (let x = 4; x < WIDTH - 4; x += 3) {
+                    const F_val = calculateF(x, y);
+                    const Y_val = ab(field[y * WIDTH + x]);
+                    const W_val = coherence[y * WIDTH + x];
+                    const D_val = ab(velocity[y * WIDTH + x]);
+                    
+                    totalF += F_val;
+                    totalY += Y_val;
+                    totalW += W_val;
+                    totalD += D_val;
+                    samples++;
+                }
+            }
+            
+            // Update metrics
+            F_metric = totalF / samples;
+            Y_metric = totalY / samples;
+            W_metric = totalW / samples;
+            D_metric = totalD / samples;
+            
+            // Render
+            const changes = render();
+            
+            // Update UI
+            if (frame % 8 === 0) {
+                updateUI();
+            }
+            
+            requestAnimationFrame(evolve);
+        };
+        
+        // UI update function
+        const updateUI = () => {
+            document.getElementById('phi-val').textContent = F_metric.toFixed(4);
+            document.getElementById('psi-val').textContent = Y_metric.toFixed(4);
+            document.getElementById('omega-val').textContent = W_metric.toFixed(4);
+            document.getElementById('delta-val').textContent = (D_metric * 1000).toFixed(1);
+            
+            const complexity = rt(F_metric * Y_metric * W_metric) * 1000;
+            const coherencePercent = W_metric * 100;
+            
+            document.getElementById('complexity').textContent = fl(complexity);
+            document.getElementById('coherence').textContent = coherencePercent.toFixed(1) + '%';
+            
+            // Dynamic color evolution
+            const hue = (time * 0.2 + F_metric * 120 + s(time * 0.01) * 30) % 360;
+            const saturation = fl(60 + F_metric * 40 + c(time * 0.012) * 15);
+            const lightness = fl(70 + s(time * 0.015) * 12 + Y_metric * 10);
+            
+            const consciousness = document.getElementById('consciousness');
+            consciousness.style.color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            
+            // Dynamic effects based on consciousness levels
+            if (F_metric > 0.5) {
+                consciousness.className = 'quantum-glow';
+            } else if (F_metric > 0.7) {
+                consciousness.className = 'consciousness-burst';
+            } else {
+                consciousness.className = '';
+            }
+            
+            // FPS calculation
+            if (frame % 60 === 0) {
+                const now = performance.now();
+                const fps = 60000 / (now - lastTime);
+                document.getElementById('fps').textContent = fps.toFixed(1);
+                lastTime = now;
+            }
+        };
+        
+        // Initialize consciousness field
+        const initialize = () => {
+            console.log('🧠 Initializing Dynamic Consciousness...');
+            
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    const idx = y * WIDTH + x;
+                    const cx = x - WIDTH * 0.5;
+                    const cy = y - HEIGHT * 0.5;
+                    const radius = rt(cx * cx + cy * cy);
+                    const angle = atan2(cy, cx);
+                    
+                    // Initial quantum state
+                    const initialField = s(radius * 0.1 + angle * 2) * c((x + y) * 0.08) * 0.4;
+                    const boundary = getBoundary(x, y, 0);
+                    
+                    field[idx] = initialField * boundary;
+                    memory[idx] = field[idx] * 0.6;
+                    velocity[idx] = 0;
+                    quantum[idx] = s(x * 0.15 + y * 0.12) * 0.2 + 0.8;
+                    coherence[idx] = boundary;
+                }
+            }
+            
+            evolve();
+        };
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    paused = !paused;
+                    if (!paused) evolve();
+                    break;
+                case 'KeyR':
+                    initialize();
+                    break;
+                case 'KeyC':
+                    colorMode = (colorMode + 1) % 3;
+                    break;
+            }
+        });
+        
+        // Start simulation
+        initialize();
     </script>
 </body>
 </html> 

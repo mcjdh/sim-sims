@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulacra: Recursive Dreamspace</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0a0a18;
+            color: #e0e0ff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-size: 11px;
+            line-height: 1.1;
+            background: #11112a;
+            border: 1px solid #334477;
+            box-shadow: 0 0 20px #33447799;
+            margin-bottom: 16px;
+            padding: 10px;
+            min-width: 600px;
+        }
+        #info {
+            font-size: 12px;
+            color: #8888cc;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">Gen10 Simulacra: Recursive Dreamspace | Space: pause | R: reset | D: dream deeper</div>
+    <script>
+        // Recursive Dreamspace Simulation
+        const W = 80, H = 32;
+        let time = 0;
+        let paused = false;
+        let dreamDepth = 1;
+        const symbols = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@', '∞', '◈', '◉', '⊚', '★'];
+
+        // Dream layers: each layer is a field of values
+        function createLayer() {
+            return new Float32Array(W * H).fill(0);
+        }
+        let dreamLayers = [createLayer()];
+
+        function resetDream() {
+            dreamLayers = [createLayer()];
+            dreamDepth = 1;
+            time = 0;
+        }
+
+        function deepenDream() {
+            if (dreamLayers.length < 6) {
+                dreamLayers.push(createLayer());
+                dreamDepth = dreamLayers.length;
+            }
+        }
+
+        function updateDream() {
+            for (let d = 0; d < dreamLayers.length; d++) {
+                let layer = dreamLayers[d];
+                for (let y = 0; y < H; y++) {
+                    for (let x = 0; x < W; x++) {
+                        const idx = y * W + x;
+                        // Each layer is influenced by the previous, plus some unique oscillation
+                        let base = 0;
+                        if (d > 0) base = dreamLayers[d-1][idx] * 0.7;
+                        const osc = Math.sin(time * 0.01 * (d+1) + x * 0.07 + y * 0.09 + d * 2) * 0.5 + 0.5;
+                        const noise = Math.sin(x * 0.13 + y * 0.11 + time * 0.005 * (d+1));
+                        layer[idx] = 0.6 * base + 0.3 * osc + 0.1 * noise;
+                    }
+                }
+            }
+        }
+
+        function renderDream() {
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    let v = 0;
+                    // Blend all dream layers
+                    for (let d = 0; d < dreamLayers.length; d++) {
+                        v += dreamLayers[d][y * W + x] * (1 + d * 0.2);
+                    }
+                    v /= dreamLayers.length;
+                    // Map to symbol
+                    const norm = (v + 1) / 2; // 0..1
+                    const idx = Math.max(0, Math.min(symbols.length - 1, Math.floor(norm * (symbols.length - 1))));
+                    output += symbols[idx];
+                }
+                output += '\n';
+            }
+            document.getElementById('canvas').textContent = output;
+        }
+
+        function animate() {
+            if (!paused) {
+                updateDream();
+                renderDream();
+                time++;
+            }
+            requestAnimationFrame(animate);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                paused = !paused;
+            } else if (e.key === 'r' || e.key === 'R') {
+                resetDream();
+            } else if (e.key === 'd' || e.key === 'D') {
+                deepenDream();
+            }
+        });
+
+        // Start
+        renderDream();
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulacra: Cellular Emergence</title>
+    <style>
+        body {
+            margin: 0;
+            background: #080818;
+            color: #d0e0ff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #canvas {
+            white-space: pre;
+            font-size: 10px;
+            line-height: 1.0;
+            background: #101025;
+            border: 1px solid #334466;
+            box-shadow: 0 0 15px #22334488;
+            margin-bottom: 16px;
+            padding: 10px;
+        }
+        #controls {
+            font-size: 12px;
+            color: #7788bb;
+            margin-bottom: 12px;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #5566aa;
+        }
+        button {
+            background: #223355;
+            color: #a0b0d0;
+            border: 1px solid #445577;
+            padding: 4px 8px;
+            margin: 0 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #334466;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Gen10: Cellular Emergence | Gen: <span id="generation">0</span> | Pattern: <span id="pattern">Conway</span></div>
+    <div id="canvas"></div>
+    <div id="controls">
+        <button id="btnReset">Reset</button>
+        <button id="btnPause">Pause</button>
+        <button id="btnPattern">Change Pattern</button>
+        <button id="btnSpeed">Speed: Normal</button>
+    </div>
+    <script>
+        // Constants and configuration
+        const W = 90;  // Grid width
+        const H = 40;  // Grid height
+        const SYMBOLS = [' ', '.', ':', '+', '*', '#', '@', '&', '%'];
+        
+        // State variables
+        let generation = 0;
+        let paused = false;
+        let speed = 1; // 0:slow, 1:normal, 2:fast
+        let patternIndex = 0;
+        const patterns = ['Conway', 'HighLife', 'DayAndNight', 'Seeds', 'Amoeba'];
+        const speedLabels = ['Slow', 'Normal', 'Fast'];
+        
+        // Create grids for cellular automata
+        let grid = createGrid();
+        let nextGrid = createGrid();
+        
+        function createGrid() {
+            return Array(H).fill().map(() => Array(W).fill(0));
+        }
+        
+        // Initialize with random pattern
+        function resetGrid() {
+            generation = 0;
+            updateInfoDisplay();
+            
+            // Clear grid
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    grid[y][x] = 0;
+                }
+            }
+            
+            // Add random seeds based on pattern
+            const density = patternIndex === 3 ? 0.02 : 0.2; // Seeds pattern needs less density
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    if (Math.random() < density) {
+                        grid[y][x] = 1;
+                    }
+                }
+            }
+            
+            // Add some glider patterns for Conway's Game of Life
+            if (patternIndex === 0) {
+                addGlider(10, 10);
+                addGlider(W - 15, H - 15);
+                addGlider(W - 15, 10);
+            }
+        }
+        
+        // Add a glider pattern at position
+        function addGlider(x, y) {
+            if (x < 1 || y < 1 || x > W - 3 || y > H - 3) return;
+            
+            grid[y][x+1] = 1;
+            grid[y+1][x+2] = 1;
+            grid[y+2][x] = 1;
+            grid[y+2][x+1] = 1;
+            grid[y+2][x+2] = 1;
+        }
+        
+        // Count live neighbors for a cell
+        function countNeighbors(x, y) {
+            let count = 0;
+            
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    
+                    // Wrap around edges (toroidal grid)
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    
+                    count += grid[ny][nx];
+                }
+            }
+            
+            return count;
+        }
+        
+        // Update the grid according to rules
+        function updateGrid() {
+            // Calculate next generation
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const neighbors = countNeighbors(x, y);
+                    const isAlive = grid[y][x] > 0;
+                    
+                    // Different cellular automata rules
+                    switch (patternIndex) {
+                        case 0: // Conway's Game of Life
+                            if (isAlive) {
+                                // Survival: 2 or 3 neighbors
+                                nextGrid[y][x] = (neighbors === 2 || neighbors === 3) ? grid[y][x] + 0.5 : 0;
+                            } else {
+                                // Birth: exactly 3 neighbors
+                                nextGrid[y][x] = (neighbors === 3) ? 1 : 0;
+                            }
+                            break;
+                            
+                        case 1: // HighLife (B36/S23)
+                            if (isAlive) {
+                                // Survival: 2 or 3 neighbors
+                                nextGrid[y][x] = (neighbors === 2 || neighbors === 3) ? grid[y][x] + 0.5 : 0;
+                            } else {
+                                // Birth: 3 or 6 neighbors
+                                nextGrid[y][x] = (neighbors === 3 || neighbors === 6) ? 1 : 0;
+                            }
+                            break;
+                            
+                        case 2: // Day & Night (B3678/S34678)
+                            if (isAlive) {
+                                // Survival: 3, 4, 6, 7, 8 neighbors
+                                nextGrid[y][x] = (neighbors === 3 || neighbors === 4 || 
+                                                 neighbors === 6 || neighbors === 7 || 
+                                                 neighbors === 8) ? grid[y][x] + 0.5 : 0;
+                            } else {
+                                // Birth: 3, 6, 7, 8 neighbors
+                                nextGrid[y][x] = (neighbors === 3 || neighbors === 6 || 
+                                                 neighbors === 7 || neighbors === 8) ? 1 : 0;
+                            }
+                            break;
+                            
+                        case 3: // Seeds (B2/S)
+                            if (isAlive) {
+                                // Always dies
+                                nextGrid[y][x] = 0;
+                            } else {
+                                // Birth: exactly 2 neighbors
+                                nextGrid[y][x] = (neighbors === 2) ? 1 : 0;
+                            }
+                            break;
+                            
+                        case 4: // Amoeba (B357/S1358)
+                            if (isAlive) {
+                                // Survival: 1, 3, 5, 8 neighbors
+                                nextGrid[y][x] = (neighbors === 1 || neighbors === 3 || 
+                                                 neighbors === 5 || neighbors === 8) ? grid[y][x] + 0.5 : 0;
+                            } else {
+                                // Birth: 3, 5, 7 neighbors
+                                nextGrid[y][x] = (neighbors === 3 || neighbors === 5 || 
+                                                 neighbors === 7) ? 1 : 0;
+                            }
+                            break;
+                    }
+                    
+                    // Cap growth to prevent overflow
+                    if (nextGrid[y][x] > 5) nextGrid[y][x] = 5;
+                }
+            }
+            
+            // Swap grids
+            [grid, nextGrid] = [nextGrid, grid];
+            generation++;
+            updateInfoDisplay();
+        }
+        
+        // Render the grid to HTML
+        function renderGrid() {
+            let output = '';
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    // Map cell value to a symbol based on its "age"
+                    const val = grid[y][x];
+                    const symIndex = Math.min(SYMBOLS.length - 1, 
+                                            Math.floor(val * SYMBOLS.length / 5));
+                    output += SYMBOLS[symIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+        }
+        
+        // Update the information display
+        function updateInfoDisplay() {
+            document.getElementById('generation').textContent = generation;
+            document.getElementById('pattern').textContent = patterns[patternIndex];
+        }
+        
+        // Animation loop
+        function animate() {
+            if (!paused) {
+                // Update at different speeds based on setting
+                const speedFactor = [5, 1, 0][speed];
+                if (generation % speedFactor === 0) {
+                    updateGrid();
+                    renderGrid();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        document.getElementById('btnReset').addEventListener('click', resetGrid);
+        
+        document.getElementById('btnPause').addEventListener('click', () => {
+            paused = !paused;
+            document.getElementById('btnPause').textContent = paused ? 'Resume' : 'Pause';
+        });
+        
+        document.getElementById('btnPattern').addEventListener('click', () => {
+            patternIndex = (patternIndex + 1) % patterns.length;
+            updateInfoDisplay();
+            resetGrid();
+        });
+        
+        document.getElementById('btnSpeed').addEventListener('click', () => {
+            speed = (speed + 1) % 3;
+            document.getElementById('btnSpeed').textContent = `Speed: ${speedLabels[speed]}`;
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                // Toggle pause
+                paused = !paused;
+                document.getElementById('btnPause').textContent = paused ? 'Resume' : 'Pause';
+            } else if (e.key === 'r' || e.key === 'R') {
+                // Reset
+                resetGrid();
+            } else if (e.key === 'p' || e.key === 'P') {
+                // Change pattern
+                patternIndex = (patternIndex + 1) % patterns.length;
+                updateInfoDisplay();
+                resetGrid();
+            } else if (e.key === 's' || e.key === 'S') {
+                // Change speed
+                speed = (speed + 1) % 3;
+                document.getElementById('btnSpeed').textContent = `Speed: ${speedLabels[speed]}`;
+            }
+        });
+        
+        // Initialization
+        resetGrid();
+        renderGrid();
+        animate();
+    </script>
+</body>
+</html> 
