@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen13: Quantum Leap</title>
+    <style>
+        body {
+            background: #0a0a1a;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        #game {
+            background: #181830;
+            border-radius: 10px;
+            box-shadow: 0 0 16px #222;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 32px);
+            grid-template-rows: repeat(5, 32px);
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        .cell {
+            width: 32px;
+            height: 32px;
+            background: #222244;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .cell.player {
+            background: #44f;
+            color: #fff;
+        }
+        .cell.goal {
+            background: #4f4;
+            color: #222;
+        }
+        .cell.quantum {
+            background: #f4f;
+            color: #fff;
+        }
+        #info {
+            margin-top: 8px;
+            font-size: 16px;
+        }
+        #move-counter, #best-score {
+            margin-top: 6px;
+            font-size: 15px;
+            color: #b0e0ff;
+        }
+        #reset, #vision {
+            margin-top: 12px;
+            margin-right: 8px;
+            padding: 6px 18px;
+            border: none;
+            border-radius: 4px;
+            background: #4444aa;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #reset:hover, #vision:hover {
+            background: #6666ff;
+        }
+        .cell.flash {
+            animation: flash 0.5s;
+        }
+        @keyframes flash {
+            0% { background: #fff700; color: #222; }
+            100% { background: #222244; color: #fff; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Gen13: Quantum Leap</h1>
+    <div id="game">
+        <div id="board"></div>
+        <div id="move-counter">Moves: 0</div>
+        <div id="best-score">Best: --</div>
+        <div id="info">Use arrow keys to reach the goal. Quantum tiles teleport you!</div>
+        <div>
+            <button id="reset">Reset</button>
+            <button id="vision">Quantum Vision</button>
+        </div>
+    </div>
+    <script>
+        const SIZE = 5;
+        let player = { x: 0, y: 0 };
+        let goal = { x: SIZE - 1, y: SIZE - 1 };
+        let quantumTiles = [];
+        let moves = 0;
+        let bestScore = localStorage.getItem('quantumLeapBest') ? parseInt(localStorage.getItem('quantumLeapBest')) : null;
+        const boardDiv = document.getElementById('board');
+        const infoDiv = document.getElementById('info');
+        const resetBtn = document.getElementById('reset');
+        const visionBtn = document.getElementById('vision');
+        const moveCounter = document.getElementById('move-counter');
+        const bestScoreDiv = document.getElementById('best-score');
+
+        function randomQuantumTiles() {
+            let tiles = [];
+            while (tiles.length < 3) {
+                let x = Math.floor(Math.random() * SIZE);
+                let y = Math.floor(Math.random() * SIZE);
+                if ((x !== 0 || y !== 0) && (x !== goal.x || y !== goal.y) && !tiles.some(t => t.x === x && t.y === y)) {
+                    tiles.push({ x, y });
+                }
+            }
+            return tiles;
+        }
+
+        function updateMoveCounter() {
+            moveCounter.textContent = `Moves: ${moves}`;
+        }
+
+        function updateBestScore() {
+            if (bestScore !== null) {
+                bestScoreDiv.textContent = `Best: ${bestScore}`;
+            } else {
+                bestScoreDiv.textContent = 'Best: --';
+            }
+        }
+
+        function renderBoard(winFlash = false) {
+            boardDiv.innerHTML = '';
+            for (let y = 0; y < SIZE; y++) {
+                for (let x = 0; x < SIZE; x++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (player.x === x && player.y === y) {
+                        cell.classList.add('player');
+                        cell.textContent = '◉';
+                    } else if (goal.x === x && goal.y === y) {
+                        cell.classList.add('goal');
+                        cell.textContent = '★';
+                        if (winFlash) cell.classList.add('flash');
+                    } else if (quantumTiles.some(t => t.x === x && t.y === y)) {
+                        cell.classList.add('quantum');
+                        cell.textContent = 'Q';
+                    } else {
+                        cell.textContent = '';
+                    }
+                    boardDiv.appendChild(cell);
+                }
+            }
+        }
+
+        function teleportPlayer() {
+            // Teleport to a random quantum tile (not current)
+            let otherTiles = quantumTiles.filter(t => !(t.x === player.x && t.y === player.y));
+            if (otherTiles.length > 0) {
+                let t = otherTiles[Math.floor(Math.random() * otherTiles.length)];
+                player.x = t.x;
+                player.y = t.y;
+            }
+        }
+
+        function winAnimation() {
+            renderBoard(true);
+            setTimeout(() => renderBoard(false), 500);
+        }
+
+        function movePlayer(dx, dy) {
+            if (infoDiv.textContent.startsWith('You reached')) return;
+            let nx = player.x + dx;
+            let ny = player.y + dy;
+            if (nx < 0 || ny < 0 || nx >= SIZE || ny >= SIZE) return;
+            player.x = nx;
+            player.y = ny;
+            moves++;
+            updateMoveCounter();
+            // Check for quantum tile
+            if (quantumTiles.some(t => t.x === player.x && t.y === player.y)) {
+                teleportPlayer();
+                infoDiv.textContent = 'Quantum leap!';
+            } else {
+                infoDiv.textContent = 'Use arrow keys to reach the goal. Quantum tiles teleport you!';
+            }
+            // Check for win
+            if (player.x === goal.x && player.y === goal.y) {
+                infoDiv.textContent = `You reached the goal! ✨ Moves: ${moves}`;
+                if (bestScore === null || moves < bestScore) {
+                    bestScore = moves;
+                    localStorage.setItem('quantumLeapBest', bestScore);
+                    updateBestScore();
+                }
+                winAnimation();
+            }
+            renderBoard();
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp') movePlayer(0, -1);
+            else if (e.key === 'ArrowDown') movePlayer(0, 1);
+            else if (e.key === 'ArrowLeft') movePlayer(-1, 0);
+            else if (e.key === 'ArrowRight') movePlayer(1, 0);
+        });
+
+        resetBtn.onclick = () => {
+            player = { x: 0, y: 0 };
+            quantumTiles = randomQuantumTiles();
+            moves = 0;
+            infoDiv.textContent = 'Use arrow keys to reach the goal. Quantum tiles teleport you!';
+            updateMoveCounter();
+            renderBoard();
+        };
+
+        visionBtn.onclick = () => {
+            // Briefly highlight quantum tiles
+            const cells = Array.from(boardDiv.children);
+            quantumTiles.forEach(t => {
+                let idx = t.y * SIZE + t.x;
+                if (cells[idx]) {
+                    cells[idx].classList.add('flash');
+                }
+            });
+            setTimeout(() => {
+                quantumTiles.forEach(t => {
+                    let idx = t.y * SIZE + t.x;
+                    if (cells[idx]) {
+                        cells[idx].classList.remove('flash');
+                    }
+                });
+            }, 500);
+        };
+
+        // Initialize
+        quantumTiles = randomQuantumTiles();
+        updateMoveCounter();
+        updateBestScore();
+        renderBoard();
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gen13 - Catch the Dots</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0f0f0f;
+            color: #00ff00;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            border: 2px solid #00ff00;
+            background-color: #000000;
+            cursor: none; /* Hide default cursor over canvas */
+        }
+        #scoreBoard {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        #missedBoard {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #ff0000;
+        }
+        #gameOverScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 30px;
+            border: 2px solid #00ff00;
+            text-align: center;
+            font-size: 28px;
+            display: none; /* Hidden by default */
+        }
+        #gameOverScreen button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 20px;
+            background-color: #00ff00;
+            color: #000000;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">Move your mouse to control the catcher. Catch the green dots!</div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="scoreBoard">Score: 0</div>
+    <div id="missedBoard">Missed: 0</div>
+
+    <div id="gameOverScreen">
+        <div>Game Over!</div>
+        <div id="finalScore"></div>
+        <button id="restartButton">Restart</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreBoard = document.getElementById('scoreBoard');
+        const missedBoard = document.getElementById('missedBoard');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartButton');
+
+
+        let score = 0;
+        let missedDots = 0;
+        const maxMissedDots = 10; // Game over after 10 missed dots
+        let gameOver = false;
+        const catcherWidth = 80;
+        const catcherHeight = 20;
+        let catcherX = (canvas.width - catcherWidth) / 2;
+        const dotRadius = 8;
+        const dotSpeed = 2;
+        let dots = [];
+        let spawnIntervalId;
+        let currentSpawnRate = 1000; // Initial spawn rate: 1 dot per second
+        const minSpawnRate = 250; // Minimum spawn rate (fastest)
+        const spawnRateDecrease = 50; // Decrease interval by 50ms each time
+        const spawnRateDecreaseInterval = 5000; // Decrease spawn rate every 5 seconds
+
+
+        function resizeCanvas() {
+            canvas.width = Math.min(window.innerWidth * 0.8, 600);
+            canvas.height = Math.min(window.innerHeight * 0.7, 400);
+            catcherX = (canvas.width - catcherWidth) / 2; // Recenter catcher
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Initial size
+
+        // Catcher object
+        const catcher = {
+            x: catcherX,
+            y: canvas.height - catcherHeight - 10,
+            width: catcherWidth,
+            height: catcherHeight,
+            color: '#00ff00'
+        };
+
+        // Mouse control
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            catcher.x = e.clientX - rect.left - catcher.width / 2;
+            // Keep catcher within canvas bounds
+            if (catcher.x < 0) {
+                catcher.x = 0;
+            }
+            if (catcher.x + catcher.width > canvas.width) {
+                catcher.x = canvas.width - catcher.width;
+            }
+        });
+
+        function resetGame() {
+            score = 0;
+            missedDots = 0;
+            dots = [];
+            gameOver = false;
+            scoreBoard.textContent = 'Score: ' + score;
+            missedBoard.textContent = 'Missed: ' + missedDots;
+            gameOverScreen.style.display = 'none';
+            canvas.style.cursor = 'none'; // Re-hide cursor
+            currentSpawnRate = 1000;
+            startGameplay();
+        }
+
+        restartButton.addEventListener('click', resetGame);
+
+
+        function spawnDot() {
+            if (gameOver) return;
+            const x = Math.random() * (canvas.width - dotRadius * 2) + dotRadius;
+            const y = 0; // Start at the top
+            dots.push({ x, y, radius: dotRadius, color: '#00ff00', speed: dotSpeed + Math.random() * 2 });
+        }
+
+        function updateDots() {
+            if (gameOver) return;
+            for (let i = dots.length - 1; i >= 0; i--) {
+                const dot = dots[i];
+                dot.y += dot.speed;
+
+                // Check for collision with catcher
+                if (
+                    dot.y + dot.radius > catcher.y &&
+                    dot.y - dot.radius < catcher.y + catcher.height &&
+                    dot.x + dot.radius > catcher.x &&
+                    dot.x - dot.radius < catcher.x + catcher.width
+                ) {
+                    dots.splice(i, 1); // Remove dot
+                    score++;
+                    scoreBoard.textContent = 'Score: ' + score;
+                } else if (dot.y - dot.radius > canvas.height) {
+                    dots.splice(i, 1); // Remove dot if it goes off screen
+                    missedDots++;
+                    missedBoard.textContent = 'Missed: ' + missedDots;
+                    if (missedDots >= maxMissedDots) {
+                        triggerGameOver();
+                    }
+                }
+            }
+        }
+
+        function triggerGameOver() {
+            gameOver = true;
+            clearInterval(spawnIntervalId); // Stop spawning dots
+            clearInterval(spawnRateIntervalId); // Stop decreasing spawn rate
+            finalScoreDisplay.textContent = 'Final Score: ' + score;
+            gameOverScreen.style.display = 'flex';
+            canvas.style.cursor = 'default'; // Show cursor
+        }
+
+        function drawCatcher() {
+            ctx.fillStyle = catcher.color;
+            ctx.fillRect(catcher.x, catcher.y, catcher.width, catcher.height);
+        }
+
+        function drawDots() {
+            dots.forEach(dot => {
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+                ctx.fillStyle = dot.color;
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        let gameLoopId;
+        function gameLoop() {
+            if (gameOver) {
+                // Optionally, draw a semi-transparent overlay to indicate game over
+                // ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                // ctx.fillRect(0, 0, canvas.width, canvas.height);
+                return; // Stop the game loop
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawCatcher();
+            updateDots();
+            drawDots();
+
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        // Spawn dots periodically
+        // setInterval(spawnDot, 1000); // Spawn a new dot every second
+
+        // Start game
+        // gameLoop();
+
+        let spawnRateIntervalId;
+
+        function decreaseSpawnRate() {
+            if (gameOver) return;
+            if (currentSpawnRate > minSpawnRate) {
+                currentSpawnRate -= spawnRateDecrease;
+                clearInterval(spawnIntervalId);
+                spawnIntervalId = setInterval(spawnDot, currentSpawnRate);
+            }
+        }
+
+        function startGameplay() {
+            // Clear any existing intervals
+            if (spawnIntervalId) clearInterval(spawnIntervalId);
+            if (spawnRateIntervalId) clearInterval(spawnRateIntervalId);
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+
+
+            // Start spawning dots
+            spawnIntervalId = setInterval(spawnDot, currentSpawnRate);
+            // Periodically decrease spawn rate
+            spawnRateIntervalId = setInterval(decreaseSpawnRate, spawnRateDecreaseInterval);
+            // Start game loop
+            gameLoop();
+        }
+
+        // Initial setup
+        resetGame(); // Call reset to initialize everything
+    </script>
+</body>
+</html>
