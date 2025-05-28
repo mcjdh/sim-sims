@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>∞ Temporal Paradox Garden ∞</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: radial-gradient(circle at center, #1a0033 0%, #0a0022 50%, #000011 100%);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            color: #9966ff;
+            cursor: crosshair;
+            user-select: none;
+        }
+        
+        #garden-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #garden-field {
+            position: relative;
+            white-space: pre;
+            font-size: 6px;
+            line-height: 0.9;
+            font-weight: 300;
+            letter-spacing: 0.1px;
+            filter: contrast(1.2) brightness(1.1);
+            min-height: 80vh;
+        }
+        
+        .timeline-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.5s ease;
+            mix-blend-mode: screen;
+        }
+        
+        .past-layer { color: #6633aa; opacity: 0.4; }
+        .present-layer { color: #66ffcc; opacity: 1; }
+        .future-layer { color: #ff66aa; opacity: 0.4; }
+        
+        /* Entity styles for different temporal states */
+        .seed-past { color: #4455aa; text-shadow: 0 0 5px #4455aa; }
+        .seed-present { color: #44ffaa; text-shadow: 0 0 8px #44ffaa; }
+        .seed-future { color: #ff55aa; text-shadow: 0 0 5px #ff55aa; }
+        
+        .bloom-past { color: #6677cc; text-shadow: 0 0 10px #6677cc; }
+        .bloom-present { color: #66ffcc; text-shadow: 0 0 15px #66ffcc; }
+        .bloom-future { color: #ff77cc; text-shadow: 0 0 10px #ff77cc; }
+        
+        .wilt-past { color: #333355; text-shadow: 0 0 5px #333355; }
+        .wilt-present { color: #33aa77; text-shadow: 0 0 8px #33aa77; }
+        .wilt-future { color: #aa3355; text-shadow: 0 0 5px #aa3355; }
+        
+        .paradox { 
+            color: #ffffff; 
+            text-shadow: 0 0 15px #ffffff, 0 0 25px #ffffff;
+            animation: paradox-pulse 2s infinite alternate;
+        }
+        
+        .causality-ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid #ffaaff;
+            pointer-events: none;
+            opacity: 0.7;
+            animation: ripple-expand 3s ease-out forwards;
+        }
+        
+        .temporal-echo {
+            position: absolute;
+            opacity: 0.6;
+            pointer-events: none;
+            filter: blur(1px);
+            animation: echo-fade 2s ease-out forwards;
+        }
+        
+        @keyframes paradox-pulse {
+            0% { opacity: 0.7; filter: hue-rotate(0deg); }
+            100% { opacity: 1; filter: hue-rotate(90deg); }
+        }
+        
+        @keyframes ripple-expand {
+            0% { width: 10px; height: 10px; opacity: 0.8; }
+            100% { width: 200px; height: 200px; opacity: 0; }
+        }
+        
+        @keyframes echo-fade {
+            0% { opacity: 0.6; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        #time-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 0, 51, 0.8);
+            border: 1px solid #6633cc;
+            border-radius: 20px;
+            padding: 15px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 300px;
+        }
+        
+        #time-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #33115a;
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        #time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #9966ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #9966ff;
+        }
+        
+        #time-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #9966ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #9966ff;
+        }
+        
+        #time-label {
+            font-size: 14px;
+            color: #ccaaff;
+            text-shadow: 0 0 5px #ccaaff;
+        }
+        
+        #garden-tools {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 0, 51, 0.7);
+            border: 1px solid #6633cc;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 12px;
+            color: #ccaaff;
+            text-align: right;
+            z-index: 100;
+            line-height: 1.5;
+        }
+        
+        .tool-active {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px #ffffff !important;
+        }
+        
+        #garden-metrics {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 0, 51, 0.7);
+            border: 1px solid #6633cc;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 12px;
+            color: #ccaaff;
+            z-index: 100;
+            line-height: 1.5;
+        }
+        
+        #poetic-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 20px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease;
+            pointer-events: none;
+            text-shadow: 0 0 10px #9966ff;
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 150px;
+            left: 20px;
+            font-size: 10px;
+            color: #aa88dd;
+            z-index: 90;
+            line-height: 1.5;
+            background: rgba(26, 0, 51, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 200px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        #instructions:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="garden-container">
+        <div id="garden-field">
+            <div id="past-layer" class="timeline-layer past-layer"></div>
+            <div id="present-layer" class="timeline-layer present-layer"></div>
+            <div id="future-layer" class="timeline-layer future-layer"></div>
+        </div>
+    </div>
+    
+    <div id="garden-metrics">
+        <div>PARADOX INTENSITY: <span id="paradox-level">0.00</span></div>
+        <div>TEMPORAL STABILITY: <span id="stability">1.00</span></div>
+        <div>CAUSALITY LOOPS: <span id="causality-loops">0</span></div>
+        <div>ANOMALIES: <span id="anomalies">0</span></div>
+    </div>
+    
+    <div id="garden-tools">
+        <div>TOOL: <span id="current-tool">PLANT</span></div>
+        <div>TIME: <span id="current-time">PRESENT</span></div>
+        <hr style="margin: 5px 0; border-color: #6633aa;">
+        <div>[P] Plant Seeds</div>
+        <div>[W] Water Garden</div>
+        <div>[C] Prune/Cut</div>
+        <div>[R] Reset Garden</div>
+        <div>[SPACE] Create Paradox</div>
+    </div>
+    
+    <div id="time-controls">
+        <div id="time-label">PRESENT</div>
+        <input type="range" min="0" max="100" value="50" id="time-slider">
+        <div style="font-size: 10px; width: 100%; display: flex; justify-content: space-between;">
+            <span>PAST</span>
+            <span>PRESENT</span>
+            <span>FUTURE</span>
+        </div>
+    </div>
+    
+    <div id="instructions">
+        <div>Tend the past, harvest the future,</div>
+        <div>nurture the impossible.</div>
+        <br>
+        <div>• Use slider to move through time</div>
+        <div>• Click to interact with garden</div>
+        <div>• Observe as causality unravels</div>
+        <div>• Create beautiful paradoxes</div>
+    </div>
+    
+    <div id="poetic-message"></div>
+
+    <script>
+        // Constants and configurations
+        const GARDEN_WIDTH = 140;
+        const GARDEN_HEIGHT = 50;
+        const FIELD_SIZE = GARDEN_WIDTH * GARDEN_HEIGHT;
+        
+        // Mathematical constants
+        const π = Math.PI;
+        const τ = 2 * π;
+        const Φ = (1 + Math.sqrt(5)) / 2; // Golden ratio
+        const ε = 0.00001; // Small value for comparisons
+        
+        // Mathematical functions for more elegant code
+        const sin = Math.sin;
+        const cos = Math.cos;
+        const abs = Math.abs;
+        const sqrt = Math.sqrt;
+        const exp = Math.exp;
+        const floor = Math.floor;
+        const ceil = Math.ceil;
+        const round = Math.round;
+        const min = Math.min;
+        const max = Math.max;
+        const random = Math.random;
+        const atan2 = Math.atan2;
+        
+        // Garden entity symbols
+        const GARDEN_SYMBOLS = {
+            VOID: [' ', '·', '᠅', '⋯', '∵'],
+            SEED: ['°', '∘', '◦', '⊙', '∙'],
+            SPROUT: ['|', '¦', '♈', '┃', '╽'],
+            STEM: ['╿', '╏', '╎', '┿', '┽'],
+            LEAF: ['✧', '✦', '✶', '❋', '♣'],
+            BLOOM: ['✿', '❁', '✽', '✾', '❀'],
+            FRUIT: ['◉', '●', '◐', '◑', '◕'],
+            WILT: ['✢', '✣', '✤', '✥', '❄'],
+            DECAY: ['⋰', '⋱', '⁙', '∴', '∷'],
+            PARADOX: ['✴', '✸', '✹', '✺', '✻']
+        };
+        
+        // Garden tools
+        const TOOLS = {
+            PLANT: 'PLANT',
+            WATER: 'WATER',
+            PRUNE: 'PRUNE'
+        };
+        
+        // Time states
+        const TIME_STATES = {
+            PAST: 'PAST',
+            PRESENT: 'PRESENT',
+            FUTURE: 'FUTURE'
+        };
+        
+        // Poetic messages that appear randomly
+        const POETIC_MESSAGES = [
+            "In the garden of time, seeds bloom before they're planted.",
+            "Past and future dance together in an endless paradox.",
+            "What withers tomorrow may flourish yesterday.",
+            "The gardener's hand moves forward, but the growth spirals backward.",
+            "Time is not a river but a sea, with waves that crash in all directions.",
+            "Tend to tomorrow's memories by planting yesterday's dreams.",
+            "Paradoxes are not errors in time's garden, but its most beautiful flowers.",
+            "When future feeds past and past nurtures future, the impossible blooms.",
+            "Some flowers remember being planted before your hand touches the soil.",
+            "The harvest comes before the seed when time folds upon itself."
+        ];
+        
+        // Garden state across timelines
+        let pastGarden = new Array(FIELD_SIZE).fill(0);
+        let presentGarden = new Array(FIELD_SIZE).fill(0);
+        let futureGarden = new Array(FIELD_SIZE).fill(0);
+        
+        // Garden entity lifetimes across timelines (0-10: growth stage)
+        let pastLifetime = new Array(FIELD_SIZE).fill(0);
+        let presentLifetime = new Array(FIELD_SIZE).fill(0);
+        let futureLifetime = new Array(FIELD_SIZE).fill(0);
+        
+        // Timeline influence fields (how much each timeline affects others)
+        let pastInfluence = new Array(FIELD_SIZE).fill(0);
+        let presentInfluence = new Array(FIELD_SIZE).fill(0);
+        let futureInfluence = new Array(FIELD_SIZE).fill(0);
+        
+        // Paradox field (measures temporal inconsistencies)
+        let paradoxField = new Array(FIELD_SIZE).fill(0);
+        
+        // Garden state variables
+        let currentTool = TOOLS.PLANT;
+        let currentTimeState = TIME_STATES.PRESENT;
+        let timePosition = 0.5; // 0=past, 0.5=present, 1=future
+        let paradoxLevel = 0;
+        let stabilityLevel = 1;
+        let causalityLoops = 0;
+        let anomalyCount = 0;
+        let gardenTime = 0;
+        let paused = false;
+        
+        // Action history to track paradoxes
+        let actionHistory = [];
+        
+        // Initialize garden elements
+        const pastLayer = document.getElementById('past-layer');
+        const presentLayer = document.getElementById('present-layer');
+        const futureLayer = document.getElementById('future-layer');
+        const timeSlider = document.getElementById('time-slider');
+        const timeLabel = document.getElementById('time-label');
+        
+        // Calculate base field values using temporal wave equations
+        function calculateTemporalField(x, y, time, timeline) {
+            const cx = (x - GARDEN_WIDTH/2) / (GARDEN_WIDTH/2);
+            const cy = (y - GARDEN_HEIGHT/2) / (GARDEN_HEIGHT/2);
+            const r = sqrt(cx*cx + cy*cy);
+            const theta = atan2(cy, cx);
+            
+            // Different wave patterns for each timeline
+            let timeShift;
+            switch(timeline) {
+                case TIME_STATES.PAST:
+                    timeShift = -0.3;
+                    break;
+                case TIME_STATES.PRESENT:
+                    timeShift = 0;
+                    break;
+                case TIME_STATES.FUTURE:
+                    timeShift = 0.3;
+                    break;
+            }
+            
+            // Temporal wave patterns with interference
+            const timeWave = sin((r * 5) + (time + timeShift) * 0.05);
+            const spiralWave = cos(theta * 3 + r * 8 + time * 0.02);
+            const radialPulse = sin(r * π * 2 - time * 0.03);
+            
+            // Combine waves for a complex temporal field
+            return (timeWave * 0.4 + spiralWave * 0.3 + radialPulse * 0.3) * 0.3;
+        }
+        
+        // Plant a seed in the garden
+        function plantSeed(x, y) {
+            const idx = y * GARDEN_WIDTH + x;
+            
+            // Get current timeline garden based on time position
+            let targetGarden, targetLifetime;
+            if (timePosition < 0.33) {
+                targetGarden = pastGarden;
+                targetLifetime = pastLifetime;
+                showPoetic("The past accepts your offering, though it has already happened.");
+            } else if (timePosition < 0.66) {
+                targetGarden = presentGarden;
+                targetLifetime = presentLifetime;
+                showPoetic("Seeds in the present moment, anchored in the now.");
+            } else {
+                targetGarden = futureGarden;
+                targetLifetime = futureLifetime;
+                showPoetic("You plant what will be, before it was.");
+            }
+            
+            // Check if location is empty
+            if (targetGarden[idx] == 0) {
+                targetGarden[idx] = 1; // Plant seed
+                targetLifetime[idx] = 1; // Set initial lifetime
+                
+                // Record action for paradox tracking
+                recordAction('plant', x, y);
+                createParadoxRipple(x, y);
+                
+                // Create influence across timelines
+                createTemporalInfluence(x, y);
+            }
+        }
+        
+        // Water the garden to grow plants
+        function waterGarden(x, y) {
+            const radius = 3;
+            
+            // Get current timeline garden based on time position
+            let targetGarden, targetLifetime;
+            if (timePosition < 0.33) {
+                targetGarden = pastGarden;
+                targetLifetime = pastLifetime;
+                showPoetic("Watering memories that have already bloomed.");
+            } else if (timePosition < 0.66) {
+                targetGarden = presentGarden;
+                targetLifetime = presentLifetime;
+                showPoetic("The present drinks your attention.");
+            } else {
+                targetGarden = futureGarden;
+                targetLifetime = futureLifetime;
+                showPoetic("Nurturing what has not yet existed.");
+            }
+            
+            // Water an area
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < GARDEN_WIDTH && ny >= 0 && ny < GARDEN_HEIGHT) {
+                        const idx = ny * GARDEN_WIDTH + nx;
+                        const dist = sqrt(dx*dx + dy*dy);
+                        
+                        if (dist <= radius) {
+                            // Only water if something is planted
+                            if (targetGarden[idx] > 0) {
+                                // Increase lifetime
+                                targetLifetime[idx] = min(10, targetLifetime[idx] + 1);
+                                
+                                // Record action for paradox tracking
+                                recordAction('water', nx, ny);
+                                
+                                // Create temporal influence
+                                createTemporalInfluence(nx, ny);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Visual effect
+            createParadoxRipple(x, y);
+        }
+        
+        // Prune/cut garden plants
+        function pruneGarden(x, y) {
+            const radius = 2;
+            
+            // Get current timeline garden based on time position
+            let targetGarden, targetLifetime;
+            if (timePosition < 0.33) {
+                targetGarden = pastGarden;
+                targetLifetime = pastLifetime;
+                showPoetic("Pruning what has already been... changing memories.");
+            } else if (timePosition < 0.66) {
+                targetGarden = presentGarden;
+                targetLifetime = presentLifetime;
+                showPoetic("The cut exists only in the eternal now.");
+            } else {
+                targetGarden = futureGarden;
+                targetLifetime = futureLifetime;
+                showPoetic("Trimming branches of time that have yet to grow.");
+            }
+            
+            // Prune area
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < GARDEN_WIDTH && ny >= 0 && ny < GARDEN_HEIGHT) {
+                        const idx = ny * GARDEN_WIDTH + nx;
+                        const dist = sqrt(dx*dx + dy*dy);
+                        
+                        if (dist <= radius) {
+                            // Only prune if something is planted and growing
+                            if (targetGarden[idx] > 0 && targetLifetime[idx] > 2) {
+                                // Cut back growth
+                                targetLifetime[idx] = max(1, targetLifetime[idx] - 3);
+                                
+                                // Record action for paradox tracking
+                                recordAction('prune', nx, ny);
+                                
+                                // Create temporal influence  
+                                createTemporalInfluence(nx, ny);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Visual effect
+            createParadoxRipple(x, y);
+        }
+        
+        // Record action for paradox tracking
+        function recordAction(action, x, y) {
+            actionHistory.push({
+                action: action,
+                x: x,
+                y: y,
+                timeline: currentTimeState,
+                gardenTime: gardenTime
+            });
+            
+            // Limit history size
+            if (actionHistory.length > 100) {
+                actionHistory.shift();
+            }
+            
+            // Check for paradoxes
+            checkParadoxes(x, y);
+        }
+        
+        // Create temporal influence that affects other timelines
+        function createTemporalInfluence(x, y) {
+            const idx = y * GARDEN_WIDTH + x;
+            const radius = 5;
+            
+            // Influence depends on current timeline
+            switch(currentTimeState) {
+                case TIME_STATES.PAST:
+                    // Past influences future
+                    futureInfluence[idx] += 0.5;
+                    break;
+                case TIME_STATES.PRESENT:
+                    // Present influences both past and future
+                    pastInfluence[idx] += 0.3;
+                    futureInfluence[idx] += 0.3;
+                    break;
+                case TIME_STATES.FUTURE:
+                    // Future influences past (paradoxical)
+                    pastInfluence[idx] += 0.5;
+                    break;
+            }
+            
+            // Spread influence to surrounding area
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < GARDEN_WIDTH && ny >= 0 && ny < GARDEN_HEIGHT) {
+                        const nidx = ny * GARDEN_WIDTH + nx;
+                        const dist = sqrt(dx*dx + dy*dy);
+                        
+                        if (dist <= radius) {
+                            const falloff = exp(-dist / radius);
+                            
+                            // Propagate influence with falloff
+                            switch(currentTimeState) {
+                                case TIME_STATES.PAST:
+                                    futureInfluence[nidx] += 0.2 * falloff;
+                                    break;
+                                case TIME_STATES.PRESENT:
+                                    pastInfluence[nidx] += 0.1 * falloff;
+                                    futureInfluence[nidx] += 0.1 * falloff;
+                                    break;
+                                case TIME_STATES.FUTURE:
+                                    pastInfluence[nidx] += 0.2 * falloff;
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check for paradoxes (actions that would create inconsistencies)
+        function checkParadoxes(x, y) {
+            const idx = y * GARDEN_WIDTH + x;
+            
+            // Check for paradoxical conditions
+            let paradox = false;
+            
+            // Paradox: plant exists in future but not in past
+            if (futureGarden[idx] > 0 && pastGarden[idx] === 0) {
+                paradox = true;
+                paradoxField[idx] += 0.3;
+            }
+            
+            // Paradox: plant exists in past but was just planted in future
+            if (pastGarden[idx] > 0 && currentTimeState === TIME_STATES.FUTURE && 
+                actionHistory.length > 1 && actionHistory[actionHistory.length-1].action === 'plant') {
+                paradox = true;
+                paradoxField[idx] += 0.5;
+            }
+            
+            // Paradox: watering in past affects future growth
+            const pastActions = actionHistory.filter(a => a.timeline === TIME_STATES.PAST && 
+                                                       abs(a.x - x) < 3 && abs(a.y - y) < 3);
+            const futureActions = actionHistory.filter(a => a.timeline === TIME_STATES.FUTURE && 
+                                                         abs(a.x - x) < 3 && abs(a.y - y) < 3);
+            
+            if (pastActions.length > 0 && futureActions.length > 0) {
+                paradox = true;
+                paradoxField[idx] += 0.2;
+            }
+            
+            if (paradox) {
+                // Increase paradox metrics
+                paradoxLevel += 0.05;
+                stabilityLevel = max(0, stabilityLevel - 0.03);
+                anomalyCount++;
+                
+                // Visual notification of paradox
+                createParadoxEffect(x, y);
+                
+                // Sometimes create causality loop
+                if (random() < 0.3) {
+                    createCausalityLoop(x, y);
+                }
+            }
+        }
+        
+        // Create visual paradox ripple effect
+        function createParadoxRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'causality-ripple';
+            const scaleFactor = window.innerWidth / GARDEN_WIDTH;
+            ripple.style.left = (x * scaleFactor) + 'px';
+            ripple.style.top = ((y * scaleFactor) * 0.3 + window.innerHeight/3) + 'px';
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 3000);
+        }
+        
+        // Create paradox effect (visual and functional)
+        function createParadoxEffect(x, y) {
+            // Visual echo
+            const echo = document.createElement('div');
+            echo.className = 'temporal-echo';
+            const scaleFactor = window.innerWidth / GARDEN_WIDTH;
+            echo.style.left = (x * scaleFactor) + 'px';
+            echo.style.top = ((y * scaleFactor) * 0.3 + window.innerHeight/3) + 'px';
+            echo.innerHTML = GARDEN_SYMBOLS.PARADOX[floor(random() * GARDEN_SYMBOLS.PARADOX.length)];
+            echo.style.fontSize = '16px';
+            echo.style.color = `hsl(${random() * 360}, 100%, 70%)`;
+            document.body.appendChild(echo);
+            
+            setTimeout(() => echo.remove(), 2000);
+        }
+        
+        // Create a causality loop that affects all timelines
+        function createCausalityLoop(centerX, centerY) {
+            causalityLoops++;
+            const radius = floor(3 + random() * 4);
+            
+            // Create loop across all three timelines
+            for (let timeline of [pastGarden, presentGarden, futureGarden]) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const x = centerX + dx;
+                        const y = centerY + dy;
+                        
+                        if (x >= 0 && x < GARDEN_WIDTH && y >= 0 && y < GARDEN_HEIGHT) {
+                            const idx = y * GARDEN_WIDTH + x;
+                            const dist = sqrt(dx*dx + dy*dy);
+                            
+                            if (dist <= radius) {
+                                // Loop plants between timelines
+                                const pastValue = pastGarden[idx];
+                                const presentValue = presentGarden[idx];
+                                const futureValue = futureGarden[idx];
+                                
+                                // Circular loop: future → present → past → future
+                                pastGarden[idx] = presentValue;
+                                presentGarden[idx] = futureValue;
+                                futureGarden[idx] = pastValue;
+                                
+                                // Increase paradox field
+                                paradoxField[idx] += 0.5;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Display poetic message about the causality loop
+            showPoetic("A causality loop forms - what was becomes what will be, what will be becomes what is.");
+        }
+        
+        // Generate garden entity based on lifetime and timeline
+        function getGardenEntity(x, y, timeline) {
+            const idx = y * GARDEN_WIDTH + x;
+            let garden, lifetime;
+            
+            // Select appropriate garden and lifetime arrays
+            switch(timeline) {
+                case TIME_STATES.PAST:
+                    garden = pastGarden;
+                    lifetime = pastLifetime;
+                    break;
+                case TIME_STATES.PRESENT:
+                    garden = presentGarden;
+                    lifetime = presentLifetime;
+                    break;
+                case TIME_STATES.FUTURE:
+                    garden = futureGarden;
+                    lifetime = futureLifetime;
+                    break;
+            }
+            
+            // Check for paradox fields first (highest priority)
+            if (paradoxField[idx] > 0.7) {
+                const symbols = GARDEN_SYMBOLS.PARADOX;
+                const symbol_idx = floor(paradoxField[idx] * symbols.length) % symbols.length;
+                return { symbol: symbols[symbol_idx], class: 'paradox' };
+            }
+            
+            // Empty space
+            if (garden[idx] === 0) return { symbol: ' ', class: '' };
+            
+            // Determine entity type based on lifetime
+            let symbol, entityClass;
+            const age = lifetime[idx];
+            
+            if (age <= 1) {
+                // Seed
+                symbol = GARDEN_SYMBOLS.SEED[floor(random() * GARDEN_SYMBOLS.SEED.length)];
+                entityClass = `seed-${timeline.toLowerCase()}`;
+            } else if (age <= 3) {
+                // Sprout
+                symbol = GARDEN_SYMBOLS.SPROUT[floor(random() * GARDEN_SYMBOLS.SPROUT.length)];
+                entityClass = `seed-${timeline.toLowerCase()}`;
+            } else if (age <= 5) {
+                // Stem/Leaf
+                symbol = GARDEN_SYMBOLS.LEAF[floor(random() * GARDEN_SYMBOLS.LEAF.length)];
+                entityClass = `bloom-${timeline.toLowerCase()}`;
+            } else if (age <= 8) {
+                // Bloom
+                symbol = GARDEN_SYMBOLS.BLOOM[floor(random() * GARDEN_SYMBOLS.BLOOM.length)];
+                entityClass = `bloom-${timeline.toLowerCase()}`;
+            } else if (age <= 9) {
+                // Fruit
+                symbol = GARDEN_SYMBOLS.FRUIT[floor(random() * GARDEN_SYMBOLS.FRUIT.length)];
+                entityClass = `bloom-${timeline.toLowerCase()}`;
+            } else {
+                // Wilting/Decay
+                symbol = GARDEN_SYMBOLS.WILT[floor(random() * GARDEN_SYMBOLS.WILT.length)];
+                entityClass = `wilt-${timeline.toLowerCase()}`;
+            }
+            
+            return { symbol, class: entityClass };
+        }
+        
+        // Show a poetic message temporarily
+        function showPoetic(message) {
+            const poeticDiv = document.getElementById('poetic-message');
+            poeticDiv.textContent = message;
+            poeticDiv.style.opacity = 1;
+            
+            setTimeout(() => {
+                poeticDiv.style.opacity = 0;
+            }, 4000);
+        }
+        
+        // Update all garden timelines
+        function updateGarden() {
+            if (paused) return;
+            
+            gardenTime++;
+            
+            // Natural growth in all timelines
+            for (let i = 0; i < FIELD_SIZE; i++) {
+                const x = i % GARDEN_WIDTH;
+                const y = Math.floor(i / GARDEN_WIDTH);
+                
+                // Calculate base field values
+                const pastField = calculateTemporalField(x, y, gardenTime, TIME_STATES.PAST);
+                const presentField = calculateTemporalField(x, y, gardenTime, TIME_STATES.PRESENT);
+                const futureField = calculateTemporalField(x, y, gardenTime, TIME_STATES.FUTURE);
+                
+                // Apply temporal influence (how actions in one timeline affect others)
+                if (pastGarden[i] > 0) {
+                    // Past influences future
+                    futureInfluence[i] += 0.01 * pastLifetime[i];
+                }
+                
+                if (futureGarden[i] > 0) {
+                    // Future influences past (paradoxical)
+                    pastInfluence[i] += 0.01 * futureLifetime[i];
+                    
+                    // Creates more paradoxes
+                    paradoxField[i] += 0.005;
+                }
+                
+                // Natural aging based on timeline influence and field values
+                if (pastGarden[i] > 0) {
+                    // Past ages slower
+                    if (random() < 0.1 + pastField * 0.1) {
+                        pastLifetime[i] = min(10, pastLifetime[i] + 0.1);
+                    }
+                    
+                    // Influence from future
+                    if (pastInfluence[i] > 0.5 && random() < pastInfluence[i] * 0.2) {
+                        pastLifetime[i] = min(10, pastLifetime[i] + 0.2);
+                    }
+                }
+                
+                if (presentGarden[i] > 0) {
+                    // Present ages normally
+                    if (random() < 0.2 + presentField * 0.2) {
+                        presentLifetime[i] = min(10, presentLifetime[i] + 0.2);
+                    }
+                }
+                
+                if (futureGarden[i] > 0) {
+                    // Future sometimes ages backward (paradoxical)
+                    if (futureInfluence[i] > 0.7 && random() < 0.1) {
+                        futureLifetime[i] = max(1, futureLifetime[i] - 0.2);
+                    } else if (random() < 0.15 + futureField * 0.15) {
+                        futureLifetime[i] = min(10, futureLifetime[i] + 0.15);
+                    }
+                }
+                
+                // Paradoxical causality: sometimes plants appear in timelines without being planted
+                if (paradoxField[i] > 0.8 && random() < 0.01) {
+                    // Random paradoxical growth
+                    const targetTimeline = floor(random() * 3);
+                    switch(targetTimeline) {
+                        case 0:
+                            if (pastGarden[i] === 0) {
+                                pastGarden[i] = 1;
+                                pastLifetime[i] = floor(random() * 3) + 1;
+                                anomalyCount++;
+                            }
+                            break;
+                        case 1:
+                            if (presentGarden[i] === 0) {
+                                presentGarden[i] = 1;
+                                presentLifetime[i] = floor(random() * 5) + 1;
+                                anomalyCount++;
+                            }
+                            break;
+                        case 2:
+                            if (futureGarden[i] === 0) {
+                                futureGarden[i] = 1;
+                                futureLifetime[i] = floor(random() * 8) + 1;
+                                anomalyCount++;
+                            }
+                            break;
+                    }
+                }
+                
+                // Decay paradox field slowly
+                paradoxField[i] *= 0.995;
+                
+                // Decay influence fields
+                pastInfluence[i] *= 0.98;
+                presentInfluence[i] *= 0.98;
+                futureInfluence[i] *= 0.98;
+            }
+            
+            // Occasionally show random poetic message
+            if (random() < 0.001) {
+                const message = POETIC_MESSAGES[floor(random() * POETIC_MESSAGES.length)];
+                showPoetic(message);
+            }
+            
+            // Natural decay of paradox and stability levels
+            paradoxLevel = max(0, paradoxLevel * 0.995);
+            stabilityLevel = min(1, stabilityLevel + 0.002);
+            
+            // Update metrics display
+            document.getElementById('paradox-level').textContent = paradoxLevel.toFixed(2);
+            document.getElementById('stability').textContent = stabilityLevel.toFixed(2);
+            document.getElementById('causality-loops').textContent = causalityLoops;
+            document.getElementById('anomalies').textContent = anomalyCount;
+        }
+        
+        // Render garden based on current time position
+        function renderGarden() {
+            // Update garden state
+            updateGarden();
+            
+            // Render each timeline layer
+            let pastHTML = '';
+            let presentHTML = '';
+            let futureHTML = '';
+            
+            for (let y = 0; y < GARDEN_HEIGHT; y++) {
+                let pastLine = '';
+                let presentLine = '';
+                let futureLine = '';
+                
+                for (let x = 0; x < GARDEN_WIDTH; x++) {
+                    // Get entities for each timeline
+                    const pastEntity = getGardenEntity(x, y, TIME_STATES.PAST);
+                    const presentEntity = getGardenEntity(x, y, TIME_STATES.PRESENT);
+                    const futureEntity = getGardenEntity(x, y, TIME_STATES.FUTURE);
+                    
+                    // Create HTML with appropriate classes
+                    pastLine += pastEntity.class ? 
+                        `<span class="${pastEntity.class}">${pastEntity.symbol}</span>` : 
+                        pastEntity.symbol;
+                        
+                    presentLine += presentEntity.class ? 
+                        `<span class="${presentEntity.class}">${presentEntity.symbol}</span>` : 
+                        presentEntity.symbol;
+                        
+                    futureLine += futureEntity.class ? 
+                        `<span class="${futureEntity.class}">${futureEntity.symbol}</span>` : 
+                        futureEntity.symbol;
+                }
+                
+                pastHTML += pastLine + '\n';
+                presentHTML += presentLine + '\n';
+                futureHTML += futureLine + '\n';
+            }
+            
+            // Update DOM
+            pastLayer.innerHTML = pastHTML;
+            presentLayer.innerHTML = presentHTML;
+            futureLayer.innerHTML = futureHTML;
+            
+            // Set layer opacity based on time position
+            const pastOpacity = timePosition < 0.5 ? 1 - timePosition * 1.8 : 0.1;
+            const presentOpacity = timePosition < 0.5 ? 
+                              timePosition * 2 : 
+                              2 - timePosition * 2;
+            const futureOpacity = timePosition > 0.5 ? (timePosition - 0.5) * 1.8 : 0.1;
+            
+            pastLayer.style.opacity = pastOpacity;
+            presentLayer.style.opacity = presentOpacity;
+            futureLayer.style.opacity = futureOpacity;
+            
+            // Request next frame
+            requestAnimationFrame(renderGarden);
+        }
+        
+        // Create a forced paradox (by SPACE key)
+        function createForcedParadox() {
+            // Select random locations in each timeline
+            const x1 = floor(random() * GARDEN_WIDTH);
+            const y1 = floor(random() * GARDEN_HEIGHT);
+            const x2 = floor(random() * GARDEN_WIDTH);
+            const y2 = floor(random() * GARDEN_HEIGHT);
+            
+            // Create paradoxical connection
+            const idx1 = y1 * GARDEN_WIDTH + x1;
+            const idx2 = y2 * GARDEN_WIDTH + x2;
+            
+            // Exchange entities between timelines
+            const pastValue = pastGarden[idx1];
+            const pastTime = pastLifetime[idx1];
+            
+            pastGarden[idx1] = futureGarden[idx2];
+            pastLifetime[idx1] = futureLifetime[idx2];
+            
+            futureGarden[idx2] = pastValue;
+            futureLifetime[idx2] = pastTime;
+            
+            // Create visual effects
+            createParadoxRipple(x1, y1);
+            createParadoxRipple(x2, y2);
+            
+            // Increase paradox metrics
+            paradoxLevel += 0.2;
+            stabilityLevel = max(0, stabilityLevel - 0.1);
+            causalityLoops++;
+            anomalyCount += 2;
+            
+            showPoetic("You've woven a deliberate paradox. Time shivers as cause and effect switch places.");
+        }
+        
+        // Reset the entire garden
+        function resetGarden() {
+            // Clear all garden arrays
+            pastGarden.fill(0);
+            presentGarden.fill(0);
+            futureGarden.fill(0);
+            pastLifetime.fill(0);
+            presentLifetime.fill(0);
+            futureLifetime.fill(0);
+            pastInfluence.fill(0);
+            presentInfluence.fill(0);
+            futureInfluence.fill(0);
+            paradoxField.fill(0);
+            
+            // Reset metrics
+            gardenTime = 0;
+            paradoxLevel = 0;
+            stabilityLevel = 1;
+            causalityLoops = 0;
+            anomalyCount = 0;
+            actionHistory = [];
+            
+            showPoetic("The garden of time resets, all paradoxes unravel, a blank canvas awaits.");
+        }
+        
+        // Event Listeners for garden interaction
+        document.getElementById('garden-field').addEventListener('click', (e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            // Calculate garden coordinates from click position
+            const gardenX = floor(clickX / rect.width * GARDEN_WIDTH);
+            const gardenY = floor(clickY / rect.height * GARDEN_HEIGHT);
+            
+            // Perform action based on current tool
+            if (gardenX >= 0 && gardenX < GARDEN_WIDTH && gardenY >= 0 && gardenY < GARDEN_HEIGHT) {
+                switch(currentTool) {
+                    case TOOLS.PLANT:
+                        plantSeed(gardenX, gardenY);
+                        break;
+                    case TOOLS.WATER:
+                        waterGarden(gardenX, gardenY);
+                        break;
+                    case TOOLS.PRUNE:
+                        pruneGarden(gardenX, gardenY);
+                        break;
+                }
+            }
+        });
+        
+        // Time slider controls
+        timeSlider.addEventListener('input', () => {
+            const value = parseInt(timeSlider.value);
+            timePosition = value / 100;
+            
+            // Update current time state based on slider position
+            if (timePosition < 0.33) {
+                currentTimeState = TIME_STATES.PAST;
+                timeLabel.textContent = "PAST";
+            } else if (timePosition < 0.66) {
+                currentTimeState = TIME_STATES.PRESENT;
+                timeLabel.textContent = "PRESENT";
+            } else {
+                currentTimeState = TIME_STATES.FUTURE;
+                timeLabel.textContent = "FUTURE";
+            }
+            
+            document.getElementById('current-time').textContent = currentTimeState;
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'KeyP':
+                    currentTool = TOOLS.PLANT;
+                    document.getElementById('current-tool').textContent = "PLANT";
+                    break;
+                case 'KeyW':
+                    currentTool = TOOLS.WATER;
+                    document.getElementById('current-tool').textContent = "WATER";
+                    break;
+                case 'KeyC':
+                    currentTool = TOOLS.PRUNE;
+                    document.getElementById('current-tool').textContent = "PRUNE";
+                    break;
+                case 'KeyR':
+                    resetGarden();
+                    break;
+                case 'Space':
+                    e.preventDefault();
+                    createForcedParadox();
+                    break;
+            }
+        });
+        
+        // Initialize and start the garden
+        function initGarden() {
+            console.log("Initializing Temporal Paradox Garden...");
+            
+            // Add some initial noise to each timeline
+            for (let i = 0; i < FIELD_SIZE; i++) {
+                // Small random values for temporal fields
+                const x = i % GARDEN_WIDTH;
+                const y = Math.floor(i / GARDEN_WIDTH);
+                
+                paradoxField[i] = random() * 0.1;
+                
+                // Rarely add initial plants
+                if (random() < 0.01) {
+                    pastGarden[i] = 1;
+                    pastLifetime[i] = floor(random() * 3) + 1;
+                }
+                
+                if (random() < 0.01) {
+                    presentGarden[i] = 1;
+                    presentLifetime[i] = floor(random() * 5) + 1;
+                }
+                
+                if (random() < 0.01) {
+                    futureGarden[i] = 1;
+                    futureLifetime[i] = floor(random() * 7) + 1;
+                }
+            }
+            
+            // Initial poetic message
+            setTimeout(() => {
+                showPoetic("Welcome to the Temporal Paradox Garden, where time folds upon itself and what will be already was.");
+            }, 1000);
+            
+            // Start rendering loop
+            renderGarden();
+        }
+        
+        // Initialize garden
+        initGarden();
+    </script>
+</body>
+</html>
