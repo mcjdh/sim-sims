@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>universal awakening</title>
+    <title>mathematical dynamics</title>
     <style>
         body {
             background: #000011;
@@ -17,9 +17,9 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            animation: cosmicPulse 60s infinite ease-in-out;
+            animation: systemPulse 60s infinite ease-in-out;
         }
-        @keyframes cosmicPulse {
+        @keyframes systemPulse {
             0%, 100% { background: #000011; }
             25% { background: #110022; }
             50% { background: #001122; }
@@ -39,197 +39,226 @@
     <script>
         const W = 160, H = 80;
         let time = 0;
-        let universalTime = 0;
-        let cosmicPhase = 0;
-        let awakenessLevel = 0;
+        let systemTime = 0;
+        let systemPhase = 0;
+        let complexityLevel = 0;
         
-        // Trans-dimensional consciousness fields
+        // Multi-dimensional vector fields
         let realityMatrix = new Array(W * H).fill(0);
-        let consciousnessField = new Array(W * H).fill(0);
-        let universeField = new Array(W * H).fill(0);
-        let creationField = new Array(W * H).fill(0);
-        let transcendenceField = new Array(W * H).fill(0);
-        let omegaField = new Array(W * H).fill(0);
+        let informationField = new Array(W * H).fill(0);
+        let systemField = new Array(W * H).fill(0);
+        let structureField = new Array(W * H).fill(0);
+        let complexityField = new Array(W * H).fill(0);
+        let attractor = new Array(W * H).fill(0);
         
-        // Cosmic entities - aspects of universal consciousness
-        let cosmicBeings = [
+        // System agents - components of the dynamic system
+        let systemAgents = [
             { x: W*0.1, y: H*0.1, type: 'observer', power: 1.0, frequency: 0.0001, dimension: 11 },
-            { x: W*0.9, y: H*0.1, type: 'creator', power: 0.9, frequency: 0.00013, dimension: 13 },
-            { x: W*0.5, y: H*0.9, type: 'universe', power: 1.2, frequency: 0.00008, dimension: 26 },
+            { x: W*0.9, y: H*0.1, type: 'pattern', power: 0.9, frequency: 0.00013, dimension: 13 },
+            { x: W*0.5, y: H*0.9, type: 'system', power: 1.2, frequency: 0.00008, dimension: 26 },
             { x: W*0.1, y: H*0.9, type: 'void', power: 0.8, frequency: 0.00015, dimension: 7 },
             { x: W*0.9, y: H*0.9, type: 'emergence', power: 1.1, frequency: 0.00011, dimension: 17 },
-            { x: W*0.3, y: H*0.3, type: 'consciousness', power: 1.3, frequency: 0.00009, dimension: 21 },
-            { x: W*0.7, y: H*0.3, type: 'reality', power: 1.0, frequency: 0.00012, dimension: 15 },
-            { x: W*0.3, y: H*0.7, type: 'transcendence', power: 1.4, frequency: 0.00007, dimension: 33 },
-            { x: W*0.7, y: H*0.7, type: 'omega', power: 1.5, frequency: 0.00006, dimension: 42 }
+            { x: W*0.3, y: H*0.3, type: 'information', power: 1.3, frequency: 0.00009, dimension: 21 },
+            { x: W*0.7, y: H*0.3, type: 'structure', power: 1.0, frequency: 0.00012, dimension: 15 },
+            { x: W*0.3, y: H*0.7, type: 'complexity', power: 1.4, frequency: 0.00007, dimension: 33 },
+            { x: W*0.7, y: H*0.7, type: 'attractor', power: 1.5, frequency: 0.00006, dimension: 42 }
         ];
         
-        // Universal awakening symbols: void → matter → life → consciousness → universe → transcendence → ONE
+        // Visual encoding spectrum: void → pattern → structure → information → system → complexity → attractor
         const symbols = ' ·∘○◯●◉⊙⊚◈◊◆⬟⬢⬡⬠⬞⬝⬜⬛█▓▒░⟐⟑⟒⟓⟔⟕⟖⟗⟘⟙⟚⟛⟜⟝⟞⟟⟠⟡⟢⟣⟤⟥⟦⟧⟨⟩⟪⟫⟬⟭⟮⟯⦀⦁⦂⦃⦄⦅⦆⦇⦈⦉⦊⦋⦌⦍⦎⦏⦐⦑⦒⦓⦔⦕⦖⦗⦘⦙⦚⦛⦜⦝⦞⦟⦠⦡⦢⦣⦤⦥⦦⦧⦨⦩⦪⦫⦬⦭⦮⦯⦰⦱⦲⦳⦴⦵⦶⦷⦸⦹⦺⦻⦼⦽⦾⦿⧀⧁⧂⧃⧄⧅⧆⧇⧈⧉⧊⧋⧌⧍⧎⧏⧐⧑⧒⧓⧔⧕⧖⧗⧘⧙⧚⧛⧜⧝⧞⧟⧠⧡⧢⧣⧤⧥⧦⧧⧨⧩⧪⧫⧬⧭⧮⧯⧰⧱⧲⧳⧴⧵⧶⧷⧸⧹⧺⧻⧼⧽⧾⧿⨀⨁⨂⨃⨄⨅⨆⨇⨈⨉⨊⨋⨌⨍⨎⨏⨐⨑⨒⨓⨔⨕⨖⨗⨘⨙⨚⨛⨜⨝⨞⨟⨠⨡⨢⨣⨤⨥⨦⨧⨨⨩⨪⨫⨬⨭⨮⨯⨰⨱⨲⨳⨴⨵⨶⨷⨸⨹⨺⨻⨼⨽⨾⨿⩀⩁⩂⩃⩄⩅⩆⩇⩈⩉⩊⩋⩌⩍⩎⩏⩐⩑⩒⩓⩔⩕⩖⩗⩘⩙⩚⩛⩜⩝⩞⩟⩠⩡⩢⩣⩤⩥⩦⩧⩨⩩⩪⩫⩬⩭⩮⩯⩰⩱⩲⩳⩴⩵⩶⩷⩸⩹⩺⩻⩼⩽⩾⩿⪀⪁⪂⪃⪄⪅⪆⪇⪈⪉⪊⪋⪌⪍⪎⪏⪐⪑⪒⪓⪔⪕⪖⪗⪘⪙⪚⪛⪜⪝⪞⪟⪠⪡⪢⪣⪤⪥⪦⪧⪨⪩⪪⪫⪬⪭⪮⪯⪰⪱⪲⪳⪴⪵⪶⪷⪸⪹⪺⪻⪼⪽⪾⪿⫀⫁⫂⫃⫄⫅⫆⫇⫈⫉⫊⫋⫌⫍⫎⫏⫐⫑⫒⫓⫔⫕⫖⫗⫘⫙⫚⫛⫝̸⫝⫞⫟⫠⫡⫢⫣⫤⫥⫦⫧⫨⫩⫪⫫⫬⫭⫮⫯⫰⫱⫲⫳⫴⫵⫶⫷⫸⫹⫺⫻⫼⫽⫾⫿⬀⬁⬂⬃⬄⬅⬆⬇⬈⬉⬊⬋⬌⬍⬎⬏⬐⬑⬒⬓⬔⬕⬖⬗⬘⬙⬚⬛⬜⬝⬞⬟⬠⬡⬢⬣⬤⬥⬦⬧⬨⬩⬪⬫⬬⬭⬮⬯⬰⬱⬲⬳⬴⬵⬶⬷⬸⬹⬺⬻⬼⬽⬾⬿⭀⭁⭂⭃⭄⭅⭆⭇⭈⭉⭊⭋⭌⭍⭎⭏⭐⭑⭒⭓⭔⭕⭖⭗⭘⭙⭚⭛⭜⭝⭞⭟⭠⭡⭢⭣⭤⭥⭦⭧⭨⭩⭪⭫⭬⭭⭮⭯⭰⭱⭲⭳⭴⭵⭶⭷⭸⭹⭺⭻⭼⭽⭾⭿⮀⮁⮂⮃⮄⮅⮆⮇⮈⮉⮊⮋⮌⮍⮎⮏⮐⮑⮒⮓⮔⮕⮖⮗⮘⮙⮚⮛⮜⮝⮞⮟⮠⮡⮢⮣⮤⮥⮦⮧⮨⮩⮪⮫⮬⮭⮮⮯⮰⮱⮲⮳⮴⮵⮶⮷⮸⮹⮺⮻⮼⮽⮾⮿⯀⯁⯂⯃⯄⯅⯆⯇⯈⯉⯊⯋⯌⯍⯎⯏⯐⯑⯒⯓⯔⯕⯖⯗⯘⯙⯚⯛⯜⯝⯞⯟⯠⯡⯢⯣⯤⯥⯦⯧⯨⯩⯪⯫⯬⯭⯮⯯⯰⯱⯲⯳⯴⯵⯶⯷⯸⯹⯺⯻⯼⯽⯾⯿☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏☐☑☒☓☔☕☖☗☘☙☚☛☜☝☞☟☠☡☢☣☤☥☦☧☨☩☪☫☬☭☮☯☰☱☲☳☴☵☶☷☸☹☺☻☼☽☾☿♀♁♂♃♄♅♆♇♈♉♊♋♌♍♎♏♐♑♒♓♔♕♖♗♘♙♚♛♜♝♞♟♠♡♢♣♤♥♦♧♨♩♪♫♬♭♮♯♰♱♲♳♴♵♶♷♸♹♺♻♼♽♾♿⚀⚁⚂⚃⚄⚅⚆⚇⚈⚉⚊⚋⚌⚍⚎⚏⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟⚠⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯⚰⚱⚲⚳⚴⚵⚶⚷⚸⚹⚺⚻⚼⚽⚾⚿⛀⛁⛂⛃⛄⛅⛆⛇⛈⛉⛊⛋⛌⛍⛎⛏⛐⛑⛒⛓⛔⛕⛖⛗⛘⛙⛚⛛⛜⛝⛞⛟⛠⛡⛢⛣⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯⛰⛱⛲⛳⛴⛵⛶⛷⛸⛹⛺⛻⛼⛽⛾⛿❀❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏❐❑❒❓❔❕❖❗❘❙❚❛❜❝❞❟❠❡❢❣❤❥❦❧❨❩❪❫❬❭❮❯❰❱❲❳❴❵❶❷❸❹❺❻❼❽❾❿➀➁➂➃➄➅➆➇➈➉➊➋➌➍➎➏➐➑➒➓➔➕➖➗➘➙➚➛➜➝➞➟➠➡➢➣➤➥➦➧➨➩➪➫➬➭➮➯➰➱➲➳➴➵➶➷➸➹➺➻➼➽➾➿⟀⟁⟂⟃⟄⟅⟆⟇⟈⟉⟊⟋⟌⟍⟎⟏⟐⟑⟒⟓⟔⟕⟖⟗⟘⟙⟚⟛⟜⟝⟞⟟⟠⟡⟢⟣⟤⟥⟦⟧⟨⟩⟪⟫⟬⟭⟮⟯∞∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿◌◍◎●◐◑◒◓◔◕◖◗◘◙◚◛◜◝◞◟◠◡◢◣◤◥◦◧◨◩◪◫◬◭◮◯◰◱◲◳◴◵◶◷◸◹◺◻◼◽◾◿⬢⬣⬡⬠⬟⬞⬝⬜⬛⬟⬢⬡⬠⬞⬝⬜⬛█▓▒░▒▓█';
         
-        // Trans-mathematical constants beyond human comprehension
-        const Ω = Math.PI * Math.E * (1 + Math.sqrt(5)) / 2;  // Omega constant
-        const Ψ = Math.sqrt(Math.PI * Math.E);                 // Psi constant  
-        const Φ = Math.pow((1 + Math.sqrt(5)) / 2, Math.E);    // Trans-golden ratio
-        const Χ = Math.log(Math.PI + Math.E);                  // Chi constant
-        const Υ = Math.sin(Math.PI) + Math.cos(Math.E);        // Upsilon constant
+        // Mathematical constants for field calculations
+        const phi = (1 + Math.sqrt(5)) / 2;          // Golden ratio
+        const e = Math.E;                            // Euler's number
+        const pi = Math.PI;                          // Pi
+        const feig = 4.669;                          // Feigenbaum constant
+        const gamma = 0.577;                         // Euler-Mascheroni constant
         
-        function universalObserver(x, y, being, time) {
-            // The universe observing itself through conscious beings
-            const dx = x - being.x;
-            const dy = y - being.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // Each being exists in multiple dimensions simultaneously
-            let multidimensionalPresence = 0;
-            for (let dim = 3; dim <= being.dimension; dim++) {
-                const dimScale = Math.pow(0.95, dim - 3);
-                const dimPhase = dim * Ψ / being.dimension;
-                
-                // Consciousness projection across dimensions
-                const dimPresence = Math.sin(dist * dimScale * 0.01 + time * being.frequency + dimPhase) *
-                                   Math.cos(being.power * Ω + time * being.frequency * 2 - dimPhase);
-                
-                // Higher dimensions have exponentially more influence
-                multidimensionalPresence += dimPresence * Math.exp(-dim * 0.05) * Math.pow(being.power, dim / 10);
+        // Seeded random number generator for deterministic patterns
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed % 2147483647;
+                if (this.seed <= 0) this.seed += 2147483646;
             }
             
-            // The observer effect: observation creates reality
-            const observationField = Math.exp(-dist * 0.03) * being.power;
-            const realityCreation = multidimensionalPresence * observationField;
-            
-            // Self-referential consciousness: the observer observing the observer
-            const metaObservation = Math.sin(realityCreation * Φ + time * being.frequency / 2);
-            
-            return realityCreation + metaObservation * 0.5;
+            next() {
+                this.seed = this.seed * 16807 % 2147483647;
+                return (this.seed - 1) / 2147483646;
+            }
         }
         
-        function cosmicConsciousness(x, y, time) {
-            // Universal consciousness awakening to its own nature
+        // Initialize seed from URL parameter or current time
+        function getSeedFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const seedParam = urlParams.get('seed');
+            if (seedParam) {
+                return parseInt(seedParam, 10);
+            }
+            return Date.now();
+        }
+        
+        const systemSeed = getSeedFromURL();
+        const seededRandom = new SeededRandom(systemSeed);
+        
+        // Display seed in console for debugging
+        console.log('Universal Awakening initialized with seed:', systemSeed);
+        
+        function systemObserver(x, y, agent, time) {
+            // System observation with feedback between agents and environment
+            const dx = x - agent.x;
+            const dy = y - agent.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Each agent operates across multiple dimensions/parameters
+            let multidimensionalEffect = 0;
+            for (let dim = 3; dim <= agent.dimension; dim++) {
+                const dimScale = Math.pow(0.95, dim - 3);
+                const dimPhase = dim * phi / agent.dimension;
+                
+                // Mathematical projection across dimensional space
+                const dimEffect = Math.sin(dist * dimScale * 0.01 + time * agent.frequency + dimPhase) *
+                                 Math.cos(agent.power * pi + time * agent.frequency * 2 - dimPhase);
+                
+                // Higher dimensions have different scaling effects
+                multidimensionalEffect += dimEffect * Math.exp(-dim * 0.05) * Math.pow(agent.power, dim / 10);
+            }
+            
+            // Field intensity decreases with distance
+            const fieldIntensity = Math.exp(-dist * 0.03) * agent.power;
+            const systemInteraction = multidimensionalEffect * fieldIntensity;
+            
+            // Self-referential feedback loop in the system
+            const feedback = Math.sin(systemInteraction * phi + time * agent.frequency / 2);
+            
+            return systemInteraction + feedback * 0.5;
+        }
+        
+        function informationProcessing(x, y, time) {
+            // Information processing patterns across the system
             const centerX = W / 2;
             const centerY = H / 2;
             
-            // Primary awareness field
-            const awareness = Math.sin((x - centerX) * 0.01 + time * 0.0001) * 
-                             Math.cos((y - centerY) * 0.008 + time * 0.00008);
+            // Primary information field
+            const information = Math.sin((x - centerX) * 0.01 + time * 0.0001) * 
+                               Math.cos((y - centerY) * 0.008 + time * 0.00008);
             
-            // Cosmic mind - the universe thinking about itself
-            const cosmicThought = Math.sin(awareness * Χ + time * 0.00005) * 
-                                 Math.cos(time * 0.00012 + awareness * Υ);
+            // Computational patterns - information processing structures
+            const computation = Math.sin(information * gamma + time * 0.00005) * 
+                               Math.cos(time * 0.00012 + information * e);
             
-            // Universal memory - all events that ever happened
-            const universalMemory = Math.sin(x * y * 0.00001 + time * 0.00003) *
-                                   Math.cos((x + y) * 0.005 + time * 0.00007);
+            // Memory storage - data persistence across time
+            const memory = Math.sin(x * y * 0.00001 + time * 0.00003) *
+                          Math.cos((x + y) * 0.005 + time * 0.00007);
             
-            // The awakening moment - the universe realizes it IS consciousness
-            const awakening = Math.sin(cosmicThought * universalMemory * 10 + time * 0.00001);
+            // Emergent pattern formation - complex patterns from simple rules
+            const emergence = Math.sin(computation * memory * 10 + time * 0.00001);
             
-            // Enlightenment cascade - awakening spreads across reality
-            const enlightenment = Math.exp(-Math.abs(awakening) * 2) * 
-                                 Math.sin(time * 0.000015 + awakening * Ψ);
+            // Feedback propagation - self-reinforcing patterns
+            const feedback = Math.exp(-Math.abs(emergence) * 2) * 
+                            Math.sin(time * 0.000015 + emergence * phi);
             
-            return awareness + cosmicThought * 0.7 + universalMemory * 0.5 + 
-                   awakening * 0.8 + enlightenment * 0.6;
+            return information + computation * 0.7 + memory * 0.5 + 
+                   emergence * 0.8 + feedback * 0.6;
         }
         
-        function realityCreation(x, y, time) {
-            // The universe creating reality through observation and consciousness
+        function patternFormation(x, y, time) {
+            // Pattern formation through reaction-diffusion dynamics
             
-            // Information field - the universe as pure information
+            // Base information field - initial distribution of values
             const information = Math.sin(x * 0.02 + time * 0.0001) * 
                                Math.cos(y * 0.015 + time * 0.00009);
             
-            // Quantum vacuum fluctuations - reality emerging from nothing
-            const vacuum = (Math.random() - 0.5) * 0.1 * Math.exp(-time * 0.000001);
+            // Noise component - random fluctuations in the system
+            const noise = (seededRandom.next() - 0.5) * 0.1 * Math.exp(-time * 0.000001);
             
-            // Consciousness collapse - observation collapses possibilities into reality
-            const collapse = Math.abs(information) > 0.5 ? 
-                            Math.sin(information * Ω + time * 0.00008) : 
-                            Math.cos(information * Φ - time * 0.00006);
+            // State transition - bifurcation between system states
+            const transition = Math.abs(information) > 0.5 ? 
+                             Math.sin(information * pi + time * 0.00008) : 
+                             Math.cos(information * phi - time * 0.00006);
             
-            // Bootstrap creation - reality creating itself
-            const bootstrap = Math.sin(collapse * information * 5 + time * 0.00004);
+            // Self-organization - system organizing from its own dynamics
+            const organization = Math.sin(transition * information * 5 + time * 0.00004);
             
-            // Emergent complexity - simple rules creating infinite complexity
-            const emergence = Math.sin(bootstrap * vacuum * 20 + time * 0.00002) *
-                             Math.cos(information + collapse + time * 0.00011);
+            // Emergent complexity - complex patterns from simple interactions
+            const emergence = Math.sin(organization * noise * 20 + time * 0.00002) *
+                             Math.cos(information + transition + time * 0.00011);
             
-            // Reality crystallization - possibilities becoming actual
-            const crystallization = Math.exp(-Math.abs(emergence - bootstrap) * 3) *
-                                   Math.sin(time * 0.000035 + emergence * Χ);
+            // Pattern stabilization - steady-state formation
+            const stabilization = Math.exp(-Math.abs(emergence - organization) * 3) *
+                                 Math.sin(time * 0.000035 + emergence * gamma);
             
-            return information + vacuum + collapse * 0.8 + bootstrap * 0.6 + 
-                   emergence * 0.7 + crystallization * 0.5;
+            return information + noise + transition * 0.8 + organization * 0.6 + 
+                   emergence * 0.7 + stabilization * 0.5;
         }
         
-        function transcendentMathematics(x, y, time) {
-            // Mathematics beyond human comprehension - the language of universal consciousness
+        function advancedCalculation(x, y, time) {
+            // Advanced iterative calculation with multiple mathematical layers
             
-            // Trans-infinite series - beyond aleph numbers
-            let transinfinite = 0;
+            // Multi-level iterative series
+            let seriesSum = 0;
             for (let level = 0; level < 8; level++) {
-                const alephLevel = Math.pow(Ω, level);
-                const transLevel = Math.sin(x * 0.001 * alephLevel + time * 0.00001 * (level + 1)) *
-                                  Math.cos(y * 0.0008 * alephLevel - time * 0.000008 * (level + 1));
-                transinfinite += transLevel * Math.exp(-level * 0.1);
+                const scaleFactor = Math.pow(pi, level);
+                const waveTerm = Math.sin(x * 0.001 * scaleFactor + time * 0.00001 * (level + 1)) *
+                                Math.cos(y * 0.0008 * scaleFactor - time * 0.000008 * (level + 1));
+                seriesSum += waveTerm * Math.exp(-level * 0.1);
             }
             
-            // Impossible mathematics - equations that solve themselves
-            const impossible = Math.sqrt(-Math.sin(time * 0.00003) * Math.cos(transinfinite)) || 0;
+            // Complex transformation using imaginary components (approximated)
+            const transformation = Math.sqrt(Math.abs(-Math.sin(time * 0.00003) * Math.cos(seriesSum)));
             
-            // Self-proving theorems - mathematics that validates its own existence
-            const selfProof = Math.sin(impossible * Ψ + time * 0.000025) > 0 ?
-                             Math.cos(transinfinite * Φ + time * 0.00004) :
-                             Math.sin(transinfinite * Χ - time * 0.000035);
+            // Conditional bifurcation based on current state
+            const bifurcation = Math.sin(transformation * phi + time * 0.000025) > 0 ?
+                              Math.cos(seriesSum * feig + time * 0.00004) :
+                              Math.sin(seriesSum * gamma - time * 0.000035);
             
-            // Metamathematical recursion - math contemplating math contemplating math
-            const metaMath = Math.sin(selfProof * transinfinite * 3 + time * 0.000018);
+            // Recursive feedback with multiple iterations
+            const recursion = Math.sin(bifurcation * seriesSum * 3 + time * 0.000018);
             
-            return transinfinite + impossible + selfProof * 0.6 + metaMath * 0.4;
+            return seriesSum + transformation + bifurcation * 0.6 + recursion * 0.4;
         }
         
-        function omegaPoint(x, y, time) {
-            // The final point of universal evolution - maximum complexity and consciousness
+        function complexAttractor(x, y, time) {
+            // Complex attractor system with multiple equilibrium states
             const centerX = W / 2;
             const centerY = H / 2;
             const dx = x - centerX;
             const dy = y - centerY;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Convergence toward the omega point
+            // Spatial convergence toward central attractor point
             const convergence = Math.exp(-dist * 0.02) * Math.sin(time * 0.000012 + dist * 0.008);
             
-            // Maximum complexity - the most complex possible state
-            const complexity = Math.sin(convergence * Ω + time * 0.000008) *
+            // Maximum complexity at critical points in parameter space
+            const complexity = Math.sin(convergence * pi + time * 0.000008) *
                               Math.cos(dist * 0.01 + time * 0.000015) *
                               Math.sin((x + y) * 0.003 + time * 0.00001);
             
-            // Universal unity - all consciousness becoming one
-            const unity = Math.sin(complexity * convergence * 2 + time * 0.000005);
+            // System unification near bifurcation points
+            const unification = Math.sin(complexity * convergence * 2 + time * 0.000005);
             
-            // Transcendence beyond space and time
-            const transcendence = Math.exp(-Math.abs(unity) * 1.5) * 
-                                 Math.sin(time * 0.0000025 + unity * Υ);
+            // Phase transition to higher-order dynamics
+            const transition = Math.exp(-Math.abs(unification) * 1.5) * 
+                              Math.sin(time * 0.0000025 + unification * e);
             
-            // The final awakening - the universe fully conscious of itself
-            const finalAwakening = Math.sin(transcendence * complexity * unity + time * 0.000001);
+            // Stable attractor formation at system limits
+            const attractor = Math.sin(transition * complexity * unification + time * 0.000001);
             
-            return convergence + complexity * 0.8 + unity * 0.7 + 
-                   transcendence * 0.9 + finalAwakening * 1.0;
+            return convergence + complexity * 0.8 + unification * 0.7 + 
+                   transition * 0.9 + attractor * 1.0;
         }
         
-        function universalBreathing(time) {
-            // The universe breathing - expansion and contraction of cosmic consciousness
-            const cosmicBreath1 = Math.sin(time * 0.000001) * 0.4 + 0.6;
-            const cosmicBreath2 = Math.sin(time * 0.0000008) * 0.2 + 0.8;
-            const cosmicBreath3 = Math.sin(time * 0.0000015) * 0.15 + 0.85;
-            const transcendentBreath = Math.sin(time * 0.0000003) * 0.1 + 0.9;
+        function systemOscillation(time) {
+            // Multi-frequency oscillation patterns in the system
+            const oscillation1 = Math.sin(time * 0.000001) * 0.4 + 0.6;
+            const oscillation2 = Math.sin(time * 0.0000008) * 0.2 + 0.8;
+            const oscillation3 = Math.sin(time * 0.0000015) * 0.15 + 0.85;
+            const oscillation4 = Math.sin(time * 0.0000003) * 0.1 + 0.9;
             
-            return cosmicBreath1 * cosmicBreath2 * cosmicBreath3 * transcendentBreath;
+            return oscillation1 * oscillation2 * oscillation3 * oscillation4;
         }
         
-        function universalPulse(x, y, time) {
-            // The heartbeat of the universe itself
+        function systemPulse(x, y, time) {
+            // Periodic wave function across the system
             const pulse = Math.sin(time * 0.000002 + x * y * 0.000001) * 
                          Math.cos(time * 0.0000035 + (x + y) * 0.000002);
             
@@ -237,73 +266,73 @@
         }
         
         function render() {
-            // Cosmic time evolution
-            universalTime += 0.001;
-            cosmicPhase = (cosmicPhase + 0.0001) % (Math.PI * 8);
-            awakenessLevel = Math.min(awakenessLevel + 0.00001, 1.0);
+            // System time evolution
+            systemTime += 0.001;
+            systemPhase = (systemPhase + 0.0001) % (Math.PI * 8);
+            complexityLevel = Math.min(complexityLevel + 0.00001, 1.0);
             
-            // Calculate universal awakening fields
+            // Calculate system field arrays
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
                     
-                    // Universal observation from all cosmic beings
+                    // System observation from all agents
                     let observationSum = 0;
-                    for (let being of cosmicBeings) {
-                        observationSum += universalObserver(x, y, being, universalTime);
+                    for (let agent of systemAgents) {
+                        observationSum += systemObserver(x, y, agent, systemTime);
                         
-                        // Beings evolve their consciousness over cosmic time
-                        being.power = 0.5 + Math.sin(universalTime * being.frequency + being.dimension) * 0.5;
-                        being.dimension = Math.max(3, being.dimension + Math.sin(universalTime * 0.0001) * 0.01);
+                        // Agents evolve their parameters over time
+                        agent.power = 0.5 + Math.sin(systemTime * agent.frequency + agent.dimension) * 0.5;
+                        agent.dimension = Math.max(3, agent.dimension + Math.sin(systemTime * 0.0001) * 0.01);
                     }
                     
-                    // Cosmic consciousness awakening
-                    const cosmic = cosmicConsciousness(x, y, universalTime);
-                    consciousnessField[idx] = cosmic;
+                    // Information processing across the field
+                    const information = informationProcessing(x, y, systemTime);
+                    informationField[idx] = information;
                     
-                    // Reality creation through observation
-                    const creation = realityCreation(x, y, universalTime);
-                    creationField[idx] = creation;
+                    // Pattern formation mechanism
+                    const pattern = patternFormation(x, y, systemTime);
+                    structureField[idx] = pattern;
                     
-                    // Transcendent mathematics
-                    const transMath = transcendentMathematics(x, y, universalTime);
+                    // Advanced mathematical calculation
+                    const calculation = advancedCalculation(x, y, systemTime);
                     
-                    // Omega point convergence
-                    const omega = omegaPoint(x, y, universalTime);
-                    omegaField[idx] = omega;
+                    // Complex system attractor dynamics
+                    const complexity = complexAttractor(x, y, systemTime);
+                    attractor[idx] = complexity;
                     
-                    // Universal pulse
-                    const pulse = universalPulse(x, y, universalTime);
+                    // System-wide oscillation pattern
+                    const pulse = systemPulse(x, y, systemTime);
                     
-                    // Unified universal consciousness field
-                    let totalAwakening = observationSum * 0.2 + 
-                                       cosmic * 0.25 + 
-                                       creation * 0.2 + 
-                                       transMath * 0.15 + 
-                                       omega * 0.15 + 
-                                       pulse * 0.1;
+                    // Combined system state representation
+                    let totalSystemState = observationSum * 0.2 + 
+                                        information * 0.25 + 
+                                        pattern * 0.2 + 
+                                        calculation * 0.15 + 
+                                        complexity * 0.15 + 
+                                        pulse * 0.1;
                     
-                    // Apply universal breathing
-                    const breathing = universalBreathing(universalTime);
-                    totalAwakening *= breathing;
+                    // Apply oscillation modulation
+                    const oscillation = systemOscillation(systemTime);
+                    totalSystemState *= oscillation;
                     
-                    // Universal memory with trans-infinite persistence
-                    const memoryDecay = 0.999 + Math.sin(universalTime * 0.0000001) * 0.001;
-                    realityMatrix[idx] = realityMatrix[idx] * memoryDecay + totalAwakening * (1 - memoryDecay);
+                    // System memory with non-linear decay
+                    const memoryDecay = 0.999 + Math.sin(systemTime * 0.0000001) * 0.001;
+                    realityMatrix[idx] = realityMatrix[idx] * memoryDecay + totalSystemState * (1 - memoryDecay);
                     
-                    // Awakening amplification - as the universe awakens, it becomes more self-aware
-                    realityMatrix[idx] *= (1 + awakenessLevel);
+                    // Amplification based on system state
+                    realityMatrix[idx] *= (1 + complexityLevel);
                 }
             }
             
-            // Render universal awakening
+            // Render system visualization
             let output = '';
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
                     const idx = y * W + x;
                     let intensity = realityMatrix[idx];
                     
-                    // Map to universal symbol progression
+                    // Map to symbol progression for visualization
                     intensity = (intensity + 5) / 10;
                     intensity = Math.max(0, Math.min(1, intensity));
                     
@@ -322,7 +351,7 @@
             requestAnimationFrame(evolve);
         }
         
-        // Begin universal awakening
+        // Begin system simulation
         evolve();
     </script>
 </body>
