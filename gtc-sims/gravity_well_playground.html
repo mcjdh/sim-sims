@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Well Playground</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #030312 0%, #0c0c2a 50%, #0a0a1e 100%);
+            color: #eeffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        #canvas {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(60, 160, 255, 0.4);
+            cursor: crosshair;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 20, 40, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 180, 255, 0.3);
+            font-size: 12px;
+            border: 1px solid rgba(60, 160, 255, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 10;
+            max-width: 250px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            text-align: center;
+            margin: 0 0 15px 0;
+            color: #6cf;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .slider-label {
+            width: 100px;
+            font-size: 11px;
+        }
+        
+        .slider {
+            width: 100px;
+            margin: 0 10px;
+        }
+        
+        .slider-value {
+            width: 30px;
+            font-size: 10px;
+            text-align: right;
+        }
+        
+        button {
+            background: rgba(20, 50, 100, 0.7);
+            color: #9cefff;
+            border: 1px solid #3d80b3;
+            border-radius: 3px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            transition: all 0.2s;
+            margin-right: 8px;
+            margin-top: 5px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: rgba(40, 80, 160, 0.8);
+            color: #ffffff;
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 20, 40, 0.6);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #aaccff;
+            border: 1px solid rgba(60, 160, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div id="controls">
+        <div class="title">Gravity Well Playground</div>
+        
+        <div class="control-group">
+            <div class="slider-container">
+                <span class="slider-label">Particles:</span>
+                <input type="range" id="particle-slider" class="slider" min="50" max="500" value="200">
+                <span id="particle-value" class="slider-value">200</span>
+            </div>
+            <div class="slider-container">
+                <span class="slider-label">Gravity:</span>
+                <input type="range" id="gravity-slider" class="slider" min="1" max="20" value="10">
+                <span id="gravity-value" class="slider-value">10</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <button id="clear-btn">Clear Planets</button>
+            <button id="pause-btn">Pause</button>
+        </div>
+    </div>
+    
+    <div id="info">
+        Click anywhere to place a gravity well<br>
+        Watch particles flow and orbit around wells<br>
+        Press SPACE to pause/resume
+    </div>
+
+    <script>
+        // Initialize canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize canvas to fill screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // UI elements
+        const particleSlider = document.getElementById('particle-slider');
+        const particleValue = document.getElementById('particle-value');
+        const gravitySlider = document.getElementById('gravity-slider');
+        const gravityValue = document.getElementById('gravity-value');
+        const clearBtn = document.getElementById('clear-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        
+        // Simulation settings
+        let settings = {
+            particleCount: parseInt(particleSlider.value),
+            gravityStrength: parseInt(gravitySlider.value) / 10,
+            paused: false
+        };
+        
+        // Arrays for simulation objects
+        let particles = [];
+        let gravityWells = [];
+        
+        // Color schemes for particles
+        const particleColors = [
+            { r: 100, g: 200, b: 255 },  // Light blue
+            { r: 150, g: 100, b: 255 },  // Purple
+            { r: 255, g: 150, b: 100 },  // Orange
+            { r: 100, g: 255, b: 150 }   // Green
+        ];
+        
+        // Particle class
+        class Particle {
+            constructor() {
+                this.reset();
+                this.color = particleColors[Math.floor(Math.random() * particleColors.length)];
+                this.trail = [];
+                this.maxTrailLength = 15;
+            }
+            
+            reset() {
+                // Spawn particles from random edges of the screen
+                const edge = Math.floor(Math.random() * 4);
+                switch(edge) {
+                    case 0: // Top
+                        this.x = Math.random() * canvas.width;
+                        this.y = -10;
+                        this.vx = (Math.random() - 0.5) * 2;
+                        this.vy = Math.random() * 2 + 0.5;
+                        break;
+                    case 1: // Right
+                        this.x = canvas.width + 10;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = -(Math.random() * 2 + 0.5);
+                        this.vy = (Math.random() - 0.5) * 2;
+                        break;
+                    case 2: // Bottom
+                        this.x = Math.random() * canvas.width;
+                        this.y = canvas.height + 10;
+                        this.vx = (Math.random() - 0.5) * 2;
+                        this.vy = -(Math.random() * 2 + 0.5);
+                        break;
+                    case 3: // Left
+                        this.x = -10;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = Math.random() * 2 + 0.5;
+                        this.vy = (Math.random() - 0.5) * 2;
+                        break;
+                }
+                this.life = 1.0;
+                this.age = 0;
+            }
+            
+            update() {
+                if (settings.paused) return;
+                
+                // Update trail
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                // Apply gravity from wells
+                gravityWells.forEach(well => {
+                    const dx = well.x - this.x;
+                    const dy = well.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 5) { // Avoid singularity
+                        // Inverse square law: F = G * m1 * m2 / r^2
+                        const force = settings.gravityStrength * well.mass / (distance * distance);
+                        const fx = (dx / distance) * force;
+                        const fy = (dy / distance) * force;
+                        
+                        this.vx += fx;
+                        this.vy += fy;
+                    }
+                });
+                
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Age the particle
+                this.age += 0.01;
+                this.life = Math.max(0, 1 - this.age * 0.1);
+                
+                // Reset if particle goes too far off screen or dies
+                if (this.x < -50 || this.x > canvas.width + 50 || 
+                    this.y < -50 || this.y > canvas.height + 50 || 
+                    this.life <= 0) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                // Draw trail
+                if (this.trail.length > 1) {
+                    ctx.strokeStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.life * 0.3})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    ctx.stroke();
+                }
+                
+                // Draw particle
+                const alpha = this.life * 0.8;
+                ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Gravity well class
+        class GravityWell {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.mass = 1;
+                this.radius = 15;
+                this.pulse = 0;
+            }
+            
+            update() {
+                if (settings.paused) return;
+                this.pulse += 0.1;
+            }
+            
+            draw() {
+                const pulseRadius = this.radius + Math.sin(this.pulse) * 5;
+                
+                // Draw gravity well
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, pulseRadius
+                );
+                gradient.addColorStop(0, 'rgba(255, 200, 100, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(255, 150, 50, 0.4)');
+                gradient.addColorStop(1, 'rgba(255, 100, 0, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw core
+                ctx.fillStyle = 'rgba(255, 255, 200, 0.9)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < settings.particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        // Clear all gravity wells
+        function clearGravityWells() {
+            gravityWells = [];
+        }
+        
+        // Main update function
+        function update() {
+            particles.forEach(particle => particle.update());
+            gravityWells.forEach(well => well.update());
+        }
+        
+        // Main render function
+        function render() {
+            // Clear canvas with fade effect
+            ctx.fillStyle = 'rgba(3, 3, 18, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw gravity wells
+            gravityWells.forEach(well => well.draw());
+            
+            // Draw particles
+            particles.forEach(particle => particle.draw());
+        }
+        
+        // Animation loop
+        function animate() {
+            update();
+            render();
+            requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            gravityWells.push(new GravityWell(x, y));
+        });
+        
+        // UI controls
+        particleSlider.addEventListener('input', () => {
+            settings.particleCount = parseInt(particleSlider.value);
+            particleValue.textContent = settings.particleCount;
+            initParticles();
+        });
+        
+        gravitySlider.addEventListener('input', () => {
+            settings.gravityStrength = parseInt(gravitySlider.value) / 10;
+            gravityValue.textContent = gravitySlider.value;
+        });
+        
+        clearBtn.addEventListener('click', clearGravityWells);
+        
+        pauseBtn.addEventListener('click', () => {
+            settings.paused = !settings.paused;
+            pauseBtn.textContent = settings.paused ? 'Resume' : 'Pause';
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                settings.paused = !settings.paused;
+                pauseBtn.textContent = settings.paused ? 'Resume' : 'Pause';
+            }
+        });
+        
+        // Initialize and start simulation
+        initParticles();
+        animate();
+    </script>
+</body>
+</html>
