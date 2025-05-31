@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Life Simulation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        h1 {
+            margin: 10px 0;
+            font-size: 24px;
+            text-align: center;
+            color: #64ffda;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+        }
+        
+        #canvas {
+            background: radial-gradient(circle at center, #0a0a0a 0%, #1a1a1a 100%);
+            border: 3px solid #64ffda;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.4);
+            cursor: crosshair;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 20, 40, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            font-size: 14px;
+            border: 1px solid rgba(100, 255, 218, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            min-width: 200px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            text-align: center;
+            margin: 0 0 15px 0;
+            color: #64ffda;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        button {
+            background: linear-gradient(145deg, #2a4a6b, #1e3a5f);
+            color: #ffffff;
+            border: 1px solid #64ffda;
+            padding: 8px 16px;
+            margin: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: linear-gradient(145deg, #64ffda, #4fc3f7);
+            color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+        
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        
+        .slider-label {
+            color: #b0bec5;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #2a4a6b;
+            outline: none;
+            appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #64ffda;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(100, 255, 218, 0.5);
+        }
+        
+        #stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 20, 40, 0.9);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            font-size: 13px;
+            border: 1px solid rgba(100, 255, 218, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            min-width: 150px;
+        }
+        
+        .stat-item {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .stat-label {
+            color: #b0bec5;
+        }
+        
+        .stat-value {
+            color: #64ffda;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Life Simulation</h1>
+    
+    <div id="controls">
+        <div class="title">Controls</div>
+        
+        <div class="control-group">
+            <button id="startBtn">Start</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        
+        <div class="control-group">
+            <div class="slider-container">
+                <div class="slider-label">Food Rate: <span id="foodRateValue">5</span></div>
+                <input type="range" id="foodRateSlider" min="1" max="20" value="5">
+            </div>
+        </div>
+    </div>
+    
+    <div id="stats">
+        <div class="stat-item">
+            <span class="stat-label">Time:</span>
+            <span class="stat-value" id="timeValue">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Organisms:</span>
+            <span class="stat-value" id="organismsValue">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Food:</span>
+            <span class="stat-value" id="foodValue">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Generation:</span>
+            <span class="stat-value" id="generationValue">1</span>
+        </div>
+    </div>
+    
+    <canvas id="canvas" width="800" height="600"></canvas>
+    
+    <script>
+        // Get canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Get UI elements
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const foodRateSlider = document.getElementById('foodRateSlider');
+        const foodRateValue = document.getElementById('foodRateValue');
+        
+        // Get stat elements
+        const timeValue = document.getElementById('timeValue');
+        const organismsValue = document.getElementById('organismsValue');
+        const foodValue = document.getElementById('foodValue');
+        const generationValue = document.getElementById('generationValue');
+        
+        // Simulation parameters
+        const SIMULATION_PARAMS = {
+            // Organism parameters
+            ORGANISM_RADIUS: 8,
+            ORGANISM_MAX_ENERGY: 100,
+            ORGANISM_INITIAL_ENERGY: 50,
+            ORGANISM_DIVISION_THRESHOLD: 80,
+            ORGANISM_DEATH_THRESHOLD: 0,
+            ORGANISM_MOVE_ENERGY_COST: 0.2,
+            ORGANISM_IDLE_ENERGY_COST: 0.1,
+            ORGANISM_FOOD_ENERGY_GAIN: 20,
+            ORGANISM_MAX_SPEED: 2,
+            
+            // Food parameters
+            FOOD_RADIUS: 3,
+            FOOD_SPAWN_RATE: 5, // per second
+            
+            // Simulation parameters
+            INITIAL_ORGANISM_COUNT: 5,
+            MAX_ORGANISMS: 200,
+            CANVAS_MARGIN: 20
+        };
+        
+        // Simulation state
+        let simulation = {
+            running: false,
+            time: 0,
+            generation: 1,
+            organisms: [],
+            food: [],
+            lastTime: 0,
+            foodSpawnTimer: 0
+        };
+        
+        // Organism class
+        class Organism {
+            constructor(x, y, energy = SIMULATION_PARAMS.ORGANISM_INITIAL_ENERGY, generation = 1) {
+                this.x = x;
+                this.y = y;
+                this.energy = energy;
+                this.generation = generation;
+                this.age = 0;
+                this.radius = SIMULATION_PARAMS.ORGANISM_RADIUS;
+                this.maxEnergy = SIMULATION_PARAMS.ORGANISM_MAX_ENERGY;
+                
+                // Random movement direction
+                this.vx = (Math.random() - 0.5) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
+                this.vy = (Math.random() - 0.5) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
+                
+                // Visual properties
+                this.hue = (generation * 60) % 360; // Different colors for generations
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+            
+            update(deltaTime) {
+                this.age += deltaTime;
+                
+                // Random walk movement
+                this.vx += (Math.random() - 0.5) * 0.5;
+                this.vy += (Math.random() - 0.5) * 0.5;
+                
+                // Limit speed
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > SIMULATION_PARAMS.ORGANISM_MAX_SPEED) {
+                    this.vx = (this.vx / speed) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
+                    this.vy = (this.vy / speed) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
+                }
+                
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Bounce off walls
+                const margin = SIMULATION_PARAMS.CANVAS_MARGIN;
+                if (this.x - this.radius <= margin || this.x + this.radius >= canvas.width - margin) {
+                    this.vx = -this.vx;
+                    this.x = Math.max(margin + this.radius, Math.min(canvas.width - margin - this.radius, this.x));
+                }
+                if (this.y - this.radius <= margin || this.y + this.radius >= canvas.height - margin) {
+                    this.vy = -this.vy;
+                    this.y = Math.max(margin + this.radius, Math.min(canvas.height - margin - this.radius, this.y));
+                }
+                
+                // Energy costs
+                const movementCost = speed * SIMULATION_PARAMS.ORGANISM_MOVE_ENERGY_COST * deltaTime;
+                const idleCost = SIMULATION_PARAMS.ORGANISM_IDLE_ENERGY_COST * deltaTime;
+                this.energy -= movementCost + idleCost;
+                
+                // Update pulse phase for visual effect
+                this.pulsePhase += deltaTime * 2;
+            }
+            
+            canDivide() {
+                return this.energy >= SIMULATION_PARAMS.ORGANISM_DIVISION_THRESHOLD && 
+                       simulation.organisms.length < SIMULATION_PARAMS.MAX_ORGANISMS;
+            }
+            
+            isDead() {
+                return this.energy <= SIMULATION_PARAMS.ORGANISM_DEATH_THRESHOLD;
+            }
+            
+            divide() {
+                // Split energy between parent and offspring
+                const offspringEnergy = this.energy / 2;
+                this.energy = offspringEnergy;
+                
+                // Create offspring near parent
+                const angle = Math.random() * Math.PI * 2;
+                const distance = this.radius * 2.5;
+                const offsetX = Math.cos(angle) * distance;
+                const offsetY = Math.sin(angle) * distance;
+                
+                const offspring = new Organism(
+                    this.x + offsetX,
+                    this.y + offsetY,
+                    offspringEnergy,
+                    this.generation
+                );
+                
+                return offspring;
+            }
+            
+            eatFood(foodItem) {
+                this.energy = Math.min(this.maxEnergy, this.energy + SIMULATION_PARAMS.ORGANISM_FOOD_ENERGY_GAIN);
+            }
+            
+            draw(ctx) {
+                const pulse = Math.sin(this.pulsePhase) * 0.1 + 1;
+                const radius = this.radius * pulse;
+                
+                // Energy-based brightness
+                const brightness = Math.max(0.3, this.energy / this.maxEnergy);
+                
+                // Draw organism body
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Outer glow
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 1.5);
+                gradient.addColorStop(0, `hsla(${this.hue}, 70%, ${60 * brightness}%, 0.8)`);
+                gradient.addColorStop(0.7, `hsla(${this.hue}, 70%, ${40 * brightness}%, 0.4)`);
+                gradient.addColorStop(1, `hsla(${this.hue}, 70%, ${20 * brightness}%, 0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Main body
+                ctx.fillStyle = `hsla(${this.hue}, 70%, ${50 * brightness}%, 0.9)`;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Energy indicator (small core)
+                const coreRadius = radius * (this.energy / this.maxEnergy) * 0.4;
+                ctx.fillStyle = `hsla(${this.hue}, 90%, ${80 * brightness}%, 1)`;
+                ctx.beginPath();
+                ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        // Food class
+        class Food {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = SIMULATION_PARAMS.FOOD_RADIUS;
+                this.age = 0;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+            
+            update(deltaTime) {
+                this.age += deltaTime;
+                this.pulsePhase += deltaTime * 3;
+            }
+            
+            draw(ctx) {
+                const pulse = Math.sin(this.pulsePhase) * 0.3 + 1;
+                const radius = this.radius * pulse;
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Food glow
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 2);
+                gradient.addColorStop(0, 'rgba(255, 255, 100, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 100, 0.4)');
+                gradient.addColorStop(1, 'rgba(255, 255, 100, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, radius * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Food body
+                ctx.fillStyle = 'rgba(255, 255, 150, 0.9)';
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        // Utility functions
+        function distance(obj1, obj2) {
+            const dx = obj1.x - obj2.x;
+            const dy = obj1.y - obj2.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+        
+        function spawnFood() {
+            const margin = SIMULATION_PARAMS.CANVAS_MARGIN;
+            const x = margin + Math.random() * (canvas.width - 2 * margin);
+            const y = margin + Math.random() * (canvas.height - 2 * margin);
+            simulation.food.push(new Food(x, y));
+        }
+        
+        function spawnOrganism() {
+            const margin = SIMULATION_PARAMS.CANVAS_MARGIN + SIMULATION_PARAMS.ORGANISM_RADIUS;
+            const x = margin + Math.random() * (canvas.width - 2 * margin);
+            const y = margin + Math.random() * (canvas.height - 2 * margin);
+            simulation.organisms.push(new Organism(x, y, SIMULATION_PARAMS.ORGANISM_INITIAL_ENERGY, simulation.generation));
+        }
+        
+        // Simulation functions
+        function initializeSimulation() {
+            simulation.organisms = [];
+            simulation.food = [];
+            simulation.time = 0;
+            simulation.generation = 1;
+            simulation.foodSpawnTimer = 0;
+            
+            // Spawn initial organisms
+            for (let i = 0; i < SIMULATION_PARAMS.INITIAL_ORGANISM_COUNT; i++) {
+                spawnOrganism();
+            }
+            
+            // Spawn some initial food
+            for (let i = 0; i < 10; i++) {
+                spawnFood();
+            }
+            
+            updateStats();
+        }
+        
+        function updateSimulation(deltaTime) {
+            if (!simulation.running) return;
+            
+            simulation.time += deltaTime;
+            
+            // Update organisms
+            for (let i = simulation.organisms.length - 1; i >= 0; i--) {
+                const organism = simulation.organisms[i];
+                organism.update(deltaTime);
+                
+                // Check for death
+                if (organism.isDead()) {
+                    simulation.organisms.splice(i, 1);
+                    continue;
+                }
+                
+                // Check for division
+                if (organism.canDivide()) {
+                    const offspring = organism.divide();
+                    simulation.organisms.push(offspring);
+                    
+                    // Update generation if this is a new max
+                    if (offspring.generation > simulation.generation) {
+                        simulation.generation = offspring.generation;
+                    }
+                }
+                
+                // Check for food consumption
+                for (let j = simulation.food.length - 1; j >= 0; j--) {
+                    const food = simulation.food[j];
+                    if (distance(organism, food) < organism.radius + food.radius) {
+                        organism.eatFood(food);
+                        simulation.food.splice(j, 1);
+                    }
+                }
+            }
+            
+            // Update food
+            simulation.food.forEach(food => food.update(deltaTime));
+            
+            // Spawn new food
+            simulation.foodSpawnTimer += deltaTime;
+            const foodSpawnInterval = 1.0 / SIMULATION_PARAMS.FOOD_SPAWN_RATE;
+            while (simulation.foodSpawnTimer >= foodSpawnInterval) {
+                spawnFood();
+                simulation.foodSpawnTimer -= foodSpawnInterval;
+            }
+            
+            // Check for extinction
+            if (simulation.organisms.length === 0) {
+                // Restart with new organisms
+                for (let i = 0; i < SIMULATION_PARAMS.INITIAL_ORGANISM_COUNT; i++) {
+                    spawnOrganism();
+                }
+                simulation.generation++;
+            }
+            
+            updateStats();
+        }
+        
+        function renderSimulation() {
+            // Clear canvas with petri dish background
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw petri dish border
+            ctx.strokeStyle = '#64ffda';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) / 2 - 10, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Draw food
+            simulation.food.forEach(food => food.draw(ctx));
+            
+            // Draw organisms
+            simulation.organisms.forEach(organism => organism.draw(ctx));
+        }
+        
+        function updateStats() {
+            timeValue.textContent = Math.floor(simulation.time);
+            organismsValue.textContent = simulation.organisms.length;
+            foodValue.textContent = simulation.food.length;
+            generationValue.textContent = simulation.generation;
+        }
+        
+        // Main animation loop
+        function animate(currentTime) {
+            if (simulation.lastTime === 0) simulation.lastTime = currentTime;
+            const deltaTime = (currentTime - simulation.lastTime) / 1000; // Convert to seconds
+            simulation.lastTime = currentTime;
+            
+            updateSimulation(deltaTime);
+            renderSimulation();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', () => {
+            simulation.running = true;
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+        });
+        
+        pauseBtn.addEventListener('click', () => {
+            simulation.running = false;
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            simulation.running = false;
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            initializeSimulation();
+        });
+        
+        foodRateSlider.addEventListener('input', (e) => {
+            SIMULATION_PARAMS.FOOD_SPAWN_RATE = parseInt(e.target.value);
+            foodRateValue.textContent = e.target.value;
+        });
+        
+        // Initialize and start
+        pauseBtn.style.display = 'none';
+        initializeSimulation();
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
