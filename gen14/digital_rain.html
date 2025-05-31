@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Rain</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas to full screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Characters to use (Katakana, but you can add more or change)
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const characters = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = Math.floor(canvas.width / fontSize);
+
+        // Initialize drops (one per column)
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1; // y-coordinate of the drop (1 = first row)
+        }
+
+        function draw() {
+            // Black BG for the canvas
+            // Translucent BG to show trail
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0'; // Green text
+            ctx.font = fontSize + 'px monospace';
+
+            // Looping over drops
+            for (let i = 0; i < drops.length; i++) {
+                // A random character to print
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                // x = i * fontSize, y = value of drops[i] * fontSize
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                // Sending the drop back to the top randomly after it has crossed the screen
+                // Adding a randomness to the reset to make the drops scattered on the Y axis
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                // Incrementing Y coordinate
+                drops[i]++;
+            }
+        }
+
+        function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Re-initialize columns and drops if needed, or adjust dynamically
+            // For simplicity, a full re-init might be okay for this effect
+            const newColumns = Math.floor(canvas.width / fontSize);
+            drops.length = 0; // Clear existing drops
+            for (let x = 0; x < newColumns; x++) {
+                drops[x] = 1 + Math.floor(Math.random() * (canvas.height / fontSize)); // Random start
+            }
+        });
+
+        animate();
+    </script>
+</body>
+</html>
