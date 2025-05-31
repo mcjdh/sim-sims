@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Elemental Automata</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    #canvas {
+      width: 80ch; /* Fixed character width */
+      height: 40ch; /* Fixed character height */
+      border: 1px solid #555;
+      overflow: hidden; /* Hide overflow to maintain fixed size */
+      white-space: pre; /* Preserve whitespace and line breaks */
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas"></div>
+  <script>
+    const W = 100;
+    const H = 40;
+
+    const elements = {
+      VOID: ' ',
+      FIRE: 'F',
+      WATER: 'W',
+      EARTH: 'E',
+      AIR: 'A',
+      // Consider adding PLANT: 'P' or STEAM: 'S' later
+    };
+
+    let grid = new Array(W * H).fill(elements.VOID);
+    let time = 0;
+
+    function getIndex(x, y) {
+      return y * W + x;
+    }
+
+    function getNeighbors(x, y) {
+      const neighbors = [];
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = (x + dx + W) % W; // Wrap around horizontally
+          const ny = (y + dy + H) % H; // Wrap around vertically
+          neighbors.push(grid[getIndex(nx, ny)]);
+        }
+      }
+      return neighbors;
+    }
+
+    function updateGrid() {
+      let newGrid = [...grid];
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const currentIndex = getIndex(x, y);
+          const cellType = grid[currentIndex];
+          const neighbors = getNeighbors(x, y);
+
+          switch (cellType) {
+            case elements.FIRE:
+              if (neighbors.filter(n => n === elements.WATER).length >= 3) {
+                newGrid[currentIndex] = elements.VOID; // Extinguished
+              } else {
+                // Spread to AIR
+                for (let dy = -1; dy <= 1; dy++) {
+                  for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    const neighborIndex = getIndex(nx, ny);
+                    if (grid[neighborIndex] === elements.AIR && Math.random() < 0.5) {
+                      newGrid[neighborIndex] = elements.FIRE;
+                    }
+                  }
+                }
+              }
+              break;
+            case elements.WATER:
+              const isNearEarth = neighbors.includes(elements.EARTH);
+              if (!isNearEarth && neighbors.filter(n => n === elements.AIR).length >= 3 && Math.random() < 0.1) {
+                newGrid[currentIndex] = elements.AIR; // Evaporates
+              }
+              // Water doesn't actively spread without more rules (e.g. gravity, flow)
+              break;
+            case elements.EARTH:
+              // Earth is stable
+              break;
+            case elements.AIR:
+              // Air is stable unless changed by Fire
+              break;
+            case elements.VOID:
+              if (Math.random() < 0.02) newGrid[currentIndex] = elements.FIRE;
+              else if (Math.random() < 0.03) newGrid[currentIndex] = elements.WATER;
+              else if (Math.random() < 0.05) newGrid[currentIndex] = elements.EARTH;
+              else if (Math.random() < 0.10) newGrid[currentIndex] = elements.AIR;
+              break;
+          }
+        }
+      }
+      grid = newGrid;
+    }
+
+    function render() {
+      const canvas = document.getElementById('canvas');
+      let content = '';
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          content += grid[getIndex(x, y)];
+        }
+        content += '\n';
+      }
+      canvas.textContent = content;
+    }
+
+    function loop() {
+      updateGrid();
+      render();
+      time++;
+      requestAnimationFrame(loop);
+    }
+
+    // Initial population
+    for(let i = 0; i < 20; i++) {
+        grid[getIndex(Math.floor(Math.random() * W), Math.floor(Math.random() * H))] = elements.FIRE;
+        grid[getIndex(Math.floor(Math.random() * W), Math.floor(Math.random() * H))] = elements.EARTH;
+        grid[getIndex(Math.floor(Math.random() * W), Math.floor(Math.random() * H))] = elements.WATER;
+    }
+
+    loop();
+  </script>
+</body>
+</html>
