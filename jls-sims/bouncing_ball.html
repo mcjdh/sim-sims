@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bouncing Ball Simulation</title>
+<style>
+  body { margin: 0; overflow: hidden; background-color: #222; /* Darker background for contrast */ }
+  canvas { display: block; background-color: #333; /* Slightly lighter canvas background */ }
+</style>
+</head>
+<body>
+<canvas id="simulationCanvas"></canvas>
+<script>
+const canvas = document.getElementById('simulationCanvas');
+const ctx = canvas.getContext('2d');
+
+// Set canvas dimensions to full window size
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Ball properties
+let ball = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  radius: 20,
+  color: '#FFD700', // Changed to gold
+  dx: 5, // change in x per frame
+  dy: 3  // change in y per frame
+};
+
+// Function to draw the ball
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+  ctx.fillStyle = ball.color;
+  ctx.fill();
+  ctx.closePath();
+}
+
+// Function to update ball position and handle bouncing
+function update() {
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawBall();
+
+  // Move the ball
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  // Bounce off left/right walls
+  if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+    ball.dx = -ball.dx;
+  }
+
+  // Bounce off top/bottom walls
+  if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+    ball.dy = -ball.dy;
+  }
+
+  requestAnimationFrame(update); // Loop the animation
+}
+
+// Start the animation
+update();
+
+// Adjust canvas size and ball position on window resize
+window.addEventListener('resize', () => {
+  const oldWidth = canvas.width;
+  const oldHeight = canvas.height;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Optional: Reposition ball relative to new canvas size
+  // This attempts to keep the ball in a similar relative position
+  ball.x = (ball.x / oldWidth) * canvas.width;
+  ball.y = (ball.y / oldHeight) * canvas.height;
+
+  // Ensure ball is within new bounds after resize
+  if (ball.x + ball.radius > canvas.width) ball.x = canvas.width - ball.radius;
+  if (ball.x - ball.radius < 0) ball.x = ball.radius;
+  if (ball.y + ball.radius > canvas.height) ball.y = canvas.height - ball.radius;
+  if (ball.y - ball.radius < 0) ball.y = ball.radius;
+});
+</script>
+</body>
+</html>
