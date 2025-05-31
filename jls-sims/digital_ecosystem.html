@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Digital Ecosystem Simulation</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column; /* To allow for stats above canvas */
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #stats {
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        #canvas {
+            white-space: pre;
+            line-height: 1.0; /* Adjust for tight packing of characters */
+            font-size: 10px;   /* Adjust for character size */
+            letter-spacing: 0px; /* Adjust for character spacing */
+            text-align: center; /* Center the text within the canvas div */
+            border: 1px solid #333; /* Optional: border for the canvas */
+        }
+    </style>
+</head>
+<body>
+    <div id="stats">
+        Time: <span id="time">0</span> | Population: <span id="population">0</span>
+    </div>
+    <div id="canvas"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const timeDisplay = document.getElementById('time');
+        const populationDisplay = document.getElementById('population');
+
+        // Simulation Parameters
+        const W = 80; // Width of the simulation grid
+        const H = 40; // Height of the simulation grid
+
+        // Organism Parameters
+        const ORGANISM_MAX_AGE = 200; // Max simulation steps an organism can live
+        const ORGANISM_MOVE_ENERGY_COST = 1;
+        const ORGANISM_REPRODUCE_ENERGY_THRESHOLD = 100;
+        const ORGANISM_REPRODUCE_ENERGY_COST = 50;
+        const ORGANISM_ENERGY_FROM_LOW_RESOURCE = 5;
+        const ORGANISM_ENERGY_FROM_MID_RESOURCE = 10;
+        const ORGANISM_ENERGY_FROM_HIGH_RESOURCE = 20;
+        const ORGANISM_IDLE_ENERGY_COST = 0.5; // Energy cost per tick just for existing
+
+        // Resource Parameters
+        const RESOURCE_REGENERATION_RATE = 0.005; // Chance per empty cell per tick to regenerate a resource
+        const RESOURCE_SPREAD_RATE = 0.001;      // Chance per resource cell per tick to spread to an empty neighbor
+
+        // Character Sets
+        const EMPTY_CELL = ' ';
+        const RESOURCE_LOW = '.';
+        const RESOURCE_MID = ':';
+        const RESOURCE_HIGH = '*';
+        const ORGANISM_TYPE_A = 'O';
+        const ORGANISM_TYPE_B = 'X'; // Example for a second type
+
+        // Data Structures
+        let grid = []; // To store the state of each cell (resource or organism)
+        let organisms = []; // To store organism objects
+
+        let simulationTime = 0;
+
+        // --- INITIALIZATION FUNCTIONS ---
+
+        function initializeGrid() {
+            grid = new Array(H);
+            for (let y = 0; y < H; y++) {
+                grid[y] = new Array(W).fill(EMPTY_CELL);
+            }
+
+            // Populate with initial resources
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    if (Math.random() < 0.3) { // 30% chance of resource
+                        const rType = Math.random();
+                        if (rType < 0.6) grid[y][x] = RESOURCE_LOW;
+                        else if (rType < 0.9) grid[y][x] = RESOURCE_MID;
+                        else grid[y][x] = RESOURCE_HIGH;
+                    }
+                }
+            }
+        }
+
+        function addOrganism(x, y, type, energy) {
+            const newOrganism = {
+                x: x,
+                y: y,
+                type: type,
+                energy: energy,
+                age: 0,
+                id: Math.random().toString(36).substr(2, 9) // Unique ID
+            };
+            organisms.push(newOrganism);
+            grid[y][x] = type; // Mark organism's presence on the grid
+            return newOrganism;
+        }
+
+        function initializeOrganisms() {
+            organisms = []; // Clear any existing organisms
+            // Add a few starting organisms
+            for (let i = 0; i < 5; i++) {
+                const startX = Math.floor(Math.random() * W);
+                const startY = Math.floor(Math.random() * H);
+                // Ensure cell is empty before placing
+                if (grid[startY][startX] === EMPTY_CELL ||
+                    grid[startY][startX] === RESOURCE_LOW ||
+                    grid[startY][startX] === RESOURCE_MID ||
+                    grid[startY][startX] === RESOURCE_HIGH) {
+                    addOrganism(startX, startY, ORGANISM_TYPE_A, 50 + Math.floor(Math.random() * 50));
+                }
+            }
+             for (let i = 0; i < 3; i++) {
+                const startX = Math.floor(Math.random() * W);
+                const startY = Math.floor(Math.random() * H);
+                if (grid[startY][startX] === EMPTY_CELL ||
+                    grid[startY][startX] === RESOURCE_LOW ||
+                    grid[startY][startX] === RESOURCE_MID ||
+                    grid[startY][startX] === RESOURCE_HIGH) {
+                    addOrganism(startX, startY, ORGANISM_TYPE_B, 70 + Math.floor(Math.random() * 30));
+                }
+            }
+        }
+
+        // --- ORGANISM ACTIONS ---
+
+        function organismConsume(organism) {
+            const { x, y } = organism;
+            let consumedEnergy = 0;
+            if (grid[y][x] === RESOURCE_LOW) {
+                consumedEnergy = ORGANISM_ENERGY_FROM_LOW_RESOURCE;
+                grid[y][x] = EMPTY_CELL; // Consume the resource
+            } else if (grid[y][x] === RESOURCE_MID) {
+                consumedEnergy = ORGANISM_ENERGY_FROM_MID_RESOURCE;
+                grid[y][x] = EMPTY_CELL;
+            } else if (grid[y][x] === RESOURCE_HIGH) {
+                consumedEnergy = ORGANISM_ENERGY_FROM_HIGH_RESOURCE;
+                grid[y][x] = EMPTY_CELL;
+            }
+            organism.energy += consumedEnergy;
+            if (consumedEnergy > 0) {
+                // console.log(`Organism ${organism.id} consumed ${consumedEnergy} energy at (${x},${y})`);
+            }
+        }
+
+        function organismMove(organism) {
+            if (organism.energy < ORGANISM_MOVE_ENERGY_COST) return; // Not enough energy to move
+
+            const currentX = organism.x;
+            const currentY = organism.y;
+
+            // Try to move to an adjacent cell (Manhattan distance 1)
+            const possibleMoves = [];
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue; // Skip current cell
+
+                    const newX = currentX + dx;
+                    const newY = currentY + dy;
+
+                    // Check bounds
+                    if (newX >= 0 && newX < W && newY >= 0 && newY < H) {
+                        // Prefer moving to cells with resources, then empty cells
+                        if (grid[newY][newX] === RESOURCE_HIGH) possibleMoves.push({x: newX, y: newY, weight: 5});
+                        else if (grid[newY][newX] === RESOURCE_MID) possibleMoves.push({x: newX, y: newY, weight: 4});
+                        else if (grid[newY][newX] === RESOURCE_LOW) possibleMoves.push({x: newX, y: newY, weight: 3});
+                        else if (grid[newY][newX] === EMPTY_CELL) possibleMoves.push({x: newX, y: newY, weight: 1});
+                    }
+                }
+            }
+
+            if (possibleMoves.length > 0) {
+                // Weighted random selection for movement
+                const totalWeight = possibleMoves.reduce((sum, move) => sum + move.weight, 0);
+                let randomChoice = Math.random() * totalWeight;
+                let chosenMove = null;
+                for(const move of possibleMoves) {
+                    randomChoice -= move.weight;
+                    if (randomChoice <= 0) {
+                        chosenMove = move;
+                        break;
+                    }
+                }
+
+                if (chosenMove) {
+                    // Clear current position on grid (if it was the organism)
+                    if (grid[currentY][currentX] === organism.type) {
+                         grid[currentY][currentX] = EMPTY_CELL;
+                    }
+                    // Move organism
+                    organism.x = chosenMove.x;
+                    organism.y = chosenMove.y;
+                    organism.energy -= ORGANISM_MOVE_ENERGY_COST;
+                    // Mark new position (will be drawn in render step, but good to update grid for others)
+                    grid[chosenMove.y][chosenMove.x] = organism.type;
+                }
+            }
+        }
+
+        function organismReproduce(organism, newOrganismsList) {
+            if (organism.energy < ORGANISM_REPRODUCE_ENERGY_THRESHOLD) return;
+
+            // Find an empty adjacent cell for offspring
+            const possibleBirthLocations = [];
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const newX = organism.x + dx;
+                    const newY = organism.y + dy;
+                    if (newX >= 0 && newX < W && newY >= 0 && newY < H && grid[newY][newX] === EMPTY_CELL) {
+                        possibleBirthLocations.push({ x: newX, y: newY });
+                    }
+                }
+            }
+
+            if (possibleBirthLocations.length > 0) {
+                const birthLocation = possibleBirthLocations[Math.floor(Math.random() * possibleBirthLocations.length)];
+                const offspringEnergy = ORGANISM_REPRODUCE_ENERGY_COST; // Parent gives this much energy
+                organism.energy -= offspringEnergy;
+
+                // Add to a temporary list to avoid modifying 'organisms' array while iterating over it
+                newOrganismsList.push({
+                    x: birthLocation.x,
+                    y: birthLocation.y,
+                    type: organism.type, // Inherit type
+                    energy: offspringEnergy,
+                    age: 0,
+                    id: Math.random().toString(36).substr(2, 9)
+                });
+                // console.log(`Organism ${organism.id} reproduced at (${birthLocation.x},${birthLocation.y})`);
+            }
+        }
+
+        // --- SIMULATION UPDATE ---
+        function updateSimulation() {
+            simulationTime++;
+            timeDisplay.textContent = simulationTime;
+
+            const newOrganismsThisTurn = []; // For offspring
+
+            // Process existing organisms
+            for (let i = organisms.length - 1; i >= 0; i--) {
+                const organism = organisms[i];
+
+                // 1. Age and apply idle energy cost
+                organism.age++;
+                organism.energy -= ORGANISM_IDLE_ENERGY_COST;
+
+                // 2. Check for death
+                if (organism.energy <= 0 || organism.age > ORGANISM_MAX_AGE) {
+                    if (grid[organism.y][organism.x] === organism.type) {
+                        grid[organism.y][organism.x] = EMPTY_CELL; // Clear from grid
+                    }
+                    organisms.splice(i, 1); // Remove from list
+                    // console.log(`Organism ${organism.id} died.`);
+                    continue; // Skip to next organism
+                }
+
+                // 3. Consume resources at current location
+                organismConsume(organism);
+
+                // 4. Try to reproduce
+                organismReproduce(organism, newOrganismsThisTurn);
+
+                // 5. Try to move
+                organismMove(organism);
+            }
+
+            // Add newly born organisms to the main list and grid
+            newOrganismsThisTurn.forEach(orgData => {
+                // Check if cell is still empty (another new organism might have claimed it in the same turn)
+                if (grid[orgData.y][orgData.x] === EMPTY_CELL) {
+                     addOrganism(orgData.x, orgData.y, orgData.type, orgData.energy);
+                }
+            });
+
+            populationDisplay.textContent = organisms.length;
+        }
+
+        // --- RESOURCE UPDATE ---
+        function updateResources() {
+            // 1. Regeneration
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    if (grid[y][x] === EMPTY_CELL) {
+                        if (Math.random() < RESOURCE_REGENERATION_RATE) {
+                            const rType = Math.random();
+                            if (rType < 0.6) grid[y][x] = RESOURCE_LOW;
+                            else if (rType < 0.9) grid[y][x] = RESOURCE_MID;
+                            else grid[y][x] = RESOURCE_HIGH;
+                            // console.log(`Resource regenerated at (${x},${y})`);
+                        }
+                    }
+                }
+            }
+
+            // 2. Spreading (optional, can be complex to get right without overpopulation of resources)
+            // Create a list of potential spread locations to avoid cascading spread in one tick
+            const potentialSpreads = [];
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const cellIsResource = grid[y][x] === RESOURCE_LOW || grid[y][x] === RESOURCE_MID || grid[y][x] === RESOURCE_HIGH;
+                    if (cellIsResource && Math.random() < RESOURCE_SPREAD_RATE) {
+                        // Check neighbors
+                        for (let dy = -1; dy <= 1; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                if (dx === 0 && dy === 0) continue;
+                                const newX = x + dx;
+                                const newY = y + dy;
+                                if (newX >= 0 && newX < W && newY >= 0 && newY < H && grid[newY][newX] === EMPTY_CELL) {
+                                    potentialSpreads.push({x: newX, y: newY, type: grid[y][x]}); // Spread the same type of resource
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Apply spreads
+            potentialSpreads.forEach(spread => {
+                // Check if the cell is still empty (another spread/regeneration might have occurred)
+                if (grid[spread.y][spread.x] === EMPTY_CELL) {
+                    grid[spread.y][spread.x] = spread.type;
+                }
+            });
+        }
+
+        // --- MAIN ---
+        function setupSimulation() {
+            console.log("Setting up Digital Ecosystem Simulation...");
+            initializeGrid();
+            initializeOrganisms();
+            console.log(`Initialized grid: ${W}x${H}`);
+            console.log(`Initial organisms: ${organisms.length}`);
+            // For now, just render the initial state
+            // tempRender();
+            // console.log("Initial state rendered."); // Remove this line
+        }
+
+        // Start the setup
+        setupSimulation();
+
+        // --- RENDER & GAME LOOP ---
+        // (tempRender will be replaced by a proper renderSimulation in a later step)
+        function renderSimulation() {
+            // First, clear all organism types from grid to handle movements correctly
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    if (grid[y][x] === ORGANISM_TYPE_A || grid[y][x] === ORGANISM_TYPE_B) {
+                        grid[y][x] = EMPTY_CELL; // Clear old organism spots
+                    }
+                }
+            }
+            // Then, redraw resources (if any were depleted and became EMPTY_CELL but should remain resource)
+            // This simple model assumes resources once consumed are gone, or will be regenerated by another function later.
+            // For now, we just ensure organism spots are cleared.
+
+            // Re-place organisms on the grid based on their current positions
+            organisms.forEach(org => {
+                if (org.x >= 0 && org.x < W && org.y >= 0 && org.y < H) {
+                     // Only draw if the cell is empty or contains a resource (organism is on top)
+                    if (grid[org.y][org.x] === EMPTY_CELL ||
+                        grid[org.y][org.x] === RESOURCE_LOW ||
+                        grid[org.y][org.x] === RESOURCE_MID ||
+                        grid[org.y][org.x] === RESOURCE_HIGH) {
+                        grid[org.y][org.x] = org.type;
+                    } else if (grid[org.y][org.x] !== org.type) {
+                        // Cell is occupied by something else unexpected (e.g. another organism placed this turn before grid clear)
+                        // This might indicate a need for more robust collision handling if organisms can occupy same cell
+                        // For now, we'll overwrite. A better approach might be to prevent this in movement/reproduction.
+                         grid[org.y][org.x] = org.type;
+                    }
+                }
+            });
+
+            // Actual rendering to screen
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    output += grid[y][x];
+                }
+                output += '\n';
+            }
+            canvas.textContent = output.trim(); // .trim() to remove trailing newline
+        }
+
+        function gameLoop() {
+            updateSimulation();
+            updateResources(); // Add this call
+            renderSimulation();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the setup, then the loop
+        setupSimulation(); // This already calls tempRender once for the initial state
+        renderSimulation(); // Call once to draw initial state based on new render logic
+        requestAnimationFrame(gameLoop); // Start the main animation loop
+    </script>
+</body>
+</html>
