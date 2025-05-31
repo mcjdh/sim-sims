@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Slime Mold Simulation</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            line-height: 1.0;
+            font-size: 12px; /* Adjusted for potential character choice */
+            text-align: center; /* Center the canvas content */
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 80; // Width of the grid
+        const H = 40; // Height of the grid
+        const NUM_PARTICLES = 50;
+        const PHEROMONE_DECAY_RATE = 0.02;
+        const PHEROMONE_DIFFUSION_RATE = 0.05; // How much pheromone diffuses to neighbors
+        const FOOD_SPAWN_CHANCE = 0.01; // Chance to spawn food each frame
+        const PARTICLE_TURN_PROBABILITY = 0.15; // Chance a particle randomly turns
+
+        const CHAR_EMPTY = ' ';
+        const CHAR_SLIME = '•'; // Using a dot for slime
+        const CHAR_FOOD = '🍏';
+        // Pheromone characters from lightest to strongest
+        const CHAR_PHEROMONE = ['.', ':', '∴', '∵'];
+
+        let canvas, ctx; // Canvas and context will be for graphical rendering if we switch, for now text.
+        let grid; // Stores { pheromone: float, type: 'empty' | 'food' }
+        let particles; // Array of { x, y, dx, dy }
+
+        function init() {
+            canvas = document.getElementById('canvas');
+            // For text rendering, we don't need a 2D context in the traditional sense,
+            // but good to have if we ever want to switch to graphical.
+
+            grid = Array(H).fill(null).map(() => Array(W).fill(null).map(() => ({
+                pheromone: 0,
+                type: 'empty'
+            })));
+
+            particles = [];
+            for (let i = 0; i < NUM_PARTICLES; i++) {
+                particles.push({
+                    x: Math.floor(Math.random() * W),
+                    y: Math.floor(Math.random() * H),
+                    // Initial random direction
+                    dx: Math.random() > 0.5 ? 1 : -1,
+                    dy: Math.random() > 0.5 ? 1 : -1,
+                });
+            }
+
+            // Initial food placement
+            for (let i = 0; i < 5; i++) {
+                placeFoodRandomly();
+            }
+
+            // Start the simulation loop
+            loop();
+        }
+
+        function placeFoodRandomly() {
+            const x = Math.floor(Math.random() * W);
+            const y = Math.floor(Math.random() * H);
+            if (grid[y][x].type === 'empty') {
+                grid[y][x].type = 'food';
+            }
+        }
+
+        function updateParticles() {
+            particles.forEach(p => {
+                // 1. Sense surroundings (3x3 neighborhood)
+                let bestSense = -Infinity;
+                let bestDx = 0, bestDy = 0;
+                let foodFound = false;
+
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        if (dx === 0 && dy === 0 && !foodFound) continue; // Don't check current cell unless food is there
+
+                        const senseX = (p.x + dx + W) % W;
+                        const senseY = (p.y + dy + H) % H;
+
+                        if (grid[senseY][senseX].type === 'food') {
+                            bestSense = Infinity; // Food is highest priority
+                            bestDx = dx;
+                            bestDy = dy;
+                            foodFound = true;
+                        } else if (!foodFound) {
+                            const pheromoneLevel = grid[senseY][senseX].pheromone;
+                            if (pheromoneLevel > bestSense) {
+                                bestSense = pheromoneLevel;
+                                bestDx = dx;
+                                bestDy = dy;
+                            }
+                        }
+                    }
+                }
+
+                // Add some randomness to current direction or pick best sensed if strong enough
+                if (Math.random() < PARTICLE_TURN_PROBABILITY || (bestDx === 0 && bestDy === 0)) {
+                    // Randomly turn if no strong signal or by chance
+                    const angle = Math.random() * 2 * Math.PI;
+                    p.dx = Math.round(Math.cos(angle));
+                    p.dy = Math.round(Math.sin(angle));
+                    // Ensure it's not (0,0) if it was random; prefer non-diagonal for simplicity here
+                    if (p.dx === 0 && p.dy === 0) {
+                         p.dx = Math.random() > 0.5 ? 1 : -1;
+                         p.dy = 0; // Prefer horizontal or vertical random moves
+                    } else if (Math.abs(p.dx) === 1 && Math.abs(p.dy) === 1) {
+                        // Make it non-diagonal
+                        if (Math.random() < 0.5) p.dx = 0; else p.dy = 0;
+                    }
+
+                } else if (bestDx !== 0 || bestDy !== 0) {
+                     // Follow strongest sense (food or pheromone)
+                    p.dx = bestDx;
+                    p.dy = bestDy;
+                }
+
+                // 2. Move particle
+                p.x = (p.x + p.dx + W) % W;
+                p.y = (p.y + p.dy + H) % H;
+
+                // 3. Interact with cell
+                if (grid[p.y][p.x].type === 'food') {
+                    grid[p.y][p.x].type = 'empty'; // Eat food
+                    grid[p.y][p.x].pheromone = 1.0; // Boost pheromone strongly where food was
+                    // Optional: particle reproduction or other effects
+                    // e.g., particles.push({...p, x: (p.x - p.dx + W) % W, y: (p.y - p.dy + H) % H });
+                } else {
+                    // Deposit pheromone - make it stronger than decay
+                    grid[p.y][p.x].pheromone = Math.min(1.0, grid[p.y][p.x].pheromone + 0.5);
+                }
+            });
+        }
+
+        function updateGrid() {
+            const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy for diffusion calculations
+
+            // Pheromone decay and diffusion
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    // Decay
+                    newGrid[y][x].pheromone = Math.max(0, grid[y][x].pheromone * (1 - PHEROMONE_DECAY_RATE));
+
+                    // Diffusion
+                    let diffusedAmount = 0;
+                    let neighborCount = 0;
+                    if (PHEROMONE_DIFFUSION_RATE > 0) {
+                        for (let dy = -1; dy <= 1; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                if (dx === 0 && dy === 0) continue;
+                                const nx = (x + dx + W) % W;
+                                const ny = (y + dy + H) % H;
+                                // Only diffuse from original grid's values
+                                if (grid[ny][nx].pheromone > 0) {
+                                     // Diffuse a portion of neighbor's pheromone TO current cell
+                                     newGrid[y][x].pheromone += grid[ny][nx].pheromone * PHEROMONE_DIFFUSION_RATE / 8.0; // 8 neighbors
+                                     // And current cell diffuses TO neighbors (handled when they are current)
+                                }
+                            }
+                        }
+                    }
+                     newGrid[y][x].pheromone = Math.min(1.0, newGrid[y][x].pheromone); // Cap at 1
+                }
+            }
+            grid = newGrid; // Assign the updated grid
+
+            // Spawn food
+            if (Math.random() < FOOD_SPAWN_CHANCE) {
+                placeFoodRandomly();
+            }
+        }
+
+        function draw() {
+            let screen = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    let charToDisplay = CHAR_EMPTY; // Default to empty
+
+                    if (grid[y][x].type === 'food') {
+                        charToDisplay = CHAR_FOOD;
+                    } else {
+                        const pheromoneLevel = grid[y][x].pheromone;
+                        if (pheromoneLevel > 0.75) {
+                            charToDisplay = CHAR_PHEROMONE[3];
+                        } else if (pheromoneLevel > 0.5) {
+                            charToDisplay = CHAR_PHEROMONE[2];
+                        } else if (pheromoneLevel > 0.25) {
+                            charToDisplay = CHAR_PHEROMONE[1];
+                        } else if (pheromoneLevel > 0.01) { // Only show if pheromone is substantial
+                            charToDisplay = CHAR_PHEROMONE[0];
+                        }
+                    }
+
+                    // Check if any particle is in this cell and draw it on top
+                    for (const p of particles) {
+                        if (p.x === x && p.y === y) {
+                            charToDisplay = CHAR_SLIME;
+                            break; // Found a particle, no need to check others for this cell
+                        }
+                    }
+                    screen += charToDisplay;
+                }
+                screen += '\n'; // Newline after each row
+            }
+            canvas.textContent = screen;
+        }
+
+        let lastFrameTime = 0;
+        const FRAME_DURATION = 100; // ms, for ~10 FPS
+
+        function loop(currentTime) {
+            if (!lastFrameTime || currentTime - lastFrameTime >= FRAME_DURATION) {
+                lastFrameTime = currentTime;
+
+                updateParticles();
+                updateGrid();
+                draw(); // Actual drawing will be in the next step
+            }
+            requestAnimationFrame(loop);
+        }
+
+        // Start the simulation when the page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
