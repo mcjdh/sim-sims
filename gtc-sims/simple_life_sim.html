@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Life Simulation</title>
+    <title>Advanced Evolutionary Life Simulation</title>
     <style>
         body {
             margin: 0;
@@ -17,14 +17,15 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            user-select: none;
         }
-        
-        h1 {
+          h1 {
             margin: 10px 0;
-            font-size: 24px;
+            font-size: 28px;
             text-align: center;
             color: #64ffda;
-            text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+            text-shadow: 0 0 15px rgba(100, 255, 218, 0.4);
+            letter-spacing: 1px;
         }
         
         #canvas {
@@ -34,32 +35,41 @@
             box-shadow: 0 0 30px rgba(100, 255, 218, 0.4);
             cursor: crosshair;
         }
-        
-        #controls {
+          #controls {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(10, 20, 40, 0.9);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            background: rgba(10, 20, 40, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(100, 255, 218, 0.4);
             font-size: 14px;
-            border: 1px solid rgba(100, 255, 218, 0.5);
-            backdrop-filter: blur(5px);
+            border: 1px solid rgba(100, 255, 218, 0.6);
+            backdrop-filter: blur(8px);
             z-index: 10;
-            min-width: 200px;
+            min-width: 250px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         .control-group {
             margin-bottom: 15px;
         }
-        
-        .title {
+          .title {
             text-align: center;
-            margin: 0 0 15px 0;
+            margin: 0 0 20px 0;
             color: #64ffda;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+        
+        .section-title {
+            color: #a0e7e7;
+            font-size: 14px;
+            margin: 15px 0 8px 0;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.3);
+            padding-bottom: 3px;
         }
         
         button {
@@ -110,20 +120,38 @@
             cursor: pointer;
             box-shadow: 0 0 8px rgba(100, 255, 218, 0.5);
         }
-        
-        #stats {
+          #stats {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(10, 20, 40, 0.9);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            background: rgba(10, 20, 40, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(100, 255, 218, 0.4);
             font-size: 13px;
-            border: 1px solid rgba(100, 255, 218, 0.5);
-            backdrop-filter: blur(5px);
+            border: 1px solid rgba(100, 255, 218, 0.6);
+            backdrop-filter: blur(8px);
             z-index: 10;
-            min-width: 150px;
+            min-width: 200px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        #evolution-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 20, 40, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(100, 255, 218, 0.4);
+            font-size: 12px;
+            border: 1px solid rgba(100, 255, 218, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            min-width: 250px;
+            max-height: 300px;
+            overflow-y: auto;
         }
         
         .stat-item {
@@ -135,40 +163,104 @@
         .stat-label {
             color: #b0bec5;
         }
-        
-        .stat-value {
+          .stat-value {
             color: #64ffda;
             font-weight: bold;
         }
+        
+        .trait-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(100, 255, 218, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 3px 0;
+        }
+        
+        .trait-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .organism-type {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin: 2px;
+        }
+        
+        .herbivore { background: rgba(100, 255, 150, 0.3); }
+        .carnivore { background: rgba(255, 100, 100, 0.3); }
+        .omnivore { background: rgba(255, 200, 100, 0.3); }
+        
+        .environment-control {
+            margin: 8px 0;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 8px;
+        }
     </style>
 </head>
-<body>
-    <h1>Simple Life Simulation</h1>
+<body>    <h1>Advanced Evolutionary Life Simulation</h1>
     
     <div id="controls">
-        <div class="title">Controls</div>
+        <div class="title">Simulation Controls</div>
         
         <div class="control-group">
             <button id="startBtn">Start</button>
             <button id="pauseBtn">Pause</button>
             <button id="resetBtn">Reset</button>
+            <button id="fastBtn">Fast Mode</button>
         </div>
         
-        <div class="control-group">
+        <div class="section-title">Environment</div>
+        <div class="environment-control">
             <div class="slider-container">
-                <div class="slider-label">Food Rate: <span id="foodRateValue">5</span></div>
-                <input type="range" id="foodRateSlider" min="1" max="20" value="5">
+                <div class="slider-label">Food Rate: <span id="foodRateValue">8</span></div>
+                <input type="range" id="foodRateSlider" min="1" max="30" value="8">
             </div>
+            <div class="slider-container">
+                <div class="slider-label">Mutation Rate: <span id="mutationRateValue">5</span>%</div>
+                <input type="range" id="mutationRateSlider" min="0" max="20" value="5">
+            </div>
+            <div class="slider-container">
+                <div class="slider-label">Temperature: <span id="temperatureValue">20</span>°C</div>
+                <input type="range" id="temperatureSlider" min="0" max="40" value="20">
+            </div>
+        </div>
+        
+        <div class="section-title">Population</div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="predatorsEnabled" checked>
+            <label for="predatorsEnabled">Enable Predators</label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="diseaseEnabled">
+            <label for="diseaseEnabled">Enable Disease</label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="agingEnabled" checked>
+            <label for="agingEnabled">Enable Aging</label>
         </div>
     </div>
     
     <div id="stats">
+        <div class="section-title">Population Stats</div>
         <div class="stat-item">
             <span class="stat-label">Time:</span>
             <span class="stat-value" id="timeValue">0</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">Organisms:</span>
+            <span class="stat-label">Total Organisms:</span>
             <span class="stat-value" id="organismsValue">0</span>
         </div>
         <div class="stat-item">
@@ -179,11 +271,41 @@
             <span class="stat-label">Generation:</span>
             <span class="stat-value" id="generationValue">1</span>
         </div>
+        <div class="stat-item">
+            <span class="stat-label">Species:</span>
+            <span class="stat-value" id="speciesValue">1</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Avg Fitness:</span>
+            <span class="stat-value" id="fitnessValue">0</span>
+        </div>
+        
+        <div class="section-title">Population Types</div>
+        <div id="populationTypes">
+            <!-- Dynamically populated -->
+        </div>
     </div>
     
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="evolution-panel">
+        <div class="section-title">Evolution Tracker</div>
+        <div class="stat-item">
+            <span class="stat-label">Dominant Traits:</span>
+        </div>
+        <div id="dominantTraits">
+            <div>Speed: <div class="trait-bar"><div class="trait-fill" style="background: #64ffda; width: 50%"></div></div></div>
+            <div>Size: <div class="trait-bar"><div class="trait-fill" style="background: #ff6b6b; width: 30%"></div></div></div>
+            <div>Efficiency: <div class="trait-bar"><div class="trait-fill" style="background: #4ecdc4; width: 70%"></div></div></div>
+            <div>Aggression: <div class="trait-bar"><div class="trait-fill" style="background: #ffe66d; width: 40%"></div></div></div>
+        </div>
+        
+        <div class="section-title">Recent Adaptations</div>
+        <div id="adaptationLog">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
     
-    <script>
+    <canvas id="canvas" width="1200" height="800"></canvas>
+      <script>
         // Get canvas and context
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -192,88 +314,358 @@
         const startBtn = document.getElementById('startBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const fastBtn = document.getElementById('fastBtn');
         const foodRateSlider = document.getElementById('foodRateSlider');
         const foodRateValue = document.getElementById('foodRateValue');
+        const mutationRateSlider = document.getElementById('mutationRateSlider');
+        const mutationRateValue = document.getElementById('mutationRateValue');
+        const temperatureSlider = document.getElementById('temperatureSlider');
+        const temperatureValue = document.getElementById('temperatureValue');
+        const predatorsEnabled = document.getElementById('predatorsEnabled');
+        const diseaseEnabled = document.getElementById('diseaseEnabled');
+        const agingEnabled = document.getElementById('agingEnabled');
         
         // Get stat elements
         const timeValue = document.getElementById('timeValue');
         const organismsValue = document.getElementById('organismsValue');
         const foodValue = document.getElementById('foodValue');
         const generationValue = document.getElementById('generationValue');
+        const speciesValue = document.getElementById('speciesValue');
+        const fitnessValue = document.getElementById('fitnessValue');
+        const populationTypes = document.getElementById('populationTypes');
+        const dominantTraits = document.getElementById('dominantTraits');
+        const adaptationLog = document.getElementById('adaptationLog');
         
-        // Simulation parameters
+        // Enhanced simulation parameters
         const SIMULATION_PARAMS = {
-            // Organism parameters
-            ORGANISM_RADIUS: 8,
-            ORGANISM_MAX_ENERGY: 100,
-            ORGANISM_INITIAL_ENERGY: 50,
-            ORGANISM_DIVISION_THRESHOLD: 80,
+            // Environment
+            TEMPERATURE_OPTIMAL: 20,
+            TEMPERATURE_TOLERANCE: 10,
+            
+            // Organism base parameters
+            ORGANISM_BASE_RADIUS: 6,
+            ORGANISM_MAX_ENERGY: 150,
+            ORGANISM_INITIAL_ENERGY: 75,
+            ORGANISM_DIVISION_THRESHOLD: 120,
             ORGANISM_DEATH_THRESHOLD: 0,
-            ORGANISM_MOVE_ENERGY_COST: 0.2,
-            ORGANISM_IDLE_ENERGY_COST: 0.1,
-            ORGANISM_FOOD_ENERGY_GAIN: 20,
-            ORGANISM_MAX_SPEED: 2,
+            ORGANISM_BASE_SPEED: 1.5,
+            ORGANISM_MAX_AGE: 300,
+            
+            // Energy costs and gains
+            MOVE_ENERGY_COST: 0.15,
+            IDLE_ENERGY_COST: 0.08,
+            FOOD_ENERGY_GAIN: 25,
+            HUNT_ENERGY_COST: 0.3,
+            HUNT_ENERGY_GAIN: 40,
             
             // Food parameters
             FOOD_RADIUS: 3,
-            FOOD_SPAWN_RATE: 5, // per second
+            FOOD_SPAWN_RATE: 8,
+            TOXIN_CHANCE: 0.05,
             
-            // Simulation parameters
-            INITIAL_ORGANISM_COUNT: 5,
-            MAX_ORGANISMS: 200,
-            CANVAS_MARGIN: 20
-        };
+            // Population parameters
+            INITIAL_ORGANISM_COUNT: 8,
+            MAX_ORGANISMS: 300,
+            CANVAS_MARGIN: 20,
+            
+            // Evolution parameters
+            MUTATION_RATE: 0.05,
+            SPECIES_DIVERGENCE_THRESHOLD: 0.3,
+            TRAIT_VARIATION: 0.2        };
         
         // Simulation state
         let simulation = {
             running: false,
+            fastMode: false,
             time: 0,
             generation: 1,
+            maxGeneration: 1,
+            species: [],
             organisms: [],
             food: [],
             lastTime: 0,
-            foodSpawnTimer: 0
+            foodSpawnTimer: 0,
+            diseaseOutbreaks: [],
+            environmentalEvents: [],
+            highestFitness: 0
         };
         
-        // Organism class
+        // Genetic traits system
+        const TRAITS = {
+            speed: { min: 0.5, max: 3.0, default: 1.0, color: '#64ffda' },
+            size: { min: 0.6, max: 2.0, default: 1.0, color: '#ff6b6b' },
+            efficiency: { min: 0.5, max: 2.0, default: 1.0, color: '#4ecdc4' },
+            aggression: { min: 0.0, max: 2.0, default: 0.3, color: '#ffe66d' },
+            longevity: { min: 0.5, max: 2.0, default: 1.0, color: '#ff9ff3' },
+            immunity: { min: 0.0, max: 1.0, default: 0.3, color: '#54a0ff' }
+        };
+        
+        // Species class for tracking evolutionary lineages
+        class Species {
+            constructor(id, foundingOrganism) {
+                this.id = id;
+                this.name = this.generateName();
+                this.population = 0;
+                this.generation = foundingOrganism.generation;
+                this.avgTraits = { ...foundingOrganism.traits };
+                this.color = this.generateColor();
+                this.extinctionRisk = 0;
+                this.fitnessHistory = [];
+            }
+            
+            generateName() {
+                const prefixes = ['Aero', 'Bio', 'Cyto', 'Dyna', 'Eco', 'Filo', 'Geno', 'Hypo'];
+                const suffixes = ['phage', 'morph', 'zoon', 'cyte', 'plasm', 'genus', 'form', 'vita'];
+                return prefixes[Math.floor(Math.random() * prefixes.length)] + 
+                       suffixes[Math.floor(Math.random() * suffixes.length)];
+            }
+            
+            generateColor() {
+                return `hsl(${Math.random() * 360}, 70%, 60%)`;
+            }
+            
+            updateTraits(organisms) {
+                if (organisms.length === 0) return;
+                
+                this.population = organisms.length;
+                
+                // Calculate average traits
+                Object.keys(this.avgTraits).forEach(trait => {
+                    const sum = organisms.reduce((acc, org) => acc + org.traits[trait], 0);
+                    this.avgTraits[trait] = sum / organisms.length;
+                });
+                
+                // Update fitness history
+                const avgFitness = organisms.reduce((acc, org) => acc + org.fitness, 0) / organisms.length;
+                this.fitnessHistory.push(avgFitness);
+                if (this.fitnessHistory.length > 50) this.fitnessHistory.shift();
+            }
+        }
+        
+        // Enhanced organism class with genetics and behavior
         class Organism {
-            constructor(x, y, energy = SIMULATION_PARAMS.ORGANISM_INITIAL_ENERGY, generation = 1) {
+            constructor(x, y, energy = SIMULATION_PARAMS.ORGANISM_INITIAL_ENERGY, generation = 1, parentTraits = null) {
                 this.x = x;
                 this.y = y;
                 this.energy = energy;
                 this.generation = generation;
                 this.age = 0;
-                this.radius = SIMULATION_PARAMS.ORGANISM_RADIUS;
-                this.maxEnergy = SIMULATION_PARAMS.ORGANISM_MAX_ENERGY;
+                this.fitness = 0;
+                this.reproductionCount = 0;
+                this.killCount = 0;
                 
-                // Random movement direction
-                this.vx = (Math.random() - 0.5) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
-                this.vy = (Math.random() - 0.5) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
+                // Initialize traits
+                this.traits = this.initializeTraits(parentTraits);
+                this.speciesId = null;
+                
+                // Physical properties based on traits
+                this.radius = SIMULATION_PARAMS.ORGANISM_BASE_RADIUS * this.traits.size;
+                this.maxEnergy = SIMULATION_PARAMS.ORGANISM_MAX_ENERGY * this.traits.efficiency;
+                this.maxAge = SIMULATION_PARAMS.ORGANISM_MAX_AGE * this.traits.longevity;
+                
+                // Behavior properties
+                this.targetFood = null;
+                this.targetPrey = null;
+                this.isDiseased = false;
+                this.diseaseResistance = this.traits.immunity;
                 
                 // Visual properties
-                this.hue = (generation * 60) % 360; // Different colors for generations
+                this.hue = this.calculateHue();
                 this.pulsePhase = Math.random() * Math.PI * 2;
+                
+                // Movement
+                this.vx = (Math.random() - 0.5) * this.traits.speed;
+                this.vy = (Math.random() - 0.5) * this.traits.speed;
+                
+                // Determine organism type based on traits
+                this.type = this.determineType();
+            }
+            
+            initializeTraits(parentTraits) {
+                const traits = {};
+                
+                Object.keys(TRAITS).forEach(traitName => {
+                    const traitDef = TRAITS[traitName];
+                    
+                    if (parentTraits) {
+                        // Inherit from parent with mutation
+                        const mutation = (Math.random() - 0.5) * SIMULATION_PARAMS.TRAIT_VARIATION * 
+                                       (mutationRateSlider.value / 100);
+                        traits[traitName] = Math.max(traitDef.min, 
+                                                   Math.min(traitDef.max, 
+                                                          parentTraits[traitName] + mutation));
+                    } else {
+                        // Random initialization
+                        traits[traitName] = traitDef.min + Math.random() * (traitDef.max - traitDef.min);
+                    }
+                });
+                
+                return traits;
+            }
+            
+            determineType() {
+                if (this.traits.aggression > 1.2) return 'carnivore';
+                if (this.traits.aggression < 0.6) return 'herbivore';
+                return 'omnivore';
+            }
+            
+            calculateHue() {
+                // Hue based on dominant traits
+                let hue = 0;
+                hue += this.traits.speed * 60;  // Blue spectrum
+                hue += this.traits.aggression * 120; // Red spectrum
+                hue += this.traits.efficiency * 30; // Green tint
+                return hue % 360;
             }
             
             update(deltaTime) {
                 this.age += deltaTime;
+                this.pulsePhase += deltaTime * 2;
                 
-                // Random walk movement
-                this.vx += (Math.random() - 0.5) * 0.5;
-                this.vy += (Math.random() - 0.5) * 0.5;
+                // Environmental temperature effects
+                const tempDiff = Math.abs(temperatureSlider.value - SIMULATION_PARAMS.TEMPERATURE_OPTIMAL);
+                const tempStress = Math.max(0, (tempDiff - SIMULATION_PARAMS.TEMPERATURE_TOLERANCE) / 10);
+                
+                // Disease effects
+                if (this.isDiseased) {
+                    this.energy -= deltaTime * 0.5;
+                    if (Math.random() < 0.001 * this.diseaseResistance) {
+                        this.isDiseased = false; // Recovery
+                    }
+                }
+                
+                // Aging effects
+                if (agingEnabled.checked) {
+                    const agingFactor = (this.age / this.maxAge) * 0.1;
+                    this.energy -= deltaTime * agingFactor;
+                }
+                
+                // Find targets based on organism type
+                this.findTargets();
+                
+                // Move towards target or random walk
+                this.move(deltaTime);
+                
+                // Apply energy costs
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                const movementCost = speed * SIMULATION_PARAMS.MOVE_ENERGY_COST * this.traits.size;
+                const idleCost = SIMULATION_PARAMS.IDLE_ENERGY_COST;
+                const environmentalCost = tempStress * 0.2;
+                
+                this.energy -= (movementCost + idleCost + environmentalCost) * deltaTime;
+                
+                // Update fitness
+                this.updateFitness();
+                
+                // Boundary checking
+                this.handleBoundaries();
+            }
+            
+            findTargets() {
+                if (this.type === 'herbivore') {
+                    this.findNearestFood();
+                } else if (this.type === 'carnivore') {
+                    if (predatorsEnabled.checked) {
+                        this.findNearestPrey();
+                    } else {
+                        this.findNearestFood();
+                    }
+                } else { // omnivore
+                    // Choose between food and prey based on energy and opportunity
+                    const nearestFood = this.findNearestFood();
+                    const nearestPrey = predatorsEnabled.checked ? this.findNearestPrey() : null;
+                    
+                    if (nearestPrey && nearestFood) {
+                        const foodDist = this.distanceTo(nearestFood);
+                        const preyDist = this.distanceTo(nearestPrey);
+                        this.targetFood = (preyDist < foodDist * 0.8 && this.energy > 60) ? null : nearestFood;
+                        this.targetPrey = (preyDist < foodDist * 0.8 && this.energy > 60) ? nearestPrey : null;
+                    }
+                }
+            }
+            
+            findNearestFood() {
+                let nearest = null;
+                let minDistance = Infinity;
+                
+                simulation.food.forEach(food => {
+                    const distance = this.distanceTo(food);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearest = food;
+                    }
+                });
+                
+                this.targetFood = nearest;
+                return nearest;
+            }
+            
+            findNearestPrey() {
+                let nearest = null;
+                let minDistance = Infinity;
+                
+                simulation.organisms.forEach(other => {
+                    if (other !== this && 
+                        other.radius < this.radius * 0.8 && 
+                        other.traits.aggression < this.traits.aggression) {
+                        const distance = this.distanceTo(other);
+                        if (distance < minDistance && distance < 100) {
+                            minDistance = distance;
+                            nearest = other;
+                        }
+                    }
+                });
+                
+                this.targetPrey = nearest;
+                return nearest;
+            }
+            
+            move(deltaTime) {
+                const maxSpeed = SIMULATION_PARAMS.ORGANISM_BASE_SPEED * this.traits.speed;
+                
+                if (this.targetPrey && this.energy > 50) {
+                    // Chase prey
+                    const dx = this.targetPrey.x - this.x;
+                    const dy = this.targetPrey.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 0) {
+                        this.vx += (dx / distance) * this.traits.aggression * deltaTime * 5;
+                        this.vy += (dy / distance) * this.traits.aggression * deltaTime * 5;
+                    }
+                } else if (this.targetFood) {
+                    // Move towards food
+                    const dx = this.targetFood.x - this.x;
+                    const dy = this.targetFood.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance > 0) {
+                        this.vx += (dx / distance) * deltaTime * 3;
+                        this.vy += (dy / distance) * deltaTime * 3;
+                    }
+                } else {
+                    // Random walk
+                    this.vx += (Math.random() - 0.5) * deltaTime * 2;
+                    this.vy += (Math.random() - 0.5) * deltaTime * 2;
+                }
                 
                 // Limit speed
                 const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-                if (speed > SIMULATION_PARAMS.ORGANISM_MAX_SPEED) {
-                    this.vx = (this.vx / speed) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
-                    this.vy = (this.vy / speed) * SIMULATION_PARAMS.ORGANISM_MAX_SPEED;
+                if (speed > maxSpeed) {
+                    this.vx = (this.vx / speed) * maxSpeed;
+                    this.vy = (this.vy / speed) * maxSpeed;
                 }
                 
                 // Update position
                 this.x += this.vx;
                 this.y += this.vy;
                 
-                // Bounce off walls
+                // Add some friction
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+            }
+            
+            handleBoundaries() {
                 const margin = SIMULATION_PARAMS.CANVAS_MARGIN;
                 if (this.x - this.radius <= margin || this.x + this.radius >= canvas.width - margin) {
                     this.vx = -this.vx;
@@ -283,31 +675,38 @@
                     this.vy = -this.vy;
                     this.y = Math.max(margin + this.radius, Math.min(canvas.height - margin - this.radius, this.y));
                 }
-                
-                // Energy costs
-                const movementCost = speed * SIMULATION_PARAMS.ORGANISM_MOVE_ENERGY_COST * deltaTime;
-                const idleCost = SIMULATION_PARAMS.ORGANISM_IDLE_ENERGY_COST * deltaTime;
-                this.energy -= movementCost + idleCost;
-                
-                // Update pulse phase for visual effect
-                this.pulsePhase += deltaTime * 2;
+            }
+            
+            updateFitness() {
+                // Fitness based on survival time, reproduction, and resource acquisition
+                this.fitness = this.age * 0.1 + 
+                              this.reproductionCount * 50 + 
+                              this.killCount * 20 + 
+                              (this.energy / this.maxEnergy) * 10;
+            }
+            
+            distanceTo(other) {
+                const dx = this.x - other.x;
+                const dy = this.y - other.y;
+                return Math.sqrt(dx * dx + dy * dy);
             }
             
             canDivide() {
                 return this.energy >= SIMULATION_PARAMS.ORGANISM_DIVISION_THRESHOLD && 
-                       simulation.organisms.length < SIMULATION_PARAMS.MAX_ORGANISMS;
+                       simulation.organisms.length < SIMULATION_PARAMS.MAX_ORGANISMS &&
+                       this.age > 30;
             }
             
             isDead() {
-                return this.energy <= SIMULATION_PARAMS.ORGANISM_DEATH_THRESHOLD;
+                return this.energy <= SIMULATION_PARAMS.ORGANISM_DEATH_THRESHOLD || 
+                       (agingEnabled.checked && this.age > this.maxAge);
             }
             
             divide() {
-                // Split energy between parent and offspring
-                const offspringEnergy = this.energy / 2;
-                this.energy = offspringEnergy;
+                const offspringEnergy = this.energy * 0.6;
+                this.energy *= 0.4;
+                this.reproductionCount++;
                 
-                // Create offspring near parent
                 const angle = Math.random() * Math.PI * 2;
                 const distance = this.radius * 2.5;
                 const offsetX = Math.cos(angle) * distance;
@@ -317,14 +716,39 @@
                     this.x + offsetX,
                     this.y + offsetY,
                     offspringEnergy,
-                    this.generation
+                    this.generation + 1,
+                    this.traits
                 );
                 
+                offspring.speciesId = this.speciesId;
                 return offspring;
             }
             
             eatFood(foodItem) {
-                this.energy = Math.min(this.maxEnergy, this.energy + SIMULATION_PARAMS.ORGANISM_FOOD_ENERGY_GAIN);
+                let energyGain = SIMULATION_PARAMS.FOOD_ENERGY_GAIN * this.traits.efficiency;
+                
+                if (foodItem.isToxic) {
+                    energyGain *= -0.5; // Toxic food damages
+                    if (Math.random() < 0.1 && !this.isDiseased) {
+                        this.isDiseased = true;
+                    }
+                }
+                
+                this.energy = Math.min(this.maxEnergy, this.energy + energyGain);
+            }
+            
+            hunt(prey) {
+                if (this.distanceTo(prey) < this.radius + prey.radius) {
+                    const energyGain = SIMULATION_PARAMS.HUNT_ENERGY_GAIN * this.traits.efficiency;
+                    this.energy = Math.min(this.maxEnergy, this.energy + energyGain);
+                    this.killCount++;
+                    
+                    // Remove prey from simulation
+                    const index = simulation.organisms.indexOf(prey);
+                    if (index > -1) {
+                        simulation.organisms.splice(index, 1);
+                    }
+                }
             }
             
             draw(ctx) {
@@ -333,34 +757,65 @@
                 
                 // Energy-based brightness
                 const brightness = Math.max(0.3, this.energy / this.maxEnergy);
+                const ageFactor = agingEnabled.checked ? Math.max(0.5, 1 - this.age / this.maxAge) : 1;
                 
-                // Draw organism body
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 
-                // Outer glow
-                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 1.5);
-                gradient.addColorStop(0, `hsla(${this.hue}, 70%, ${60 * brightness}%, 0.8)`);
-                gradient.addColorStop(0.7, `hsla(${this.hue}, 70%, ${40 * brightness}%, 0.4)`);
+                // Outer glow based on fitness
+                const glowRadius = radius * (1 + this.fitness / 200);
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
+                
+                const alpha = brightness * ageFactor * 0.8;
+                gradient.addColorStop(0, `hsla(${this.hue}, 70%, ${60 * brightness}%, ${alpha})`);
+                gradient.addColorStop(0.7, `hsla(${this.hue}, 70%, ${40 * brightness}%, ${alpha * 0.4})`);
                 gradient.addColorStop(1, `hsla(${this.hue}, 70%, ${20 * brightness}%, 0)`);
                 
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.arc(0, 0, radius * 1.5, 0, Math.PI * 2);
+                ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Main body
-                ctx.fillStyle = `hsla(${this.hue}, 70%, ${50 * brightness}%, 0.9)`;
+                ctx.fillStyle = `hsla(${this.hue}, 70%, ${50 * brightness * ageFactor}%, 0.9)`;
                 ctx.beginPath();
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Energy indicator (small core)
-                const coreRadius = radius * (this.energy / this.maxEnergy) * 0.4;
+                // Energy core
+                const coreRadius = radius * (this.energy / this.maxEnergy) * 0.5;
                 ctx.fillStyle = `hsla(${this.hue}, 90%, ${80 * brightness}%, 1)`;
                 ctx.beginPath();
                 ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
                 ctx.fill();
+                
+                // Type indicator
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.font = `${radius * 0.6}px Arial`;
+                ctx.textAlign = 'center';
+                const typeSymbol = this.type === 'carnivore' ? '⚡' : 
+                                  this.type === 'herbivore' ? '🌿' : '⚖️';
+                ctx.fillText(typeSymbol, 0, radius * 0.2);
+                
+                // Disease indicator
+                if (this.isDiseased) {
+                    ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, radius * 1.2, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                // Generation rings for high-generation organisms
+                if (this.generation > 5) {
+                    for (let i = 1; i <= Math.min(3, this.generation - 5); i++) {
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 / i})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, radius + i * 3, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
                 
                 ctx.restore();
             }
@@ -450,11 +905,18 @@
             
             updateStats();
         }
-        
-        function updateSimulation(deltaTime) {
+          function updateSimulation(deltaTime) {
             if (!simulation.running) return;
             
             simulation.time += deltaTime;
+            
+            // Apply environmental pressures
+            applyEnvironmentalPressure();
+            
+            // Handle predator-prey interactions
+            if (predatorsEnabled && predatorsEnabled.checked) {
+                handlePredatorPrey();
+            }
             
             // Update organisms
             for (let i = simulation.organisms.length - 1; i >= 0; i--) {
@@ -475,6 +937,7 @@
                     // Update generation if this is a new max
                     if (offspring.generation > simulation.generation) {
                         simulation.generation = offspring.generation;
+                        addAdaptationLog(`New generation ${offspring.generation} emerged`);
                     }
                 }
                 
@@ -506,9 +969,20 @@
                     spawnOrganism();
                 }
                 simulation.generation++;
+                addAdaptationLog(`Population extinct - restarting with generation ${simulation.generation}`);
+            }
+            
+            // Check for evolutionary milestones
+            const avgFitness = simulation.organisms.reduce((sum, org) => sum + org.fitness, 0) / simulation.organisms.length;
+            if (avgFitness > simulation.highestFitness) {
+                simulation.highestFitness = avgFitness;
+                if (avgFitness > 50) {
+                    addAdaptationLog(`High fitness achieved: ${avgFitness.toFixed(1)}`);
+                }
             }
             
             updateStats();
+            updateEvolutionStats();
         }
         
         function renderSimulation() {
@@ -549,6 +1023,134 @@
             
             requestAnimationFrame(animate);
         }
+          // Enhanced statistics functions
+        function updateEvolutionStats() {
+            if (simulation.organisms.length === 0) return;
+            
+            // Calculate average traits
+            const avgTraits = {
+                speed: 0,
+                size: 0,
+                efficiency: 0,
+                aggression: 0,
+                longevity: 0,
+                immunity: 0
+            };
+            
+            simulation.organisms.forEach(org => {
+                Object.keys(avgTraits).forEach(trait => {
+                    avgTraits[trait] += org.genetics.traits[trait];
+                });
+            });
+            
+            Object.keys(avgTraits).forEach(trait => {
+                avgTraits[trait] /= simulation.organisms.length;
+                const bar = document.querySelector(`.trait-bar[data-trait="${trait}"] .trait-fill`);
+                if (bar) {
+                    bar.style.width = `${avgTraits[trait] * 100}%`;
+                }
+            });
+            
+            // Update population diversity
+            const populationValue = document.getElementById('population-value');
+            const diversityValue = document.getElementById('diversity-value');
+            const avgFitnessValue = document.getElementById('avg-fitness-value');
+            
+            if (populationValue) populationValue.textContent = simulation.organisms.length;
+            
+            // Calculate diversity (variance in traits)
+            let diversity = 0;
+            Object.keys(avgTraits).forEach(trait => {
+                const variance = simulation.organisms.reduce((sum, org) => {
+                    return sum + Math.pow(org.genetics.traits[trait] - avgTraits[trait], 2);
+                }, 0) / simulation.organisms.length;
+                diversity += variance;
+            });
+            diversity = Math.sqrt(diversity / Object.keys(avgTraits).length);
+            
+            if (diversityValue) diversityValue.textContent = (diversity * 100).toFixed(1) + '%';
+            
+            // Calculate average fitness
+            const avgFitness = simulation.organisms.reduce((sum, org) => sum + org.fitness, 0) / simulation.organisms.length;
+            if (avgFitnessValue) avgFitnessValue.textContent = avgFitness.toFixed(2);
+        }
+        
+        function addAdaptationLog(message) {
+            const adaptationLog = document.getElementById('adaptation-log');
+            if (adaptationLog) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.textContent = `Gen ${simulation.generation}: ${message}`;
+                adaptationLog.appendChild(logEntry);
+                
+                // Keep only last 5 entries
+                while (adaptationLog.children.length > 5) {
+                    adaptationLog.removeChild(adaptationLog.firstChild);
+                }
+                
+                // Scroll to bottom
+                adaptationLog.scrollTop = adaptationLog.scrollHeight;
+            }
+        }
+          // Environmental factor functions
+        function applyEnvironmentalPressure() {
+            if (envTempSlider) {
+                const temperature = parseFloat(envTempSlider.value);
+                // Extreme temperatures affect energy consumption
+                const tempStress = Math.abs(temperature - 0.5) * 2;
+                
+                simulation.organisms.forEach(org => {
+                    org.energy -= tempStress * 0.1;
+                    if (tempStress > 0.5 && Math.random() < 0.001) {
+                        org.isDiseased = true;
+                    }
+                });
+            }
+            
+            if (diseaseEnabled && diseaseEnabled.checked) {
+                simulation.organisms.forEach(org => {
+                    if (Math.random() < 0.001) {
+                        org.isDiseased = true;
+                    }
+                });
+            }
+        }
+        
+        // Predator-prey interaction
+        function handlePredatorPrey() {
+            for (let i = 0; i < simulation.organisms.length; i++) {
+                for (let j = i + 1; j < simulation.organisms.length; j++) {
+                    const org1 = simulation.organisms[i];
+                    const org2 = simulation.organisms[j];
+                    
+                    const dist = distance(org1, org2);
+                    const minDist = org1.radius + org2.radius;
+                    
+                    if (dist < minDist) {
+                        // Determine predator based on size and aggression
+                        const org1Power = org1.radius * org1.genetics.traits.aggression;
+                        const org2Power = org2.radius * org2.genetics.traits.aggression;
+                        
+                        if (org1Power > org2Power * 1.2) {
+                            // org1 eats org2
+                            org1.energy += org2.energy * 0.3;
+                            org1.fitness += 5;
+                            simulation.organisms.splice(j, 1);
+                            addAdaptationLog(`Predation event: Large organism consumed smaller one`);
+                            j--; // Adjust index after removal
+                        } else if (org2Power > org1Power * 1.2) {
+                            // org2 eats org1
+                            org2.energy += org1.energy * 0.3;
+                            org2.fitness += 5;
+                            simulation.organisms.splice(i, 1);
+                            addAdaptationLog(`Predation event: Large organism consumed smaller one`);
+                            i--; // Adjust index after removal
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         
         // Event listeners
         startBtn.addEventListener('click', () => {
@@ -574,6 +1176,51 @@
             SIMULATION_PARAMS.FOOD_SPAWN_RATE = parseInt(e.target.value);
             foodRateValue.textContent = e.target.value;
         });
+        
+        // Add event listeners for new controls
+        const mutationSlider = document.getElementById('mutation-slider');
+        const mutationValue = document.getElementById('mutation-value');
+        if (mutationSlider) {
+            mutationSlider.addEventListener('input', (e) => {
+                SIMULATION_PARAMS.MUTATION_RATE = parseFloat(e.target.value);
+                if (mutationValue) mutationValue.textContent = (parseFloat(e.target.value) * 100).toFixed(1) + '%';
+            });
+        }
+        
+        const selectionSlider = document.getElementById('selection-slider');
+        const selectionValue = document.getElementById('selection-value');
+        if (selectionSlider) {
+            selectionSlider.addEventListener('input', (e) => {
+                SIMULATION_PARAMS.SELECTION_PRESSURE = parseFloat(e.target.value);
+                if (selectionValue) selectionValue.textContent = e.target.value;
+            });
+        }        if (envTempSlider) {
+            envTempSlider.addEventListener('input', (e) => {
+                const temp = parseFloat(e.target.value);
+                if (envTempValue) {
+                    const tempDesc = temp < 0.3 ? 'Cold' : temp > 0.7 ? 'Hot' : 'Mild';
+                    envTempValue.textContent = tempDesc;
+                }
+            });
+        }
+        
+        const diseaseSlider = document.getElementById('disease-slider');
+        const diseaseValue = document.getElementById('disease-value');
+        if (diseaseSlider) {
+            diseaseSlider.addEventListener('input', (e) => {
+                const disease = parseFloat(e.target.value);
+                if (diseaseValue) diseaseValue.textContent = (disease * 100).toFixed(0) + '%';
+            });
+        }
+        
+        const agingSlider = document.getElementById('aging-slider');
+        const agingValue = document.getElementById('aging-value');
+        if (agingSlider) {
+            agingSlider.addEventListener('input', (e) => {
+                SIMULATION_PARAMS.AGING_RATE = parseFloat(e.target.value);
+                if (agingValue) agingValue.textContent = `${(parseFloat(e.target.value) * 100).toFixed(1)}%`;
+            });
+        }
         
         // Initialize and start
         pauseBtn.style.display = 'none';
