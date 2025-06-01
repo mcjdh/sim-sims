@@ -6,7 +6,7 @@ This document highlights simulations that stand out for their interesting math, 
 
 The simulations explore themes like emergence, complexity, consciousness models, quantum effects, and space systems. Each shows a different way to make abstract math ideas tangible through interactive visuals.
 
-## Section 1: `gen8/mathematical-singularity-accurate.html` - Mathematical Complexity
+## Section 1: `simulations/gen08_mathe.html` - Mathematical Complexity
 
 This simulation shows how to transform abstract concepts into solid mathematical principles, as documented in `mathematical-accuracy-improvements.md`. It demonstrates how math theories can be visualized through real-time calculations and dynamic displays.
 
@@ -41,7 +41,7 @@ The simulation turns mathematical properties into visual elements through two ma
 
 This simulation shows how abstract mathematical concepts from information theory, chaos theory, and field mathematics can be made real through live calculations and visualization, serving both as a learning tool and an artistic exploration of mathematical beauty.
 
-## Section 2: `gen6/neural-cosmology.html` - Neural-Space Modeling
+## Section 2: `simulations/gen06_neucos.html` - Neural-Space Modeling
 
 This simulation applies brain network math to space structures, exploring the idea of universe-scale information processing through established brain science principles.
 
@@ -61,31 +61,13 @@ The simulation models:
 
 This simulation shows how established mathematical frameworks from one area (brain science) can be creatively applied to another (space science), generating new perspectives on both fields while maintaining accurate calculations.
 
-## Section 3: Interactive Examples
-
-### `gen11/agent_simulation.html` - Agent-Based Modeling
-
-This simulation shows agent-based modeling through independent entities following defined behavior rules:
-*   **Movement:** Agents follow velocity-based motion with boundary collision detection
-*   **Energy Systems:** Each agent maintains energy levels that decay over time and can be exchanged through interactions
-*   **Emerging Behavior:** Complex group patterns arise from simple local interaction rules, including flocking, avoidance, and resource sharing
-
-### `gen12/reality_weaver.html` - Interactive Particle Physics
-
-An interactive particle system that models basic physics principles:
-*   **Physical Simulation:** Uses position, velocity, and acceleration with realistic force interactions including user input, inter-particle forces, and environmental friction
-*   **Real-time Parameter Control:** Sliders and controls allow dynamic adjustment of system parameters, enabling exploration of different physical conditions
-*   **Interactive Capabilities:** Users can manipulate forces, create particles, and observe immediate system responses, facilitating hands-on exploration of physics principles
-
 ## Summary: Beautiful Math in Simulation
 
 These simulations show different aspects of computational elegance:
 
-*   **Mathematical Accuracy (`mathematical-singularity-accurate.html`):** Beauty emerges from faithful implementation of established mathematical principles, turning abstract theory into dynamic visual experiences.
+*   **Mathematical Accuracy (`simulations/gen08_mathe.html`):** Beauty emerges from faithful implementation of established mathematical principles, turning abstract theory into dynamic visual experiences.
 
-*   **Creative Innovation (`neural-cosmology.html`):** Creative application of mathematical frameworks across domains generates new perspectives while maintaining accurate calculations.
-
-*   **Interactive Clarity (`agent_simulation.html`, `reality_weaver.html`):** Effective simulation design makes complex systems accessible through direct manipulation and real-time feedback.
+*   **Creative Innovation (`simulations/gen06_neucos.html`):** Creative application of mathematical frameworks across domains generates new perspectives while maintaining accurate calculations.
 
 *   **Visual Translation:** The common thread across these examples is the successful transformation of mathematical concepts into intuitive, dynamic experiences that preserve accuracy while enabling exploration and understanding.
 
