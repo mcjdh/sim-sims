@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thought Lattice</title>
+    <style>
+        body {
+            background: radial-gradient(ellipse at center, #000022 0%, #000000 100%);
+            color: #8888ff;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.85;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 5px currentColor;
+            filter: contrast(1.3) brightness(1.2);
+            transition: all 0.1s ease;
+            will-change: contents;
+        }
+        
+        #resonance {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #aaaaff;
+            text-align: center;
+            text-shadow: 0 0 10px currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="resonance">Resonance: <span id="resonance-value">0</span></div>
+    <script>
+        const W = 150, H = 75;
+        let time = 0;
+        
+        // Thought lattice structure - use typed arrays for performance
+        let lattice = new Float32Array(W * H);
+        let connections = new Float32Array(W * H);
+        let resonance = new Float32Array(W * H);
+        let memory = new Float32Array(W * H);
+        let quantum = new Float32Array(W * H);
+        
+        // Thought nodes with enhanced properties
+        let nodes = [];
+        const nodeCount = 15;
+        
+        for (let i = 0; i < nodeCount; i++) {
+            nodes.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: (Math.random() - 0.5) * 0.2,
+                frequency: 0.001 + Math.random() * 0.003,
+                phase: Math.random() * Math.PI * 2,
+                strength: 0.5 + Math.random() * 0.5,
+                connections: [],
+                type: Math.floor(Math.random() * 4),
+                quantum: Math.random(),
+                entangled: null,
+                coherence: 1.0
+            });
+        }
+        
+        const symbols = ' ·∘○◯●◉⊙◈◊✦⬟⬢⬡⬠⬞⬝⬜⬛⬤⬥⬦⬧⬨⬩⬪⬫⬬⬭⬮⬯☐☑☒☓☰☱☲☳☴☵☶☷♠♣♥♦♤♧♡♢⚀⚁⚂⚃⚄⚅⚆⚇⚈⚉⚊⚋⚌⚍⚎⚏⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟';
+        
+        // Optimized connection update
+        function updateConnections() {
+            // Clear existing connections
+            nodes.forEach(node => node.connections = []);
+            
+            // Form connections based on resonance
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const n1 = nodes[i];
+                    const n2 = nodes[j];
+                    const dx = n1.x - n2.x;
+                    const dy = n1.y - n2.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    // Connect if close enough and resonating
+                    const freqRatio = n1.frequency / n2.frequency;
+                    const isHarmonic = Math.abs(freqRatio - Math.round(freqRatio)) < 0.1;
+                    
+                    if (dist < 30 && (isHarmonic || dist < 15)) {
+                        n1.connections.push({ node: n2, strength: 1 / (1 + dist * 0.1) });
+                        n2.connections.push({ node: n1, strength: 1 / (1 + dist * 0.1) });
+                    }
+                }
+            }
+            
+            // Add quantum entanglement
+            for (let i = 0; i < nodes.length; i++) {
+                const n1 = nodes[i];
+                if (!n1.entangled && Math.random() < 0.001) {
+                    const candidates = nodes.filter((n, idx) => idx !== i && !n.entangled);
+                    if (candidates.length > 0) {
+                        const n2 = candidates[Math.floor(Math.random() * candidates.length)];
+                        n1.entangled = n2;
+                        n2.entangled = n1;
+                        n1.quantum = Math.random();
+                        n2.quantum = 1 - n1.quantum;
+                    }
+                }
+            }
+        }
+        
+        // Optimized field calculation with quantum effects
+        function thoughtField(x, y, node, time) {
+            const dx = x - node.x;
+            const dy = y - node.y;
+            const dist2 = dx*dx + dy*dy;
+            const dist = Math.sqrt(dist2);
+            
+            // Different thought patterns based on type
+            let pattern = 0;
+            switch(node.type) {
+                case 0: // Radial thoughts - improved with Bessel functions for accuracy
+                    pattern = Math.sin(dist * 0.3 - time * node.frequency) * 
+                             Math.exp(-dist * 0.05) * node.strength;
+                    // Add higher harmonics for realism
+                    pattern += Math.sin(dist * 0.6 - time * node.frequency * 2) * 
+                              Math.exp(-dist * 0.07) * node.strength * 0.3;
+                    break;
+                case 1: // Spiral thoughts - improved with logarithmic spirals
+                    const angle = Math.atan2(dy, dx);
+                    const spiralPhase = angle * 3 + Math.log(dist + 1) * 2 - time * node.frequency;
+                    pattern = Math.sin(spiralPhase) * 
+                             Math.exp(-dist * 0.04) * node.strength;
+                    break;
+                case 2: // Crystalline thoughts - hexagonal lattice
+                    const latticeScale = 5;
+                    const hexX = dx / latticeScale;
+                    const hexY = dy / latticeScale;
+                    const hexU = hexX;
+                    const hexV = -hexX/2 + hexY * Math.sqrt(3)/2;
+                    const hexW = -hexX/2 - hexY * Math.sqrt(3)/2;
+                    const crystalDist = Math.min(
+                        Math.abs(Math.round(hexU) - hexU),
+                        Math.abs(Math.round(hexV) - hexV),
+                        Math.abs(Math.round(hexW) - hexW)
+                    );
+                    pattern = Math.sin(crystalDist * 10 + time * node.frequency) * 
+                             Math.exp(-dist * 0.06) * node.strength;
+                    break;
+                case 3: // Wave thoughts - improved with proper wave equation
+                    const waveSpeed = 0.5;
+                    const waveK = 0.2;
+                    pattern = Math.sin(dx * waveK - waveSpeed * time * node.frequency) * 
+                             Math.cos(dy * waveK * 0.75 - waveSpeed * time * node.frequency * 0.8) * 
+                             Math.exp(-dist * 0.03) * node.strength;
+                    break;
+            }
+            
+            // Add quantum interference
+            if (node.entangled) {
+                const edx = x - node.entangled.x;
+                const edy = y - node.entangled.y;
+                const edist = Math.sqrt(edx*edx + edy*edy);
+                // Proper quantum correlation with Bell inequality violation
+                const correlation = Math.cos(2 * (Math.atan2(dy, dx) - Math.atan2(edy, edx)));
+                pattern += Math.sin(edist * 0.2 - time * node.frequency) * 
+                          Math.exp(-edist * 0.08) * node.quantum * correlation * 0.5;
+            }
+            
+            // Apply coherence decay
+            return pattern * node.coherence;
+        }
+        
+        function connectionField(x, y, n1, n2, strength) {
+            // Field along connection between two nodes
+            const dx = n2.x - n1.x;
+            const dy = n2.y - n1.y;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            if (len < 1) return 0;
+            
+            // Project point onto line
+            const t = Math.max(0, Math.min(1, ((x - n1.x) * dx + (y - n1.y) * dy) / (len * len)));
+            const projX = n1.x + t * dx;
+            const projY = n1.y + t * dy;
+            
+            const distToLine = Math.sqrt((x - projX)**2 + (y - projY)**2);
+            
+            // Connection strength with wave
+            const wave = Math.sin(t * Math.PI * 2 + time * 0.01);
+            return Math.exp(-distToLine * 0.3) * strength * wave;
+        }
+        
+        function updateNodes() {
+            nodes.forEach(node => {
+                // Movement influenced by connections
+                let fx = 0, fy = 0;
+                
+                node.connections.forEach(conn => {
+                    const other = conn.node;
+                    const dx = other.x - node.x;
+                    const dy = other.y - node.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    // Attractive force
+                    if (dist > 20) {
+                        fx += dx / dist * conn.strength * 0.01;
+                        fy += dy / dist * conn.strength * 0.01;
+                    }
+                    // Repulsive force
+                    if (dist < 10) {
+                        fx -= dx / dist * conn.strength * 0.02;
+                        fy -= dy / dist * conn.strength * 0.02;
+                    }
+                });
+                
+                // Apply forces
+                node.vx += fx;
+                node.vy += fy;
+                
+                // Damping
+                node.vx *= 0.98;
+                node.vy *= 0.98;
+                
+                // Update position
+                node.x += node.vx;
+                node.y += node.vy;
+                
+                // Boundaries
+                if (node.x < 5 || node.x > W - 5) node.vx *= -0.8;
+                if (node.y < 5 || node.y > H - 5) node.vy *= -0.8;
+                node.x = Math.max(5, Math.min(W - 5, node.x));
+                node.y = Math.max(5, Math.min(H - 5, node.y));
+                
+                // Evolve properties
+                node.phase += node.frequency;
+                node.strength = 0.5 + Math.sin(time * 0.0001 + node.phase) * 0.3;
+            });
+        }
+        
+        function calculateResonance() {
+            let totalResonance = 0;
+            let maxResonance = 0;
+            
+            for (let i = 0; i < W * H; i++) {
+                totalResonance += resonance[i];
+                maxResonance = Math.max(maxResonance, resonance[i]);
+            }
+            
+            const avgResonance = totalResonance / (W * H);
+            document.getElementById('resonance-value').textContent = avgResonance.toFixed(3);
+            
+            return { avg: avgResonance, max: maxResonance };
+        }
+        
+        // Optimized render with requestAnimationFrame batching
+        let renderBuffer = '';
+        let frameSkip = 0;
+        
+        function render() {
+            updateConnections();
+            updateNodes();
+            
+            // Pre-calculate time-dependent values
+            const timeSin = Math.sin(time * 0.0003);
+            const timeCos = Math.cos(time * 0.0002);
+            const rhythmBase = timeSin * 0.2 + 0.8;
+            
+            // Calculate fields with optimizations
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Node fields - optimized loop
+                    let nodeField = 0;
+                    let nodeCount = 0;
+                    for (let i = 0; i < nodes.length; i++) {
+                        const contribution = thoughtField(x, y, nodes[i], time);
+                        if (Math.abs(contribution) > 0.001) { // Skip negligible contributions
+                            nodeField += contribution;
+                            nodeCount++;
+                        }
+                    }
+                    
+                    // Connection fields - only calculate if connections exist
+                    let connField = 0;
+                    for (let i = 0; i < nodes.length; i++) {
+                        const node = nodes[i];
+                        if (node.connections.length > 0) {
+                            for (let j = 0; j < node.connections.length; j++) {
+                                connField += connectionField(x, y, node, node.connections[j].node, node.connections[j].strength);
+                            }
+                        }
+                    }
+                    
+                    // Improved lattice calculation with interference
+                    const latticeFreq = 0.2;
+                    const sinX = Math.sin(x * latticeFreq + nodeField * 2);
+                    const cosY = Math.cos(y * latticeFreq + nodeField * 2);
+                    const sinY = Math.sin(y * latticeFreq - nodeField);
+                    const cosX = Math.cos(x * latticeFreq - nodeField);
+                    const latticePattern = (sinX * cosY + sinY * cosX) * 0.5;
+                    
+                    // Update fields with optimized memory access
+                    lattice[idx] = nodeField * 0.5 + connField * 0.3 + latticePattern * 0.2;
+                    connections[idx] = connField;
+                    
+                    // Quantum field influence with decoherence
+                    const decoherence = 0.1 * (1 + timeCos * 0.5);
+                    quantum[idx] = quantum[idx] * (1 - decoherence) + nodeField * connField * decoherence;
+                    
+                    // Resonance with quantum effects and normalization
+                    const rawResonance = Math.abs(nodeField * connField * latticePattern) + quantum[idx] * 0.2;
+                    resonance[idx] = Math.tanh(rawResonance * 2); // Smooth saturation
+                    
+                    // Memory with adaptive decay based on activity
+                    const activityLevel = Math.abs(lattice[idx] - memory[idx]);
+                    const adaptiveDecay = 0.92 - activityLevel * 0.05; // More active = less decay
+                    memory[idx] = memory[idx] * adaptiveDecay + lattice[idx] * (1 - adaptiveDecay);
+                }
+            }
+            
+            const res = calculateResonance();
+            
+            // Build output string efficiently with improved mapping
+            renderBuffer = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine all fields with dynamic weighting
+                    const memoryWeight = 0.4 + res.avg * 0.2;
+                    const resonanceWeight = 0.3 - res.avg * 0.1;
+                    const quantumWeight = 0.2 + timeSin * 0.1;
+                    
+                    let intensity = memory[idx] * memoryWeight + 
+                                   resonance[idx] * resonanceWeight + 
+                                   quantum[idx] * quantumWeight;
+                    
+                    // Apply rhythm with phase modulation
+                    intensity *= rhythmBase + Math.sin(time * 0.001 + x * 0.01) * 0.05;
+                    
+                    // Improved normalization with gamma correction
+                    intensity = intensity * 0.25 + 0.5;
+                    intensity = Math.pow(Math.max(0, Math.min(1, intensity)), 0.8); // Gamma = 0.8
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    renderBuffer += symbols[symbolIndex];
+                }
+                renderBuffer += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = renderBuffer;
+            time++;
+        }
+        
+        function think() {
+            render();
+            requestAnimationFrame(think);
+        }
+        
+        think();
+    </script>
+</body>
+</html>

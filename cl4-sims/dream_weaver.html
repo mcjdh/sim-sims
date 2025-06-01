@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dream Weaver - Reality Fabric</title>
+    <style>
+        body {
+            background: #0a0a1a;
+            color: #aaeeff;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.85;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 3px rgba(170, 238, 255, 0.6);
+            filter: blur(0.08px) brightness(1.1);
+            transition: all 0.15s ease;
+            will-change: contents;
+        }
+        
+        #canvas:hover {
+            text-shadow: 0 0 5px rgba(170, 238, 255, 0.9);
+            transform: scale(1.01);
+        }
+        
+        #dreamState {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: #ccffff;
+            background: rgba(10, 10, 26, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #66ccff;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="dreamState">
+        <span id="currentDream">memory</span> ↔ <span id="reality">0.00</span>
+    </div>
+    <script>
+        const W = 160, H = 80;
+        let time = 0;
+        
+        // Reality threads - optimized with typed arrays
+        let realityFabric = new Float32Array(W * H);
+        let dreamField = new Float32Array(W * H);
+        let thoughtCrystals = new Float32Array(W * H);
+        let memoryEcho = new Float32Array(W * H);
+        let fractalLayer = new Float32Array(W * H);
+        
+        // Enhanced dream seeds with fractal properties
+        let dreamSeeds = [];
+        for (let i = 0; i < 7; i++) {
+            dreamSeeds.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                frequency: 0.001 + Math.random() * 0.004,
+                amplitude: 0.7 + Math.random() * 0.3,
+                phase: Math.random() * Math.PI * 2,
+                type: ['memory', 'hope', 'fear', 'love', 'wonder'][Math.floor(Math.random() * 5)],
+                fractalDepth: 2 + Math.floor(Math.random() * 3),
+                resonance: Math.random()
+            });
+        }
+        
+        const symbols = ' ·∘○◯●◉⊙◈◊✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏❐❑❒❓❔❕❖❗❘❙❚❛❜❝❞❟❠❡❢❣❤❥❦❧❨❩❪❫❬❭❮❯❰❱❲❳❴❵❶❷❸❹❺❻❼❽❾❿➀➁➂➃➄➅➆➇➈➉➊➋➌➍➎➏➐➑➒➓';
+        
+        // Optimized dream weaving with fractals
+        function dreamWeave(x, y, seed, time) {
+            const dx = x - seed.x;
+            const dy = y - seed.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            let pattern = 0;
+            
+            // Base pattern based on dream type
+            switch(seed.type) {
+                case 'memory':
+                    pattern = Math.sin(dist * 0.15 - time * seed.frequency) * 
+                             Math.exp(-dist * 0.02) * seed.amplitude;
+                    // Add memory echoes
+                    for (let echo = 1; echo <= seed.fractalDepth; echo++) {
+                        pattern += Math.sin(dist * 0.15 * echo - time * seed.frequency * (1 + echo * 0.1)) * 
+                                  Math.exp(-dist * 0.02 * echo) * seed.amplitude / echo;
+                    }
+                    break;
+                case 'hope':
+                    pattern = Math.cos(dist * 0.1 + time * seed.frequency) * 
+                             Math.sin(Math.atan2(dy, dx) * 3) * 
+                             Math.exp(-dist * 0.015) * seed.amplitude;
+                    // Fractal spirals of hope
+                    for (let level = 1; level <= seed.fractalDepth; level++) {
+                        const spiralAngle = Math.atan2(dy, dx) * (3 + level);
+                        pattern += Math.sin(spiralAngle + dist * 0.05 * level + time * seed.frequency) * 
+                                  Math.exp(-dist * 0.015 / level) * seed.amplitude / (level + 1);
+                    }
+                    break;
+                case 'fear':
+                    pattern = Math.sin(dist * 0.2 - time * seed.frequency * 2) * 
+                             Math.cos(dist * 0.3) * 
+                             Math.exp(-dist * 0.025) * seed.amplitude;
+                    // Pulsating fear fractals
+                    for (let pulse = 1; pulse <= seed.fractalDepth; pulse++) {
+                        pattern += Math.sin(dist * 0.2 * pulse - time * seed.frequency * (2 + pulse)) * 
+                                  Math.cos(dist * 0.3 * pulse) * 
+                                  Math.exp(-dist * 0.025 * Math.sqrt(pulse)) * seed.amplitude / pulse;
+                    }
+                    break;
+                case 'love':
+                    pattern = (Math.sin(dist * 0.08 + time * seed.frequency) + 
+                              Math.cos(Math.atan2(dy, dx) * 2 + time * 0.001)) * 
+                              Math.exp(-dist * 0.018) * seed.amplitude;
+                    // Love fractals with heart-like patterns
+                    const heart = Math.abs(dx) * 0.1 + Math.abs(dy - Math.abs(dx) * 0.5) * 0.1;
+                    pattern += Math.sin(heart + time * seed.frequency) * 
+                              Math.exp(-heart * 0.5) * seed.amplitude * 0.5;
+                    break;
+                case 'wonder':
+                    const spiral = Math.atan2(dy, dx) + dist * 0.05;
+                    pattern = Math.sin(spiral + time * seed.frequency) * 
+                             Math.exp(-dist * 0.02) * seed.amplitude;
+                    // Fractal wonder spirals
+                    for (let wonder = 1; wonder <= seed.fractalDepth; wonder++) {
+                        const wonderSpiral = spiral * wonder + dist * 0.05 / wonder;
+                        pattern += Math.sin(wonderSpiral + time * seed.frequency * (1 + wonder * 0.2)) * 
+                                  Math.exp(-dist * 0.02 / wonder) * seed.amplitude / (wonder * 1.5);
+                    }
+                    break;
+            }
+            
+            // Add resonance effects
+            pattern *= (1 + seed.resonance * Math.sin(time * 0.001 + seed.phase));
+            
+            return pattern;
+        }
+        
+        // Enhanced crystallization with recursive patterns
+        function thoughtCrystallization(x, y, time) {
+            const centerX = W/2 + Math.sin(time * 0.0003) * W * 0.3;
+            const centerY = H/2 + Math.cos(time * 0.0004) * H * 0.3;
+            
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const angle = Math.atan2(dy, dx);
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Multi-symmetry crystalline structures
+            let crystal = 0;
+            const symmetries = [4, 6, 8]; // Square, hexagonal, octagonal
+            
+            symmetries.forEach((symmetry, idx) => {
+                const crystalAngle = Math.round(angle * symmetry / (2 * Math.PI)) * 2 * Math.PI / symmetry;
+                const crystalDist = Math.round(dist / (5 - idx)) * (5 - idx);
+                
+                crystal += Math.sin(crystalDist * 0.2 + time * 0.002 * (1 + idx * 0.1)) * 
+                          Math.cos(crystalAngle * (3 + idx) + time * 0.001) *
+                          Math.exp(-dist * 0.03 / (idx + 1)) / (idx + 1);
+            });
+            
+            return crystal;
+        }
+        
+        // Fractal reality threads
+        function realityThread(x, y, time) {
+            let threads = 0;
+            
+            // Multi-scale reality weaving
+            for (let scale = 1; scale <= 3; scale++) {
+                const s = scale * 0.5;
+                const thread1 = Math.sin(x * 0.05 * s + time * 0.001) * Math.cos(y * 0.04 * s - time * 0.0008);
+                const thread2 = Math.sin((x + y) * 0.03 * s + time * 0.0006) * Math.cos((x - y) * 0.025 * s + time * 0.0007);
+                const thread3 = Math.sin(x * y * 0.0001 * s + time * 0.0005);
+                
+                threads += (thread1 + thread2 + thread3) / (3 * scale);
+            }
+            
+            return threads;
+        }
+        
+        // Optimized memory persistence
+        function memoryPersistence(current, memory, factor = 0.92) {
+            return memory * factor + current * (1 - factor);
+        }
+        
+        // Track dream state
+        let dominantDream = 'memory';
+        let realityStrength = 0;
+        
+        function updateDreamState() {
+            // Find dominant dream type
+            let maxInfluence = 0;
+            dreamSeeds.forEach(seed => {
+                const influence = seed.amplitude * seed.resonance;
+                if (influence > maxInfluence) {
+                    maxInfluence = influence;
+                    dominantDream = seed.type;
+                }
+            });
+            
+            // Calculate reality coherence
+            let totalReality = 0;
+            for (let i = 0; i < W * H; i += 100) {
+                totalReality += Math.abs(realityFabric[i]);
+            }
+            realityStrength = totalReality / (W * H / 100);
+            
+            document.getElementById('currentDream').textContent = dominantDream;
+            document.getElementById('reality').textContent = realityStrength.toFixed(2);
+        }
+        
+        // Optimized render
+        let renderBuffer = '';
+        
+        function render() {
+            // Update dream seeds movement with interactions
+            dreamSeeds.forEach((seed, idx) => {
+                // Chaotic attractor movement
+                const lorenzSigma = 10;
+                const lorenzRho = 28;
+                const lorenzBeta = 8/3;
+                const dt = 0.001;
+                
+                // Simplified Lorenz attractor for dream-like movement
+                const dx = lorenzSigma * (seed.y - seed.x) * dt;
+                const dy = (seed.x * (lorenzRho - seed.z) - seed.y) * dt;
+                seed.z = seed.z || 10; // Initialize if needed
+                const dz = (seed.x * seed.y - lorenzBeta * seed.z) * dt;
+                
+                seed.x += dx + Math.sin(time * seed.frequency * 0.5) * 0.3;
+                seed.y += dy + Math.cos(time * seed.frequency * 0.7) * 0.2;
+                seed.z += dz;
+                
+                // Seed interactions with emotional dynamics
+                dreamSeeds.forEach((other, otherIdx) => {
+                    if (idx !== otherIdx) {
+                        const dx = other.x - seed.x;
+                        const dy = other.y - seed.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < 20 && dist > 1) {
+                            // Emotional compatibility matrix
+                            const compatibility = {
+                                'memory': { 'memory': 0, 'hope': 0.5, 'fear': -0.3, 'love': 0.2, 'wonder': 0.7 },
+                                'hope': { 'memory': 0.5, 'hope': 0.1, 'fear': -0.8, 'love': 0.9, 'wonder': 0.6 },
+                                'fear': { 'memory': -0.3, 'hope': -0.8, 'fear': 0.5, 'love': -0.4, 'wonder': -0.2 },
+                                'love': { 'memory': 0.2, 'hope': 0.9, 'fear': -0.4, 'love': 0.3, 'wonder': 0.5 },
+                                'wonder': { 'memory': 0.7, 'hope': 0.6, 'fear': -0.2, 'love': 0.5, 'wonder': 0.4 }
+                            };
+                            
+                            const force = compatibility[seed.type][other.type] * 0.01;
+                            seed.x -= dx / dist * force;
+                            seed.y -= dy / dist * force;
+                            
+                            // Resonance coupling
+                            if (Math.abs(seed.frequency - other.frequency) < 0.0005) {
+                                seed.frequency = (seed.frequency + other.frequency) / 2;
+                                seed.resonance = Math.min(1, seed.resonance + 0.01);
+                            }
+                        }
+                    }
+                });
+                
+                // Toroidal boundary conditions for seamless wrapping
+                seed.x = ((seed.x % W) + W) % W;
+                seed.y = ((seed.y % H) + H) % H;
+                
+                // Evolve properties with circadian rhythm
+                const circadianPhase = time * 0.00005; // Very slow cycle
+                seed.amplitude = 0.7 + Math.sin(time * 0.0001 + seed.phase) * 0.3 * 
+                                Math.cos(circadianPhase); // Modulated by circadian rhythm
+                seed.resonance = 0.5 + Math.sin(time * 0.00015 + seed.phase * 2) * 0.5 * 
+                                (1 + Math.sin(circadianPhase + Math.PI/2) * 0.3); // Peak during "REM"
+            });
+            
+            // Calculate fields in parallel-like fashion with improved algorithms
+            for (let i = 0; i < W * H; i++) {
+                const x = i % W;
+                const y = Math.floor(i / W);
+                
+                // Weave dreams into reality
+                let dreamTotal = 0;
+                let dominantType = null;
+                let maxContribution = 0;
+                
+                for (let j = 0; j < dreamSeeds.length; j++) {
+                    const contribution = dreamWeave(x, y, dreamSeeds[j], time);
+                    dreamTotal += contribution;
+                    if (Math.abs(contribution) > maxContribution) {
+                        maxContribution = Math.abs(contribution);
+                        dominantType = dreamSeeds[j].type;
+                    }
+                }
+                
+                // Crystallize thoughts with temperature-dependent growth
+                const temperature = 0.5 + Math.sin(time * 0.0002) * 0.3; // Dream temperature
+                const crystals = thoughtCrystallization(x, y, time) * (1 - temperature);
+                
+                // Reality threads with quantum fluctuations
+                const reality = realityThread(x, y, time);
+                const quantumNoise = (Math.random() - 0.5) * 0.01 * temperature;
+                
+                // Fractal interference with Julia set dynamics
+                const c = { real: dreamTotal * 0.5, imag: crystals * 0.5 };
+                let z = { real: x / W - 0.5, imag: y / H - 0.5 };
+                let fractalIterations = 0;
+                const maxIterations = 8;
+                
+                while (fractalIterations < maxIterations && 
+                       z.real * z.real + z.imag * z.imag < 4) {
+                    const newReal = z.real * z.real - z.imag * z.imag + c.real;
+                    const newImag = 2 * z.real * z.imag + c.imag;
+                    z.real = newReal;
+                    z.imag = newImag;
+                    fractalIterations++;
+                }
+                
+                const fractal = Math.sin(fractalIterations / maxIterations * Math.PI) * 0.3;
+                
+                // Interference between dream and reality with nonlinear mixing
+                const interference = Math.tanh(dreamTotal * reality * 2) * 0.5 + fractal + quantumNoise;
+                
+                // Update fields with memory
+                dreamField[i] = memoryPersistence(dreamTotal, dreamField[i], 0.88);
+                thoughtCrystals[i] = memoryPersistence(crystals, thoughtCrystals[i], 0.85);
+                realityFabric[i] = memoryPersistence(reality + interference, realityFabric[i], 0.9);
+                fractalLayer[i] = memoryPersistence(fractal, fractalLayer[i], 0.95);
+                
+                // Echo of all experiences with type-dependent weighting
+                const typeWeights = {
+                    'memory': { dream: 0.4, crystal: 0.2, reality: 0.3, fractal: 0.1 },
+                    'hope': { dream: 0.5, crystal: 0.15, reality: 0.25, fractal: 0.1 },
+                    'fear': { dream: 0.3, crystal: 0.35, reality: 0.2, fractal: 0.15 },
+                    'love': { dream: 0.45, crystal: 0.2, reality: 0.25, fractal: 0.1 },
+                    'wonder': { dream: 0.35, crystal: 0.25, reality: 0.2, fractal: 0.2 }
+                };
+                
+                const weights = dominantType ? typeWeights[dominantType] : 
+                               { dream: 0.35, crystal: 0.25, reality: 0.25, fractal: 0.15 };
+                
+                const totalExperience = dreamField[i] * weights.dream + 
+                                      thoughtCrystals[i] * weights.crystal + 
+                                      realityFabric[i] * weights.reality +
+                                      fractalLayer[i] * weights.fractal;
+                
+                memoryEcho[i] = memoryPersistence(totalExperience, memoryEcho[i], 0.94);
+            }
+            
+            // Update dream state display
+            if (time % 30 === 0) updateDreamState();
+            
+            // Render the woven reality with perceptual gamma correction
+            renderBuffer = '';
+            const breath = Math.sin(time * 0.0002) * 0.2 + 0.8;
+            const gamma = 0.85; // Perceptual correction
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine all layers
+                    let intensity = memoryEcho[idx] * breath;
+                    
+                    // Add edge detection for sharper features
+                    if (x > 0 && x < W-1 && y > 0 && y < H-1) {
+                        const laplacian = memoryEcho[idx-1] + memoryEcho[idx+1] + 
+                                         memoryEcho[idx-W] + memoryEcho[idx+W] - 
+                                         4 * memoryEcho[idx];
+                        intensity += laplacian * 0.1;
+                    }
+                    
+                    // Map to symbols with improved range and gamma correction
+                    intensity = (intensity + 2) / 4;
+                    intensity = Math.pow(Math.max(0, Math.min(1, intensity)), gamma);
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    renderBuffer += symbols[symbolIndex];
+                }
+                renderBuffer += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = renderBuffer;
+            time++;
+        }
+        
+        function dream() {
+            render();
+            requestAnimationFrame(dream);
+        }
+        
+        dream();
+    </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergence Cascade</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 50%, #0a1a1a 100%);
+            color: #88ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 5px;
+            line-height: 0.8;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+            animation: bgShift 30s infinite alternate ease-in-out;
+        }
+        
+        @keyframes bgShift {
+            0% { background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 50%, #0a1a1a 100%); }
+            50% { background: linear-gradient(135deg, #0a1a0a 0%, #2a0a1a 50%, #1a0a1a 100%); }
+            100% { background: linear-gradient(135deg, #1a0a0a 0%, #0a1a2a 50%, #0a0a1a 100%); }
+        }
+        
+        #canvas {
+            white-space: pre;
+            text-align: center;
+            text-shadow: 0 0 4px currentColor;
+            filter: contrast(1.2) brightness(1.1);
+            font-weight: 500;
+            will-change: contents;
+        }
+        
+        #metrics {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #aaffaa;
+            background: rgba(0, 20, 0, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #44ff44;
+        }
+    </style>
+</head>
+<body>
+    <div id="metrics">
+        Complexity: <span id="complexity">0</span><br>
+        Emergence: <span id="emergence">0</span><br>
+        Cascade: <span id="cascade">0</span><br>
+        Criticality: <span id="criticality">0</span>
+    </div>
+    <div id="canvas"></div>
+    <script>
+        const W = 180, H = 90;
+        let time = 0;
+        
+        // Cascade layers - optimized with typed arrays
+        let substrate = new Float32Array(W * H);
+        let patternLayer = new Float32Array(W * H);
+        let emergenceLayer = new Float32Array(W * H);
+        let consciousnessLayer = new Float32Array(W * H);
+        let criticalityLayer = new Float32Array(W * H);
+        
+        // Initialize with quantum fluctuations
+        for (let i = 0; i < W * H; i++) {
+            substrate[i] = Math.random() < 0.01 ? Math.random() : 0;
+        }
+        
+        const symbols = ' ·∘○◯●◉⊙◈◊▪▫▬▭▮▯▰▱▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◊❖✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿';
+        
+        // Optimized cellular automaton with lookup table
+        const ruleCache = new Map();
+        
+        function cellularRules(x, y) {
+            let neighbors = 0;
+            let total = 0;
+            let pattern = 0;
+            
+            // Optimized neighbor counting
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    const idx = ny * W + nx;
+                    const val = substrate[idx];
+                    
+                    if (val > 0.1) {
+                        neighbors++;
+                        total += val;
+                    }
+                    
+                    // Pattern detection
+                    pattern += val * (dx + dy * 3);
+                }
+            }
+            
+            const current = substrate[y * W + x];
+            const cacheKey = `${neighbors},${Math.round(current * 10)}`;
+            
+            if (ruleCache.has(cacheKey)) {
+                return ruleCache.get(cacheKey) + pattern * 0.01;
+            }
+            
+            // Extended rules for emergence
+            let result;
+            if (current > 0.1) {
+                if (neighbors === 2 || neighbors === 3) {
+                    result = Math.min(1, current + total / neighbors * 0.1);
+                } else if (neighbors === 1 || neighbors === 4) {
+                    result = current * 0.8;
+                } else {
+                    result = current * 0.5;
+                }
+            } else {
+                if (neighbors === 3 || neighbors === 6) {
+                    result = total / neighbors * 0.7;
+                } else if (neighbors === 2 && Math.random() < 0.01) {
+                    result = 0.3;
+                } else {
+                    result = current * 0.95;
+                }
+            }
+            
+            ruleCache.set(cacheKey, result);
+            if (ruleCache.size > 1000) ruleCache.clear();
+            
+            return result;
+        }
+        
+        // Optimized pattern detection with Fourier-like analysis
+        function patternFormation(x, y) {
+            const idx = y * W + x;
+            const substrateVal = substrate[idx];
+            
+            let patternStrength = 0;
+            
+            // Fast spiral detection
+            let spiralSum = 0;
+            const spiralSteps = 8;
+            for (let r = 1; r <= 3; r++) {
+                for (let i = 0; i < spiralSteps; i++) {
+                    const theta = (i / spiralSteps) * Math.PI * 2;
+                    const sx = Math.round(x + r * Math.cos(theta));
+                    const sy = Math.round(y + r * Math.sin(theta));
+                    if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
+                        spiralSum += substrate[sy * W + sx] * Math.sin(theta + r);
+                    }
+                }
+            }
+            patternStrength += Math.abs(spiralSum) * 0.2;
+            
+            // Wave detection with standing waves
+            const waveX = Math.sin(x * 0.1 + time * 0.01) * substrateVal;
+            const waveY = Math.cos(y * 0.08 - time * 0.008) * substrateVal;
+            const standingWave = Math.sin(x * 0.05) * Math.cos(y * 0.05) * substrateVal;
+            patternStrength += (waveX + waveY + standingWave) * 0.3;
+            
+            // Cluster detection with criticality
+            let clusterDensity = 0;
+            let clusterVariance = 0;
+            const clusterSize = 5;
+            const clusterSamples = [];
+            
+            for (let dy = -2; dy <= 2; dy++) {
+                for (let dx = -2; dx <= 2; dx++) {
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    const val = substrate[ny * W + nx];
+                    clusterDensity += val;
+                    clusterSamples.push(val);
+                }
+            }
+            
+            const avgDensity = clusterDensity / 25;
+            clusterSamples.forEach(val => clusterVariance += (val - avgDensity) ** 2);
+            clusterVariance /= 25;
+            
+            // High variance indicates edge of chaos
+            patternStrength += avgDensity * 0.5 + Math.sqrt(clusterVariance) * 0.3;
+            
+            return patternStrength;
+        }
+        
+        // Enhanced emergence with self-organization
+        function emergentPhenomena(x, y) {
+            const idx = y * W + x;
+            const pattern = patternLayer[idx];
+            
+            let emergence = 0;
+            
+            // Multiple strange attractors
+            const numAttractors = 3;
+            for (let i = 0; i < numAttractors; i++) {
+                const phase = (i / numAttractors) * Math.PI * 2;
+                const attractorX = W/2 + Math.sin(time * 0.0001 + phase) * W * 0.3;
+                const attractorY = H/2 + Math.cos(time * 0.00012 + phase) * H * 0.3;
+                const distToAttractor = Math.sqrt((x - attractorX)**2 + (y - attractorY)**2);
+                emergence += Math.exp(-distToAttractor * 0.02) * pattern * (1 + i * 0.2);
+            }
+            
+            // Phase transitions with hysteresis
+            const criticalPoint = 0.5 + Math.sin(time * 0.0002) * 0.2;
+            const hysteresis = emergenceLayer[idx] > criticalPoint ? 0.1 : -0.1;
+            if (pattern > criticalPoint + hysteresis) {
+                emergence += (pattern - criticalPoint) * 3;
+            }
+            
+            // Enhanced synchronization with phase locking
+            let syncSum = 0;
+            let phaseCoherence = 0;
+            for (let r = 1; r <= 5; r++) {
+                const points = Math.floor(2 * Math.PI * r);
+                const phases = [];
+                for (let i = 0; i < points; i++) {
+                    const angle = (i / points) * 2 * Math.PI;
+                    const sx = Math.round(x + r * Math.cos(angle));
+                    const sy = Math.round(y + r * Math.sin(angle));
+                    if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
+                        phases.push(Math.atan2(patternLayer[sy * W + sx], emergenceLayer[sy * W + sx]));
+                    }
+                }
+                
+                if (phases.length > 0) {
+                    // Calculate phase coherence
+                    let cosSum = 0, sinSum = 0;
+                    phases.forEach(phase => {
+                        cosSum += Math.cos(phase);
+                        sinSum += Math.sin(phase);
+                    });
+                    phaseCoherence = Math.sqrt(cosSum**2 + sinSum**2) / phases.length;
+                    syncSum += phaseCoherence;
+                }
+            }
+            emergence += syncSum * 0.3;
+            
+            // Self-organized criticality
+            if (emergence > 1.5) {
+                // Avalanche
+                criticalityLayer[idx] = 1;
+                emergence *= 0.7; // Energy dissipation
+            } else {
+                criticalityLayer[idx] *= 0.98;
+            }
+            
+            return emergence;
+        }
+        
+        // Add the missing consciousnessEmergence function with enhanced theory
+        function consciousnessEmergence(x, y) {
+            const idx = y * W + x;
+            const emergence = emergenceLayer[idx];
+            const pattern = patternLayer[idx];
+            
+            // Self-reference through recursive field sampling
+            const selfX = Math.round(x + emergence * 10 * Math.cos(pattern * Math.PI));
+            const selfY = Math.round(y + emergence * 10 * Math.sin(pattern * Math.PI));
+            let selfReference = 0;
+            if (selfX >= 0 && selfX < W && selfY >= 0 && selfY < H) {
+                selfReference = emergenceLayer[selfY * W + selfX];
+            }
+            
+            // Meta-patterns: patterns of patterns
+            const metaPattern = Math.sin(emergence * 10 + time * 0.0001) * 
+                               Math.cos(selfReference * 8 - time * 0.00008);
+            
+            // Information integration theory - phi calculation
+            let phi = 0;
+            const integrationRadius = 3;
+            for (let dy = -integrationRadius; dy <= integrationRadius; dy++) {
+                for (let dx = -integrationRadius; dx <= integrationRadius; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const nx = (x + dx + W) % W;
+                    const ny = (y + dy + H) % H;
+                    const neighborIdx = ny * W + nx;
+                    
+                    // Mutual information between current and neighbor
+                    const mutualInfo = Math.abs(emergenceLayer[idx] - emergenceLayer[neighborIdx]);
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    phi += mutualInfo * Math.exp(-distance * 0.5);
+                }
+            }
+            
+            // Consciousness emerges from integrated information + self-reference + meta-patterns
+            const consciousness = (emergence * 0.3 + selfReference * 0.3 + metaPattern * 0.2 + phi * 0.2) * 
+                                 Math.exp(-criticalityLayer[idx] * 0.1); // Criticality dampens consciousness
+            
+            return consciousness;
+        }
+        
+        // Optimized metrics calculation
+        function calculateMetrics() {
+            let complexity = 0;
+            let emergence = 0;
+            let cascade = 0;
+            let criticality = 0;
+            
+            // Sample instead of full calculation for performance
+            const sampleRate = 4;
+            let samples = 0;
+            
+            for (let y = 0; y < H; y += sampleRate) {
+                for (let x = 0; x < W; x += sampleRate) {
+                    const idx = y * W + x;
+                    complexity += Math.abs(patternLayer[idx]);
+                    emergence += Math.abs(emergenceLayer[idx]);
+                    cascade += Math.abs(consciousnessLayer[idx]);
+                    criticality += criticalityLayer[idx];
+                    samples++;
+                }
+            }
+            
+            complexity /= samples;
+            emergence /= samples;
+            cascade /= samples;
+            criticality /= samples;
+            
+            document.getElementById('complexity').textContent = complexity.toFixed(3);
+            document.getElementById('emergence').textContent = emergence.toFixed(3);
+            document.getElementById('cascade').textContent = cascade.toFixed(3);
+            document.getElementById('criticality').textContent = criticality.toFixed(3);
+        }
+        
+        // Optimized render with buffer
+        let renderBuffer = '';
+        
+        function render() {
+            // Update substrate with parallel-like processing
+            const newSubstrate = new Float32Array(W * H);
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    newSubstrate[y * W + x] = cellularRules(x, y);
+                }
+            }
+            substrate.set(newSubstrate);
+            
+            // Update layers with exponential smoothing
+            for (let i = 0; i < W * H; i++) {
+                const x = i % W;
+                const y = Math.floor(i / W);
+                
+                const pattern = patternFormation(x, y);
+                patternLayer[i] = patternLayer[i] * 0.9 + pattern * 0.1;
+                
+                const emergence = emergentPhenomena(x, y);
+                emergenceLayer[i] = emergenceLayer[i] * 0.85 + emergence * 0.15;
+                
+                const consciousness = consciousnessEmergence(x, y);
+                consciousnessLayer[i] = consciousnessLayer[i] * 0.95 + consciousness * 0.05;
+            }
+            
+            // Calculate metrics
+            if (time % 10 === 0) calculateMetrics();
+            
+            // Render the cascade
+            renderBuffer = '';
+            const breath = Math.sin(time * 0.0003) * 0.2 + 0.8;
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Combine all layers with criticality influence
+                    const total = substrate[idx] * 0.2 + 
+                                 patternLayer[idx] * 0.25 + 
+                                 emergenceLayer[idx] * 0.25 + 
+                                 consciousnessLayer[idx] * 0.3 +
+                                 criticalityLayer[idx] * 0.1;
+                    
+                    let intensity = total * breath;
+                    
+                    // Fast clamping
+                    intensity = intensity < 0 ? 0 : intensity > 1 ? 1 : intensity;
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    renderBuffer += symbols[symbolIndex];
+                }
+                renderBuffer += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = renderBuffer;
+            time++;
+        }
+        
+        function cascade() {
+            render();
+            requestAnimationFrame(cascade);
+        }
+        
+        cascade();
+    </script>
+</body>
+</html>

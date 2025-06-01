@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quantum Garden</title>
+    <style>
+        body {
+            background: #000011;
+            color: #ccffcc;
+            font-family: 'Courier New', monospace;
+            font-size: 7px;
+            line-height: 0.9;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 2px rgba(204, 255, 204, 0.5), 0 0 8px rgba(204, 255, 204, 0.2);
+            filter: blur(0.05px) brightness(1.15);
+            transition: all 0.2s ease;
+            will-change: contents;
+        }
+        
+        #observer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 11px;
+            color: #88ff88;
+            background: rgba(0, 40, 0, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #44ff44;
+            max-width: 200px;
+        }
+        
+        .quantum-state {
+            color: #ffff88;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="observer">
+        Observing: <span class="quantum-state" id="state">superposition</span><br>
+        Coherence: <span id="coherence">100%</span><br>
+        Entanglement: <span id="entanglement">0</span><br>
+        Decoherence Rate: <span id="decoherence">0.00</span>
+    </div>
+    <div id="canvas"></div>
+    <script>
+        const W = 140, H = 70;
+        let time = 0;
+        
+        // Quantum fields - optimized with typed arrays
+        let waveFunction = new Array(W * H).fill(null).map(() => ({ real: 0, imag: 0 }));
+        let probability = new Float32Array(W * H);
+        let collapsed = new Uint8Array(W * H);
+        let entanglement = new Float32Array(W * H);
+        let phase = new Float32Array(W * H);
+          // Enhanced quantum particles with validation
+        let particles = [];
+        for (let i = 0; i < 12; i++) {
+            particles.push({
+                x: Math.random() * (W - 2) + 1, // Keep away from exact edges
+                y: Math.random() * (H - 2) + 1,
+                px: (Math.random() - 0.5) * 2,
+                py: (Math.random() - 0.5) * 2,
+                spin: Math.random() < 0.5 ? 1 : -1,
+                entangled: null,
+                collapsed: false,
+                energy: Math.random() * 2 + 1,
+                decoherence: 0,
+                measurement: 0,
+                phase: 0 // Initialize phase
+            });
+        }
+        
+        const symbols = ' ·∙∘○◯◉●◐◑◒◓◔◕◖◗◦◎◍◌◈◊♦♢♣♠♥♡☯☮☸⚛⚪⚫⚬⚭⚮⚯✦✧✨✩✪✫✬✭✮✯✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿❀❁❂❃❄❅❆❇❈❉❊❋';
+          // Optimized wave function with caching and error checking
+        const waveCache = new Map();
+        
+        function safeNum(value, fallback = 0) {
+            return isFinite(value) ? value : fallback;
+        }
+        
+        function quantumWaveFunction(x, y, particle, time) {
+            // Validate inputs
+            if (!particle || !isFinite(particle.x) || !isFinite(particle.y)) {
+                return { real: 0, imag: 0 };
+            }
+            
+            const dx = x - particle.x;
+            const dy = y - particle.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Prevent division issues and overflow
+            if (dist > 50) return { real: 0, imag: 0 };
+            
+            // Quantum wave packet with proper physics and bounds checking
+            const px = safeNum(particle.px, 0);
+            const py = safeNum(particle.py, 0);
+            const k = Math.sqrt(px*px + py*py); // wave number
+            const energy = safeNum(particle.energy, 1);
+            const phase = k * dist - energy * time * 0.01;
+            
+            // Gaussian envelope for wave packet with bounds
+            const sigma = Math.max(1, 5 + Math.sin(time * 0.001) * 2);
+            const expArg = -dist*dist / (2*sigma*sigma);
+            
+            // Prevent numerical overflow in exponential
+            if (expArg < -50) return { real: 0, imag: 0 };
+            
+            const envelope = Math.exp(expArg);
+            
+            // Complex wave function with bounds checking
+            let real = envelope * Math.cos(phase) * particle.spin;
+            let imag = envelope * Math.sin(phase) * particle.spin;
+            
+            // Add decoherence effects with validation
+            const decoherence = safeNum(particle.decoherence, 0);
+            if (decoherence > 0) {
+                const decoherenceArg = -decoherence * 0.1;
+                if (decoherenceArg > -50) { // Prevent underflow
+                    const decoherenceFactor = Math.exp(decoherenceArg);
+                    real *= decoherenceFactor;
+                    imag *= decoherenceFactor;
+                }
+            }
+            
+            // Final validation
+            real = safeNum(real, 0);
+            imag = safeNum(imag, 0);
+            
+            return { real, imag };
+        }
+          function entanglePair(p1, p2) {
+            // Validate particles before entangling
+            if (!p1 || !p2 || p1 === p2 || p1.entangled || p2.entangled) return;
+            
+            // Create quantum entanglement
+            p1.entangled = p2;
+            p2.entangled = p1;
+            
+            // Conservation laws with validation
+            p1.spin = -p2.spin;
+            const totalPx = safeNum(p1.px, 0) + safeNum(p2.px, 0);
+            const totalPy = safeNum(p1.py, 0) + safeNum(p2.py, 0);
+            p1.px = totalPx / 2 + (Math.random() - 0.5);
+            p1.py = totalPy / 2 + (Math.random() - 0.5);
+            p2.px = totalPx - p1.px;
+            p2.py = totalPy - p1.py;
+            
+            // Ensure momentum values are reasonable
+            p1.px = Math.max(-5, Math.min(5, p1.px));
+            p1.py = Math.max(-5, Math.min(5, p1.py));
+            p2.px = Math.max(-5, Math.min(5, p2.px));
+            p2.py = Math.max(-5, Math.min(5, p2.py));
+        }
+          function collapse(particle, x, y) {
+            // Validate inputs
+            if (!particle) return;
+            
+            // Wave function collapse
+            particle.collapsed = true;
+            particle.x = Math.max(0, Math.min(W-1, safeNum(x, particle.x)));
+            particle.y = Math.max(0, Math.min(H-1, safeNum(y, particle.y)));
+            
+            // If entangled, instantly affect partner
+            if (particle.entangled && !particle.entangled.collapsed) {
+                particle.entangled.collapsed = true;
+                particle.entangled.spin = -particle.spin;
+                // Spooky action at a distance with bounds checking
+                particle.entangled.x = Math.max(0, Math.min(W-1, W - particle.x));
+                particle.entangled.y = Math.max(0, Math.min(H-1, H - particle.y));
+            }
+        }
+          function observerEffect(x, y, radius = 15) {
+            // Validate inputs
+            x = safeNum(x, W/2);
+            y = safeNum(y, H/2);
+            radius = Math.max(1, safeNum(radius, 15));
+            
+            // Observer collapses nearby wave functions
+            particles.forEach(particle => {
+                if (!particle.collapsed && particle) {
+                    const dx = safeNum(particle.x, 0) - x;
+                    const dy = safeNum(particle.y, 0) - y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < radius && Math.random() < 0.01) {
+                        collapse(particle, particle.x, particle.y);
+                    }
+                }
+            });
+        }
+          function updateQuantumState() {
+            // Update particles according to quantum mechanics
+            particles.forEach(particle => {
+                if (!particle) return; // Safety check
+                
+                // Validate and fix any corrupted particle data
+                particle.x = safeNum(particle.x, W/2);
+                particle.y = safeNum(particle.y, H/2);
+                particle.px = safeNum(particle.px, 0);
+                particle.py = safeNum(particle.py, 0);
+                particle.energy = safeNum(particle.energy, 1);
+                particle.decoherence = Math.max(0, Math.min(1, safeNum(particle.decoherence, 0)));
+                particle.measurement = safeNum(particle.measurement, 0);
+                
+                if (!particle.collapsed) {
+                    // Heisenberg uncertainty with proper scale
+                    const hbar = 1; // Reduced Planck constant (normalized)
+                    const energy = Math.max(0.1, particle.energy); // Prevent division by zero
+                    const deltaX = Math.sqrt(hbar / (2 * energy));
+                    const deltaP = hbar / (2 * Math.max(0.1, deltaX));
+                    
+                    const dpx = (Math.random() - 0.5) * deltaP * 0.1;
+                    const dpy = (Math.random() - 0.5) * deltaP * 0.1;
+                    particle.px += dpx;
+                    particle.py += dpy;
+                    
+                    // Limit momentum to prevent runaway behavior
+                    particle.px = Math.max(-10, Math.min(10, particle.px));
+                    particle.py = Math.max(-10, Math.min(10, particle.py));
+                    
+                    // Position evolution with quantum diffusion
+                    particle.x += particle.px * 0.1 + (Math.random() - 0.5) * Math.min(2, deltaX);
+                    particle.y += particle.py * 0.1 + (Math.random() - 0.5) * Math.min(2, deltaX);
+                    
+                    // Environmental decoherence with bounds
+                    const momentumMag = Math.sqrt(particle.px * particle.px + particle.py * particle.py);
+                    particle.decoherence += 0.001 * (1 + momentumMag * 0.1);
+                    particle.decoherence = Math.min(1, particle.decoherence);
+                    
+                    // Boundary conditions with quantum tunneling
+                    if (particle.x < 0 || particle.x >= W) {
+                        const tunnelingProb = Math.exp(-Math.min(10, Math.abs(particle.px)));
+                        if (Math.random() < tunnelingProb) { // Tunneling probability
+                            particle.x = particle.x < 0 ? W - 1 : 1;
+                        } else {
+                            particle.px *= -0.8; // Some energy loss on reflection
+                        }
+                    }
+                    if (particle.y < 0 || particle.y >= H) {
+                        const tunnelingProb = Math.exp(-Math.min(10, Math.abs(particle.py)));
+                        if (Math.random() < tunnelingProb) {
+                            particle.y = particle.y < 0 ? H - 1 : 1;
+                        } else {
+                            particle.py *= -0.8;
+                        }
+                    }
+                    
+                    // Ensure particles stay in bounds
+                    particle.x = Math.max(0, Math.min(W - 1, particle.x));
+                    particle.y = Math.max(0, Math.min(H - 1, particle.y));
+                } else {
+                    // Collapsed particles undergo classical evolution
+                    particle.decoherence *= 0.995; // Slow re-coherence
+                    
+                    // Quantum Zeno effect - frequent observation prevents change
+                    particle.measurement += 0.01;
+                    if (particle.measurement > 1 && Math.random() < 0.01 * Math.exp(-Math.min(10, particle.measurement))) {
+                        particle.collapsed = false;
+                        particle.measurement = 0;
+                        // Reset entanglement state safely
+                        if (particle.entangled) {
+                            particle.entangled.entangled = null;
+                            particle.entangled = null;
+                        }
+                    }
+                }
+            });
+            
+            // Randomly entangle particles with safety checks
+            if (Math.random() < 0.005) {
+                const unentangled = particles.filter(p => p && !p.entangled && !p.collapsed && isFinite(p.x) && isFinite(p.y));
+                if (unentangled.length >= 2) {
+                    const p1 = unentangled[Math.floor(Math.random() * unentangled.length)];
+                    const remaining = unentangled.filter(p => p !== p1);
+                    if (remaining.length > 0) {
+                        const p2 = remaining[Math.floor(Math.random() * remaining.length)];
+                        entanglePair(p1, p2);
+                    }
+                }
+            }
+        }
+          // Enhanced field calculation with Bell states and error handling
+        function calculateField() {
+            // Clear cache periodically
+            if (time % 100 === 0) waveCache.clear();
+            
+            // Pre-calculate common values with validation
+            const timePhase = safeNum(time * 0.01, 0);
+            
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    let totalReal = 0;
+                    let totalImag = 0;
+                    let bellState = 0;
+                    
+                    // Superposition of all particle wave functions
+                    for (let i = 0; i < particles.length; i++) {
+                        const particle = particles[i];
+                        if (!particle) continue; // Safety check
+                        
+                        const wave = quantumWaveFunction(x, y, particle, time);
+                        
+                        if (!particle.collapsed) {
+                            totalReal += safeNum(wave.real, 0);
+                            totalImag += safeNum(wave.imag, 0);
+                            
+                            // Bell state contribution for entangled pairs
+                            if (particle.entangled && particle.entangled !== particle) {
+                                const otherWave = quantumWaveFunction(x, y, particle.entangled, time);
+                                // Proper singlet state: |ψ⟩ = (|01⟩ - |10⟩)/√2
+                                const singletReal = (safeNum(wave.real, 0) * safeNum(otherWave.real, 0) + 
+                                                   safeNum(wave.imag, 0) * safeNum(otherWave.imag, 0)) / Math.sqrt(2);
+                                const singletImag = (safeNum(wave.real, 0) * safeNum(otherWave.imag, 0) - 
+                                                   safeNum(wave.imag, 0) * safeNum(otherWave.real, 0)) / Math.sqrt(2);
+                                bellState += Math.sqrt(singletReal * singletReal + singletImag * singletImag);
+                            }
+                        } else {
+                            // Collapsed particles have classical Gaussian distribution
+                            const dx = x - safeNum(particle.x, 0);
+                            const dy = y - safeNum(particle.y, 0);
+                            const dist2 = dx*dx + dy*dy;
+                            const measurement = safeNum(particle.measurement, 0);
+                            const sigma2 = Math.max(1, 4 + measurement); // Prevent division by zero
+                            const expArg = -dist2 / (2 * sigma2);
+                            
+                            if (expArg > -50) { // Prevent underflow
+                                const gaussian = Math.exp(expArg) * particle.spin / Math.sqrt(2 * Math.PI * sigma2);
+                                totalReal += safeNum(gaussian, 0);
+                            }
+                        }
+                    }
+                    
+                    // Validate and clamp values
+                    totalReal = safeNum(totalReal, 0);
+                    totalImag = safeNum(totalImag, 0);
+                    bellState = safeNum(bellState, 0);
+                    
+                    waveFunction[idx] = { 
+                        real: Math.max(-100, Math.min(100, totalReal + bellState * 0.5)), 
+                        imag: Math.max(-100, Math.min(100, totalImag))
+                    };
+                    
+                    // Born rule: probability = |ψ|²
+                    const realPart = totalReal + bellState * 0.5;
+                    probability[idx] = Math.max(0, realPart * realPart + totalImag * totalImag);
+                    
+                    // Phase with branch cuts and validation
+                    if (Math.abs(realPart) > 1e-10 || Math.abs(totalImag) > 1e-10) {
+                        phase[idx] = Math.atan2(totalImag, realPart);
+                    } else {
+                        phase[idx] = 0;
+                    }
+                    
+                    // Track entanglement density with quantum correlations
+                    let entanglementDensity = 0;
+                    for (let i = 0; i < particles.length; i++) {
+                        const particle = particles[i];
+                        if (particle && particle.entangled && particle.entangled !== particle) {
+                            const dx = x - safeNum(particle.x, 0);
+                            const dy = y - safeNum(particle.y, 0);
+                            const dist2 = dx*dx + dy*dy;
+                            const decoherence = safeNum(particle.decoherence, 0);
+                            const particlePhase = safeNum(particle.phase, 0);
+                            const currentPhase = safeNum(phase[idx], 0);
+                            
+                            // Entanglement decreases with distance and decoherence
+                            if (dist2 < 2500) { // Limit calculation range
+                                entanglementDensity += Math.exp(-dist2 * 0.01) * (1 - decoherence) * 
+                                                      Math.abs(Math.sin(currentPhase - particlePhase));
+                            }
+                        }
+                    }
+                    entanglement[idx] = Math.tanh(Math.max(0, Math.min(10, entanglementDensity))); // Normalize to [0,1]
+                }
+            }
+        }
+          // Enhanced metrics with decoherence tracking and error handling
+        function updateMetrics() {
+            const totalParticles = particles.filter(p => p).length; // Count valid particles
+            if (totalParticles === 0) return; // Prevent division by zero
+            
+            const collapsedCount = particles.filter(p => p && p.collapsed).length;
+            const entangledCount = particles.filter(p => p && p.entangled).length;
+            
+            let totalDecoherence = 0;
+            particles.forEach(p => {
+                if (p) totalDecoherence += safeNum(p.decoherence, 0);
+            });
+            const avgDecoherence = totalDecoherence / totalParticles;
+            
+            const coherence = Math.max(0, Math.min(100, 
+                ((totalParticles - collapsedCount) / totalParticles * 100 * (1 - avgDecoherence))
+            )).toFixed(0);
+            
+            document.getElementById('coherence').textContent = coherence + '%';
+            document.getElementById('entanglement').textContent = Math.floor(entangledCount / 2);
+            document.getElementById('decoherence').textContent = avgDecoherence.toFixed(2);
+            
+            if (coherence > 80) {
+                document.getElementById('state').textContent = 'superposition';
+            } else if (coherence > 40) {
+                document.getElementById('state').textContent = 'decoherence';
+            } else {
+                document.getElementById('state').textContent = 'classical';
+            }
+        }
+          // Optimized render function with error handling
+        let renderBuffer = '';
+        
+        function render() {
+            try {
+                updateQuantumState();
+                calculateField();
+                updateMetrics();
+                
+                // Observer effect at mouse position (simulated movement) with bounds checking
+                const observerX = Math.max(0, Math.min(W-1, W/2 + Math.sin(time * 0.001) * W * 0.3));
+                const observerY = Math.max(0, Math.min(H-1, H/2 + Math.cos(time * 0.0008) * H * 0.3));
+                observerEffect(observerX, observerY);
+                
+                // Build output efficiently with error checking
+                renderBuffer = '';
+                for (let y = 0; y < H; y++) {
+                    for (let x = 0; x < W; x++) {
+                        const idx = y * W + x;
+                        
+                        // Combine probability, entanglement, and phase with physical weights
+                        let intensity = Math.sqrt(Math.max(0, safeNum(probability[idx], 0))) * 0.6 + // Square root for amplitude
+                                       safeNum(entanglement[idx], 0) * 0.2;
+                        
+                        // Quantum interference patterns with proper phase relationship
+                        const currentPhase = safeNum(phase[idx], 0);
+                        const phaseGradientX = x > 0 ? currentPhase - safeNum(phase[idx - 1], 0) : 0;
+                        const phaseGradientY = y > 0 ? currentPhase - safeNum(phase[idx - W], 0) : 0;
+                        const phaseInterference = Math.sin(currentPhase * 4 + phaseGradientX + phaseGradientY + time * 0.001) * 0.2;
+                        intensity += phaseInterference;
+                        
+                        // Quantum beats from energy differences
+                        const validParticles = particles.filter(p => p && isFinite(p.energy));
+                        if (validParticles.length > 0) {
+                            const avgEnergy = validParticles.reduce((sum, p) => sum + p.energy, 0) / validParticles.length;
+                            const beats = Math.sin((avgEnergy - 1.5) * time * 0.01) * 0.1;
+                            intensity += beats * Math.sqrt(Math.max(0, safeNum(probability[idx], 0)));
+                        }
+                        
+                        // Global quantum breathing with decoherence influence
+                        const validParticlesWithDecoherence = particles.filter(p => p && isFinite(p.decoherence));
+                        const avgDecoherence = validParticlesWithDecoherence.length > 0 ? 
+                            validParticlesWithDecoherence.reduce((sum, p) => sum + p.decoherence, 0) / validParticlesWithDecoherence.length : 0;
+                        const breath = Math.sin(time * 0.0004) * 0.2 * (1 - avgDecoherence) + 0.8;
+                        intensity *= breath;
+                        
+                        // Improved normalization with quantum mechanical constraints
+                        intensity = Math.sqrt(Math.max(0, intensity)); // Ensure non-negative
+                        intensity = Math.min(1, Math.max(0, intensity * 0.7)); // Clamp to valid range
+                        
+                        const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                        renderBuffer += symbols[Math.max(0, Math.min(symbols.length - 1, symbolIndex))];
+                    }
+                    renderBuffer += '\n';
+                }
+                
+                document.getElementById('canvas').textContent = renderBuffer;
+                time++;
+            } catch (error) {
+                console.warn('Render error caught and handled:', error);
+                // Reset time if it gets too large
+                if (time > 1000000) time = 0;
+                // Continue animation even if there's an error
+            }
+        }
+        
+        function quantumLoop() {
+            render();
+            requestAnimationFrame(quantumLoop);
+        }
+        
+        quantumLoop();
+    </script>
+</body>
+</html>
