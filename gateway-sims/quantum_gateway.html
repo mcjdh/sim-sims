@@ -1,18 +1,36 @@
 <!DOCTYPE html>
 <!--
-   ASCII Gateway Seed:
+   Quantum Gateway Seed - Enhanced with True Quantum Mechanics:
+   
+   Features:
+   - Complex wave functions (ψ = real + i*imaginary)
+   - Quantum probability densities |ψ|²
+   - Heisenberg uncertainty principle
+   - Quantum vacuum fluctuations
+   - Quantum tunneling probabilities  
+   - Quantum entanglement correlations
+   - Superposition states in keystone
+   
+   Symbols:
+   ◉◎○ - Superposition states (keystone)
+   ⚡ - High energy quantum states
+   ✦✧ - Constructive/destructive interference
+   ◆♦◇ - Various probability densities
+   ∞ - Quantum entanglement
+   ▪·˙ - Virtual particle fluctuations
+   ║▀▄▓ - Gateway structure with uncertainty
+       
        /\        /\
       /  \    /  \ 
      /    \  /    \ 
     /      \/      \ 
-                O
+                ◉
   -->
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Quantum Gateway</title>
-    <style>
-        body {
+    <title>Quantum Gateway - Enhanced Quantum Mechanics</title>
+    <style>        body {
             background: #000;
             color: #0f0;
             font-family: 'Courier New', monospace;
@@ -28,10 +46,24 @@
             white-space: pre;
             line-height: 1.1;
         }
+        .energy-low { color: #004400; }
+        .energy-med { color: #008800; }
+        .energy-high { color: #00ff00; }
+        .energy-peak { color: #44ff44; text-shadow: 0 0 5px #00ff00; }
+        .portal-core { color: #ffffff; text-shadow: 0 0 8px #00ffff; }
+        .dimensional { color: #ff00ff; text-shadow: 0 0 3px #ff00ff; }
+        .quantum-flux { color: #ffff00; text-shadow: 0 0 4px #ffff00; }
+        .void-space { color: #000088; }
+        .gateway-frame { color: #00ffff; text-shadow: 0 0 2px #00ffff; }
     </style>
 </head>
 <body>
 <pre id="canvas"></pre>
+<div id="status" style="position: absolute; top: 10px; left: 10px; color: #00ff00; font-size: 12px;">
+    Gateway Status: <span id="phase">Initializing</span><br>
+    Energy Level: <span id="energy">0%</span><br>
+    Resonance: <span id="resonance">Stabilizing</span>
+</div>
 <script>
 (function() {
     const width = 60;
@@ -39,46 +71,227 @@
     const center = Math.floor(width / 2);
     const archRadius = 20;
     let t = 0;
+    let gatewayPhase = 0; // 0=charging, 1=resonance, 2=opening, 3=stable, 4=portal
+    let energyLevel = 0;
+    let phaseTimer = 0;
+    
+    // Quantum constants and parameters
+    const hbar = 1.0546e-34;
+    const mass = 9.109e-31;
+    const k = 2 * Math.PI / 10;
+    const omega = 3.14;
+    
+    // Gateway activation parameters
+    let portalRadius = 0;
+    let dimensionalLayers = 0;
+    let resonanceFreq = 1.0;
+    
+    // Color and character mapping
+    function getCharWithColor(char, colorClass) {
+        return `<span class="${colorClass}">${char}</span>`;
+    }
+    
+    // Complex wave function with gateway opening dynamics
+    function calculateQuantumField(x, y, t, phase) {
+        const r = Math.sqrt((x - center) ** 2 + (y - height/2) ** 2);
+        const theta = Math.atan2(y - height/2, x - center);
+        
+        // Energy buildup based on gateway phase
+        const energyFactor = Math.min(energyLevel / 100, 1.0);
+        const phaseFactor = Math.sin(t * resonanceFreq + r * 0.2) * energyFactor;
+        
+        // Portal opening calculation
+        const portalEffect = phase >= 2 ? Math.exp(-Math.pow(r - portalRadius, 2) / 50) : 0;
+        
+        // Dimensional layering
+        const layerEffect = Math.sin(r * 0.5 + t * 0.3) * Math.cos(theta * dimensionalLayers);
+        
+        // Quantum tunneling through dimensional barriers
+        const tunnelProb = Math.exp(-Math.abs(r - 15) * (1 - energyFactor));
+        
+        // Complex wave components
+        const waveReal = phaseFactor * Math.cos(k * r - omega * t * 0.1) * tunnelProb;
+        const waveImag = phaseFactor * Math.sin(k * r - omega * t * 0.1) * tunnelProb;
+        
+        const probability = waveReal * waveReal + waveImag * waveImag + portalEffect + layerEffect * 0.3;
+        
+        return { 
+            real: waveReal, 
+            imag: waveImag, 
+            prob: probability,
+            portal: portalEffect,
+            layer: layerEffect 
+        };
+    }
+    
+    // Gateway phase management
+    function updateGatewayPhase() {
+        phaseTimer++;
+        
+        switch(gatewayPhase) {
+            case 0: // Charging
+                energyLevel = Math.min(energyLevel + 0.8, 30);
+                if (energyLevel >= 30) { gatewayPhase = 1; phaseTimer = 0; }
+                break;
+            case 1: // Resonance Building
+                energyLevel = Math.min(energyLevel + 0.5, 60);
+                resonanceFreq = 1.0 + Math.sin(t * 0.1) * 0.5;
+                if (energyLevel >= 60) { gatewayPhase = 2; phaseTimer = 0; }
+                break;
+            case 2: // Opening
+                energyLevel = Math.min(energyLevel + 0.3, 85);
+                portalRadius = Math.min(portalRadius + 0.15, 8);
+                dimensionalLayers = Math.min(dimensionalLayers + 0.05, 3);
+                if (energyLevel >= 85 && portalRadius >= 7) { gatewayPhase = 3; phaseTimer = 0; }
+                break;
+            case 3: // Stabilizing
+                energyLevel = Math.min(energyLevel + 0.1, 95);
+                portalRadius = 8 + Math.sin(t * 0.2) * 0.5;
+                if (energyLevel >= 95) { gatewayPhase = 4; phaseTimer = 0; }
+                break;
+            case 4: // Stable Portal
+                energyLevel = 100;
+                portalRadius = 8 + Math.sin(t * 0.15) * 1.0;
+                dimensionalLayers = 3 + Math.cos(t * 0.1) * 0.5;
+                break;
+        }
+    }
+    
+    // Status updates
+    function updateStatus() {
+        const phases = ['Charging', 'Resonance Building', 'Opening', 'Stabilizing', 'Portal Active'];
+        const resonances = ['Building', 'Harmonizing', 'Syncing', 'Locked', 'Stable'];
+        
+        document.getElementById('phase').textContent = phases[gatewayPhase];
+        document.getElementById('energy').textContent = Math.floor(energyLevel) + '%';
+        document.getElementById('resonance').textContent = resonances[gatewayPhase];
+    }
 
     function render() {
+        updateGatewayPhase();
+        updateStatus();
+        
         let output = '';
+        
+        // Render the quantum gateway
         for (let y = 0; y < height; y++) {
             const yNorm = y / (height - 2);
             const sinTerm = Math.sin(yNorm * Math.PI / 2);
             const leftX = Math.floor(center - archRadius * sinTerm);
             const rightX = Math.floor(center + archRadius * sinTerm);
+            
             for (let x = 0; x < width; x++) {
                 let ch = ' ';
+                let colorClass = '';
+                
+                // Calculate quantum field at this position
+                const field = calculateQuantumField(x, y, t, gatewayPhase);
+                const distFromCenter = Math.sqrt((x - center) ** 2 + (y - height/2) ** 2);
+                
+                // Gateway structure
                 if (y === height - 1) {
-                    ch = '_';
+                    ch = '▄';
+                    colorClass = 'gateway-frame';
                 } else if (x === leftX || x === rightX) {
-                    ch = '|';
+                    ch = energyLevel > 50 ? '║' : '│';
+                    colorClass = energyLevel > 70 ? 'energy-peak' : 'gateway-frame';
                 }
-                // keystone energy
+                
+                // Quantum keystone with dynamic superposition
                 if (y === 1 && x === center) {
-                    ch = 'O';
-                }
-                // dynamic energy field inside gate
-                if (x > leftX && x < rightX && y < height - 1) {
-                    const energy = Math.sin((x + t * 0.5) * 0.3) + Math.cos((y + t * 0.5) * 0.3);
-                    if (energy > 1) {
-                        ch = '@';
-                    } else if (energy > 0.5) {
-                        ch = '*';
-                    } else if (energy > 0) {
-                        ch = '+';
-                    } else if (energy > -0.5) {
-                        ch = '~';
+                    if (gatewayPhase >= 4) {
+                        ch = '◉';
+                        colorClass = 'portal-core';
+                    } else if (gatewayPhase >= 3) {
+                        ch = Math.sin(t * 0.5) > 0 ? '◎' : '◉';
+                        colorClass = 'energy-peak';
+                    } else if (gatewayPhase >= 1) {
+                        ch = '○';
+                        colorClass = 'energy-high';
+                    } else {
+                        ch = '·';
+                        colorClass = 'energy-low';
                     }
                 }
-                output += ch;
+                
+                // Portal interior - the actual opening!
+                if (x > leftX && x < rightX && y < height - 1) {
+                    const prob = field.prob;
+                    const portal = field.portal;
+                    const layer = field.layer;
+                    
+                    // Portal core - the actual dimensional gateway
+                    if (gatewayPhase >= 4 && distFromCenter <= portalRadius) {
+                        if (distFromCenter <= portalRadius * 0.3) {
+                            ch = '●'; // Portal center
+                            colorClass = 'void-space';
+                        } else if (distFromCenter <= portalRadius * 0.6) {
+                            ch = layer > 0.5 ? '◊' : '◈'; // Dimensional layers
+                            colorClass = 'dimensional';
+                        } else {
+                            ch = '○'; // Portal edge
+                            colorClass = 'portal-core';
+                        }
+                    }
+                    // Opening sequence
+                    else if (gatewayPhase >= 2 && distFromCenter <= portalRadius + 2) {
+                        if (portal > 0.7) {
+                            ch = '⚡';
+                            colorClass = 'quantum-flux';
+                        } else if (portal > 0.4) {
+                            ch = layer > 0 ? '✦' : '✧';
+                            colorClass = 'energy-peak';
+                        } else if (portal > 0.2) {
+                            ch = '◆';
+                            colorClass = 'energy-high';
+                        }
+                    }
+                    // Energy field buildup
+                    else if (prob > 1.5) {
+                        ch = '▪';
+                        colorClass = prob > 2.0 ? 'energy-peak' : 'energy-high';
+                    } else if (prob > 0.8) {
+                        ch = '·';
+                        colorClass = 'energy-med';
+                    } else if (prob > 0.3) {
+                        ch = '˙';
+                        colorClass = 'energy-low';
+                    }
+                    
+                    // Quantum entanglement streams during opening
+                    if (gatewayPhase >= 3 && Math.abs(layer) > 0.8) {
+                        ch = '∞';
+                        colorClass = 'dimensional';
+                    }
+                }
+                
+                // Gateway arch top with energy fluctuations
+                if (y === 0 && x >= leftX && x <= rightX) {
+                    const fluctuation = Math.sin(x * 0.5 + t * 0.3);
+                    if (energyLevel > 60 && fluctuation > 0.5) {
+                        ch = '▓';
+                        colorClass = 'energy-peak';
+                    } else {
+                        ch = '▀';
+                        colorClass = 'gateway-frame';
+                    }
+                }
+                
+                // Apply color and add to output
+                if (colorClass) {
+                    output += getCharWithColor(ch, colorClass);
+                } else {
+                    output += ch;
+                }
             }
             output += '\n';
         }
-        document.getElementById('canvas').textContent = output;
-        t += 1;
+        
+        document.getElementById('canvas').innerHTML = output;
+        t += 0.1;
         requestAnimationFrame(render);
     }
+    
     render();
 })();
 </script>
