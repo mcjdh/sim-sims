@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--
+   ASCII Gateway Seed:
+       /\        /\
+      /  \    /  \ 
+     /    \  /    \ 
+    /      \/      \ 
+                O
+  -->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quantum Gateway</title>
+    <style>
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #canvas {
+            white-space: pre;
+            line-height: 1.1;
+        }
+    </style>
+</head>
+<body>
+<pre id="canvas"></pre>
+<script>
+(function() {
+    const width = 60;
+    const height = 25;
+    const center = Math.floor(width / 2);
+    const archRadius = 20;
+    let t = 0;
+
+    function render() {
+        let output = '';
+        for (let y = 0; y < height; y++) {
+            const yNorm = y / (height - 2);
+            const sinTerm = Math.sin(yNorm * Math.PI / 2);
+            const leftX = Math.floor(center - archRadius * sinTerm);
+            const rightX = Math.floor(center + archRadius * sinTerm);
+            for (let x = 0; x < width; x++) {
+                let ch = ' ';
+                if (y === height - 1) {
+                    ch = '_';
+                } else if (x === leftX || x === rightX) {
+                    ch = '|';
+                }
+                // keystone energy
+                if (y === 1 && x === center) {
+                    ch = 'O';
+                }
+                // dynamic energy field inside gate
+                if (x > leftX && x < rightX && y < height - 1) {
+                    const energy = Math.sin((x + t * 0.5) * 0.3) + Math.cos((y + t * 0.5) * 0.3);
+                    if (energy > 1) {
+                        ch = '@';
+                    } else if (energy > 0.5) {
+                        ch = '*';
+                    } else if (energy > 0) {
+                        ch = '+';
+                    } else if (energy > -0.5) {
+                        ch = '~';
+                    }
+                }
+                output += ch;
+            }
+            output += '\n';
+        }
+        document.getElementById('canvas').textContent = output;
+        t += 1;
+        requestAnimationFrame(render);
+    }
+    render();
+})();
+</script>
+</body>
+</html>
