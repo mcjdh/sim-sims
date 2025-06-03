@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Gravity Well Playground</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #030312 0%, #0c0c2a 50%, #0a0a1e 100%);
+            color: #eeffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            user-select: none;
+        }
+        
+        #canvas {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(60, 160, 255, 0.4);
+            cursor: crosshair;
+        }
+          #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(10, 20, 40, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 180, 255, 0.4);
+            font-size: 12px;
+            border: 1px solid rgba(60, 160, 255, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            max-width: 280px;
+            min-width: 260px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+          .title {
+            text-align: center;
+            margin: 0 0 20px 0;
+            color: #6cf;
+            font-size: 1.3em;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(102, 204, 255, 0.5);
+        }
+        
+        .section-title {
+            color: #9cf;
+            font-size: 1.1em;
+            margin: 15px 0 10px 0;
+            border-bottom: 1px solid rgba(102, 204, 255, 0.3);
+            padding-bottom: 5px;
+        }
+          .well-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .well-type-btn {
+            padding: 8px 12px;
+            font-size: 10px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .well-type-btn.active {
+            background: rgba(102, 204, 255, 0.3);
+            border-color: #6cf;
+            box-shadow: 0 0 15px rgba(102, 204, 255, 0.5);
+        }
+        
+        .particle-mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .mode-btn {
+            padding: 6px 8px;
+            font-size: 9px;
+            border-radius: 4px;
+        }
+        
+        .mode-btn.active {
+            background: rgba(255, 150, 100, 0.3);
+            border-color: #fa6;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .slider-label {
+            width: 100px;
+            font-size: 11px;
+        }
+        
+        .slider {
+            width: 100px;
+            margin: 0 10px;
+        }
+        
+        .slider-value {
+            width: 30px;
+            font-size: 10px;
+            text-align: right;
+        }
+        
+        button {
+            background: rgba(20, 50, 100, 0.7);
+            color: #9cefff;
+            border: 1px solid #3d80b3;
+            border-radius: 3px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            transition: all 0.2s;
+            margin-right: 8px;
+            margin-top: 5px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: rgba(40, 80, 160, 0.8);
+            color: #ffffff;
+        }
+          #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 20, 40, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #aaccff;
+            border: 1px solid rgba(60, 160, 255, 0.3);
+            max-width: 300px;
+        }
+        
+        #stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 20, 40, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 11px;
+            border: 1px solid rgba(60, 160, 255, 0.4);
+            backdrop-filter: blur(5px);
+            min-width: 200px;
+        }
+        
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: #aaccff;
+        }
+        
+        .stat-value {
+            color: #6cf;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>    <canvas id="canvas"></canvas>
+    
+    <script>
+        // Initialize canvas and context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize canvas to fill screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        // Performance tracking
+        let frameCount = 0;
+        let lastFrameTime = performance.now();
+        let frameRateHistory = [];
+        // Enhanced simulation settings
+        let settings = {
+            particleCount: 300,
+            gravityStrength: 1.5,
+            initialVelocity: 5,
+            trailLength: 20,
+            paused: false,
+            currentWellType: 'attractor',
+            particleMode: 'flow',
+            timeScale: 1.0,
+            showForceField: false,
+            showTrajectories: true,
+            enableCollisions: true,
+            damping: 0.999,
+            gravitationalConstant: 0.1
+        };
+          // Enhanced well types configuration
+        const wellTypes = {
+            attractor: {
+                name: 'Attractor',
+                color: { r: 255, g: 200, b: 100 },
+                coreColor: { r: 255, g: 255, b: 200 },
+                multiplier: 1,
+                maxMass: 3,
+                description: 'Standard gravitational attractor'
+            },
+            repulsor: {
+                name: 'Repulsor',
+                color: { r: 255, g: 100, b: 100 },
+                coreColor: { r: 255, g: 200, b: 200 },
+                multiplier: -1,
+                maxMass: 2,
+                description: 'Anti-gravity field repels particles'
+            },
+            neutron: {
+                name: 'Neutron Star',
+                color: { r: 150, g: 150, b: 255 },
+                coreColor: { r: 200, g: 200, b: 255 },
+                multiplier: 3,
+                maxMass: 5,
+                description: 'Ultra-dense stellar remnant'
+            },
+            blackhole: {
+                name: 'Black Hole',
+                color: { r: 50, g: 0, b: 100 },
+                coreColor: { r: 0, g: 0, b: 0 },
+                multiplier: 5,
+                maxMass: 8,
+                eventHorizon: true,
+                description: 'Consumes matter beyond event horizon'
+            },
+            pulsar: {
+                name: 'Pulsar',
+                color: { r: 0, g: 255, b: 200 },
+                coreColor: { r: 100, g: 255, b: 255 },
+                multiplier: 2.5,
+                maxMass: 4,
+                rotating: true,
+                description: 'Rotating neutron star with beams'
+            },
+            wormhole: {
+                name: 'Wormhole',
+                color: { r: 200, g: 0, b: 200 },
+                coreColor: { r: 255, g: 100, b: 255 },
+                multiplier: 1.5,
+                maxMass: 3,
+                teleports: true,
+                description: 'Spacetime tunnel for particle transport'
+            }
+        };
+        
+        // Mouse state
+        let mouse = {
+            x: 0,
+            y: 0,
+            down: false,
+            rightDown: false,
+            shiftHeld: false,
+            preview: null
+        };
+          // Arrays for simulation objects
+        let particles = [];
+        let gravityWells = [];
+        
+        // Enhanced particle class with better physics
+        class Particle {
+            constructor() {
+                this.reset();
+                this.id = Math.random().toString(36).substr(2, 9);
+                this.trail = [];
+                this.isOrbiting = false;
+                this.orbitStability = 0;
+            }
+            
+            reset() {
+                // Spawn based on particle mode
+                if (settings.particleMode === 'orbit') {
+                    this.spawnForOrbit();
+                } else if (settings.particleMode === 'chaos') {
+                    this.spawnChaotic();
+                } else {
+                    this.spawnFlow();
+                }
+                
+                this.life = 1.0;
+                this.age = 0;
+                this.mass = 1;
+                this.charge = Math.random() > 0.5 ? 1 : -1;
+                
+                // Color based on charge and velocity
+                this.updateColor();
+            }
+            
+            spawnFlow() {
+                const edge = Math.floor(Math.random() * 4);
+                const speed = settings.initialVelocity * (0.5 + Math.random() * 0.5);
+                
+                switch(edge) {
+                    case 0: // Top
+                        this.x = Math.random() * canvas.width;
+                        this.y = -20;
+                        this.vx = (Math.random() - 0.5) * speed;
+                        this.vy = Math.random() * speed + 1;
+                        break;
+                    case 1: // Right
+                        this.x = canvas.width + 20;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = -(Math.random() * speed + 1);
+                        this.vy = (Math.random() - 0.5) * speed;
+                        break;
+                    case 2: // Bottom
+                        this.x = Math.random() * canvas.width;
+                        this.y = canvas.height + 20;
+                        this.vx = (Math.random() - 0.5) * speed;
+                        this.vy = -(Math.random() * speed + 1);
+                        break;
+                    case 3: // Left
+                        this.x = -20;
+                        this.y = Math.random() * canvas.height;
+                        this.vx = Math.random() * speed + 1;
+                        this.vy = (Math.random() - 0.5) * speed;
+                        break;
+                }
+            }
+            
+            spawnForOrbit() {
+                // Spawn in circular pattern around screen center
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 200 + Math.random() * 200;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                
+                this.x = centerX + Math.cos(angle) * radius;
+                this.y = centerY + Math.sin(angle) * radius;
+                
+                // Give tangential velocity for potential orbits
+                const speed = settings.initialVelocity * 0.8;
+                this.vx = -Math.sin(angle) * speed + (Math.random() - 0.5) * 2;
+                this.vy = Math.cos(angle) * speed + (Math.random() - 0.5) * 2;
+            }
+            
+            spawnChaotic() {
+                // Random spawn anywhere with random velocity
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = settings.initialVelocity * (0.2 + Math.random() * 1.5);
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+            }
+            
+            updateColor() {
+                const velocity = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                const normalizedVel = Math.min(velocity / 10, 1);
+                
+                if (this.charge > 0) {
+                    this.color = {
+                        r: 100 + normalizedVel * 155,
+                        g: 150 + normalizedVel * 105,
+                        b: 255
+                    };
+                } else {
+                    this.color = {
+                        r: 255,
+                        g: 150 + normalizedVel * 105,
+                        b: 100 + normalizedVel * 155
+                    };
+                }
+            }
+              update() {
+                if (settings.paused) return;
+                
+                // Update trail
+                this.trail.push({ x: this.x, y: this.y, alpha: 1.0 });
+                if (this.trail.length > settings.trailLength) {
+                    this.trail.shift();
+                }
+                
+                // Fade trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    this.trail[i].alpha = (i + 1) / this.trail.length;
+                }
+                
+                // Store previous position for collision detection
+                const prevX = this.x;
+                const prevY = this.y;
+                
+                // Apply gravity from wells with enhanced physics
+                let totalForceX = 0;
+                let totalForceY = 0;
+                let nearestWellDistance = Infinity;
+                let nearestWell = null;
+                
+                gravityWells.forEach(well => {
+                    const dx = well.x - this.x;
+                    const dy = well.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < nearestWellDistance) {
+                        nearestWellDistance = distance;
+                        nearestWell = well;
+                    }
+                    
+                    if (distance > 5) { // Avoid singularity
+                        const wellConfig = wellTypes[well.type];
+                        
+                        // More realistic gravity calculation: F = G * m1 * m2 / r^2
+                        let force = settings.gravitationalConstant * well.mass * this.mass * wellConfig.multiplier / (distance * distance);
+                        
+                        // Enhanced special effects for different well types
+                        if (well.type === 'blackhole' && distance < well.radius * 3) {
+                            force *= Math.exp(-(distance - well.radius) / well.radius); // Exponential increase near event horizon
+                            if (distance < well.radius) {
+                                // Particle consumed by black hole
+                                this.life = 0;
+                                return;
+                            }
+                        }
+                        
+                        if (well.type === 'pulsar') {
+                            // Pulsing gravitational waves
+                            const pulseIntensity = 1 + 0.3 * Math.sin(well.age * 5);
+                            force *= pulseIntensity;
+                            
+                            // Beam effects
+                            const beamAngle = well.age * 2;
+                            const particleAngle = Math.atan2(dy, dx);
+                            const angleDiff = Math.abs(particleAngle - beamAngle) % (Math.PI * 2);
+                            if (angleDiff < 0.2 || angleDiff > Math.PI * 2 - 0.2) {
+                                // Particle in beam path - gets accelerated
+                                force *= 2;
+                            }
+                        }
+                        
+                        if (well.type === 'wormhole' && distance < well.radius * 2) {
+                            // Wormhole teleportation effect
+                            if (Math.random() < 0.02) { // 2% chance per frame when close
+                                // Find another wormhole to teleport to
+                                const otherWormholes = gravityWells.filter(w => w.type === 'wormhole' && w !== well);
+                                if (otherWormholes.length > 0) {
+                                    const target = otherWormholes[Math.floor(Math.random() * otherWormholes.length)];
+                                    this.x = target.x + (Math.random() - 0.5) * 50;
+                                    this.y = target.y + (Math.random() - 0.5) * 50;
+                                    // Maintain momentum but add some randomness
+                                    this.vx *= 0.8 + Math.random() * 0.4;
+                                    this.vy *= 0.8 + Math.random() * 0.4;
+                                    return; // Skip rest of force calculations
+                                }
+                            }
+                        }
+                        
+                        // Charge interaction (like/unlike charges)
+                        if (well.charge && this.charge) {
+                            const chargeForce = (well.charge * this.charge * 0.05) / (distance * distance);
+                            force += chargeForce;
+                        }
+                        
+                        // Relativistic effects for very strong fields
+                        if (Math.abs(force) > 1) {
+                            const gamma = 1 / Math.sqrt(1 - (this.vx * this.vx + this.vy * this.vy) / (20 * 20)); // Approximate relativistic factor
+                            force /= gamma;
+                        }
+                        
+                        const fx = (dx / distance) * force * settings.timeScale;
+                        const fy = (dy / distance) * force * settings.timeScale;
+                        
+                        totalForceX += fx;
+                        totalForceY += fy;
+                    }
+                });
+                
+                // Apply forces with improved integration
+                this.vx += totalForceX;
+                this.vy += totalForceY;
+                
+                // Apply damping for more realistic motion
+                this.vx *= settings.damping;
+                this.vy *= settings.damping;
+                
+                // Enhanced velocity limiting with soft caps
+                const velocity = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                const maxVel = 15;
+                if (velocity > maxVel) {
+                    const dampingFactor = maxVel / velocity;
+                    this.vx *= dampingFactor;
+                    this.vy *= dampingFactor;
+                }
+                
+                // Update position with time scaling
+                this.x += this.vx * settings.timeScale;
+                this.y += this.vy * settings.timeScale;
+                
+                // Enhanced collision detection with wells
+                if (settings.enableCollisions && nearestWell) {
+                    const collisionRadius = nearestWell.radius * 0.8;
+                    if (nearestWellDistance < collisionRadius && nearestWell.type !== 'blackhole') {
+                        // Elastic collision with well
+                        const dx = this.x - nearestWell.x;
+                        const dy = this.y - nearestWell.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance > 0) {
+                            // Normalize collision vector
+                            const nx = dx / distance;
+                            const ny = dy / distance;
+                            
+                            // Reflect velocity
+                            const dot = this.vx * nx + this.vy * ny;
+                            this.vx -= 2 * dot * nx * 0.8; // Some energy loss
+                            this.vy -= 2 * dot * ny * 0.8;
+                            
+                            // Push particle out of collision
+                            this.x = nearestWell.x + nx * collisionRadius;
+                            this.y = nearestWell.y + ny * collisionRadius;
+                        }
+                    }
+                }
+                
+                // Check for orbital behavior with improved detection
+                this.checkOrbitalBehavior(nearestWellDistance, nearestWell);
+                
+                // Age and energy decay
+                this.age += 0.008 * settings.timeScale;
+                this.life = Math.max(0, 1 - this.age * 0.03);
+                
+                // Update color based on current velocity and state
+                this.updateColor();
+                
+                // Reset if particle goes too far off screen or dies
+                const boundary = 150;
+                if (this.x < -boundary || this.x > canvas.width + boundary || 
+                    this.y < -boundary || this.y > canvas.height + boundary || 
+                    this.life <= 0) {
+                    this.reset();
+                }
+            }
+              checkOrbitalBehavior(nearestDistance, nearestWell) {
+                // Enhanced orbital detection with angular momentum consideration
+                const velocity = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                
+                if (nearestDistance < 200 && velocity > 1.5 && velocity < 12 && nearestWell) {
+                    // Calculate angular momentum
+                    const dx = this.x - nearestWell.x;
+                    const dy = this.y - nearestWell.y;
+                    const angularMomentum = Math.abs(dx * this.vy - dy * this.vx);
+                    
+                    // Calculate centripetal vs gravitational force ratio
+                    const centripetalForce = velocity * velocity / nearestDistance;
+                    const gravitationalForce = settings.gravitationalConstant * nearestWell.mass * wellTypes[nearestWell.type].multiplier / (nearestDistance * nearestDistance);
+                    const forceRatio = Math.abs(centripetalForce - Math.abs(gravitationalForce)) / Math.abs(gravitationalForce);
+                    
+                    // Stable orbit criteria
+                    if (forceRatio < 0.3 && angularMomentum > velocity * nearestDistance * 0.7) {
+                        this.orbitStability += 0.03;
+                        if (this.orbitStability > 1) {
+                            this.isOrbiting = true;
+                            this.orbitRadius = nearestDistance;
+                            this.orbitCenter = { x: nearestWell.x, y: nearestWell.y };
+                        }
+                    } else {
+                        this.orbitStability = Math.max(0, this.orbitStability - 0.02);
+                        if (this.orbitStability < 0.3) {
+                            this.isOrbiting = false;
+                        }
+                    }
+                } else {
+                    this.orbitStability = Math.max(0, this.orbitStability - 0.05);
+                    if (this.orbitStability < 0.3) {
+                        this.isOrbiting = false;
+                    }
+                }
+            }
+            
+            draw() {
+                // Draw trail with enhanced effects
+                if (this.trail.length > 1) {
+                    ctx.strokeStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.life * 0.4})`;
+                    ctx.lineWidth = this.isOrbiting ? 2 : 1;
+                    ctx.beginPath();
+                    
+                    for (let i = 0; i < this.trail.length - 1; i++) {
+                        const current = this.trail[i];
+                        const next = this.trail[i + 1];
+                        const alpha = current.alpha * this.life * 0.3;
+                        
+                        ctx.globalAlpha = alpha;
+                        if (i === 0) {
+                            ctx.moveTo(current.x, current.y);
+                        }
+                        ctx.lineTo(next.x, next.y);
+                    }
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+                
+                // Draw particle with enhanced visuals
+                const alpha = this.life * 0.9;
+                const size = this.isOrbiting ? 3 : 2.5;
+                
+                // Outer glow
+                if (this.isOrbiting) {
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 3);
+                    gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha * 0.6})`);
+                    gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, size * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Main particle
+                ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Charge indicator for orbiting particles
+                if (this.isOrbiting) {
+                    ctx.fillStyle = this.charge > 0 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        // Enhanced gravity well class
+        class GravityWell {
+            constructor(x, y, type = 'attractor') {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.mass = 1;
+                this.radius = 15;
+                this.pulse = 0;
+                this.charge = Math.random() > 0.5 ? 1 : -1;
+                this.config = wellTypes[type];
+                this.eventHorizonRadius = this.radius * 0.6;
+                this.influenceRadius = this.radius * 3;
+                this.age = 0;
+            }
+            
+            update() {
+                if (settings.paused) return;
+                this.pulse += 0.05;
+                this.age += 0.01;
+                
+                // Dynamic radius based on mass
+                this.radius = 15 + this.mass * 5;
+                this.eventHorizonRadius = this.radius * 0.6;
+                this.influenceRadius = this.radius * 4;
+            }
+            
+            adjustMass(delta) {
+                this.mass = Math.max(0.5, Math.min(this.config.maxMass, this.mass + delta));
+            }
+              draw() {
+                const pulseRadius = this.radius + Math.sin(this.pulse) * 3;
+                const config = this.config;
+                
+                // Draw influence field
+                const influenceGradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.influenceRadius
+                );
+                influenceGradient.addColorStop(0, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.1)`);
+                influenceGradient.addColorStop(0.5, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.05)`);
+                influenceGradient.addColorStop(1, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0)`);
+                
+                ctx.fillStyle = influenceGradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.influenceRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Enhanced visual effects for different well types
+                if (this.type === 'blackhole') {
+                    // Black hole with accretion disk and Hawking radiation
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, pulseRadius);
+                    gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+                    gradient.addColorStop(0.3, 'rgba(50, 0, 100, 0.9)');
+                    gradient.addColorStop(0.7, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.6)`);
+                    gradient.addColorStop(1, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Rotating accretion disk
+                    ctx.strokeStyle = `rgba(255, 150, 0, ${0.4 + Math.sin(this.age * 3) * 0.3})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // Hawking radiation sparkles
+                    for (let i = 0; i < 5; i++) {
+                        const angle = this.age * 2 + i * Math.PI * 0.4;
+                        const radius = this.radius * 2 + Math.sin(this.age * 5 + i) * 10;
+                        const px = this.x + Math.cos(angle) * radius;
+                        const py = this.y + Math.sin(angle) * radius;
+                        
+                        ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.sin(this.age * 8 + i) * 0.3})`;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 1, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else if (this.type === 'pulsar') {
+                    // Pulsar with rotating beams
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, pulseRadius);
+                    gradient.addColorStop(0, `rgba(${config.coreColor.r}, ${config.coreColor.g}, ${config.coreColor.b}, 0.95)`);
+                    gradient.addColorStop(0.4, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.8)`);
+                    gradient.addColorStop(1, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Rotating beams
+                    const beamAngle = this.age * 2;
+                    const beamLength = this.influenceRadius;
+                    
+                    for (let beam = 0; beam < 2; beam++) {
+                        const angle = beamAngle + beam * Math.PI;
+                        const beamGradient = ctx.createLinearGradient(
+                            this.x, this.y,
+                            this.x + Math.cos(angle) * beamLength,
+                            this.y + Math.sin(angle) * beamLength
+                        );
+                        beamGradient.addColorStop(0, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.6)`);
+                        beamGradient.addColorStop(1, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0)`);
+                        
+                        ctx.strokeStyle = beamGradient;
+                        ctx.lineWidth = 8;
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(this.x + Math.cos(angle) * beamLength, this.y + Math.sin(angle) * beamLength);
+                        ctx.stroke();
+                    }
+                } else if (this.type === 'wormhole') {
+                    // Wormhole with spacetime distortion effect
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, pulseRadius);
+                    gradient.addColorStop(0, `rgba(${config.coreColor.r}, ${config.coreColor.g}, ${config.coreColor.b}, 0.8)`);
+                    gradient.addColorStop(0.5, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.6)`);
+                    gradient.addColorStop(1, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Spacetime distortion rings
+                    for (let ring = 0; ring < 4; ring++) {
+                        const ringRadius = this.radius * (0.5 + ring * 0.3) + Math.sin(this.age * 4 + ring) * 5;
+                        ctx.strokeStyle = `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, ${0.4 - ring * 0.1})`;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, ringRadius, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                } else {
+                    // Standard well appearance
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, pulseRadius);
+                    gradient.addColorStop(0, `rgba(${config.coreColor.r}, ${config.coreColor.g}, ${config.coreColor.b}, 0.9)`);
+                    gradient.addColorStop(0.4, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0.7)`);
+                    gradient.addColorStop(1, `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, 0)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Core with mass indicator
+                const coreSize = 3 + this.mass;
+                ctx.fillStyle = `rgba(${config.coreColor.r}, ${config.coreColor.g}, ${config.coreColor.b}, 0.95)`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, coreSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mass indicator rings
+                for (let i = 1; i <= this.mass; i++) {
+                    ctx.strokeStyle = `rgba(${config.color.r}, ${config.color.g}, ${config.color.b}, ${0.3 / i})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + i * 8, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                // Type indicator text
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.font = '10px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(config.name, this.x, this.y - this.radius - 15);
+                
+                // Mass indicator
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.font = '8px Courier New';
+                ctx.fillText(`M: ${this.mass.toFixed(1)}`, this.x, this.y - this.radius - 5);
+            }
+            
+            drawPreview() {
+                ctx.strokeStyle = `rgba(${this.config.color.r}, ${this.config.color.g}, ${this.config.color.b}, 0.5)`;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }          // Force field visualization
+        function drawForceField() {
+            if (!settings.showForceField || gravityWells.length === 0) return;
+            
+            const gridSpacing = 40;
+            const arrowScale = 20;
+            
+            for (let x = 0; x < canvas.width; x += gridSpacing) {
+                for (let y = 0; y < canvas.height; y += gridSpacing) {
+                    let totalForceX = 0;
+                    let totalForceY = 0;
+                    
+                    // Calculate combined force from all wells
+                    gravityWells.forEach(well => {
+                        const dx = well.x - x;
+                        const dy = well.y - y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance > 10) {
+                            const wellConfig = wellTypes[well.type];
+                            let force = settings.gravitationalConstant * well.mass * wellConfig.multiplier / (distance * distance);
+                            
+                            const fx = (dx / distance) * force;
+                            const fy = (dy / distance) * force;
+                            
+                            totalForceX += fx;
+                            totalForceY += fy;
+                        }
+                    });
+                    
+                    // Draw force vector
+                    const forceMagnitude = Math.sqrt(totalForceX * totalForceX + totalForceY * totalForceY);
+                    if (forceMagnitude > 0.01) {
+                        const alpha = Math.min(forceMagnitude * 2, 0.6);
+                        const endX = x + totalForceX * arrowScale;
+                        const endY = y + totalForceY * arrowScale;
+                        
+                        // Color based on force direction and magnitude
+                        const hue = totalForceX > 0 ? 60 : 240; // Yellow for attractive, blue for repulsive
+                        ctx.strokeStyle = `hsla(${hue}, 70%, 50%, ${alpha})`;
+                        ctx.lineWidth = 1;
+                        
+                        // Draw arrow
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(endX, endY);
+                        ctx.stroke();
+                        
+                        // Draw arrowhead
+                        const angle = Math.atan2(totalForceY, totalForceX);
+                        const headLength = 5;
+                        ctx.beginPath();
+                        ctx.moveTo(endX, endY);
+                        ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), endY - headLength * Math.sin(angle - Math.PI / 6));
+                        ctx.moveTo(endX, endY);
+                        ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), endY - headLength * Math.sin(angle + Math.PI / 6));
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        
+        // Utility functions
+        function findNearestWell(x, y) {
+            let nearest = null;
+            let minDistance = Infinity;
+            
+            gravityWells.forEach(well => {
+                const distance = Math.sqrt((well.x - x) ** 2 + (well.y - y) ** 2);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = well;
+                }
+            });
+            
+            return { well: nearest, distance: minDistance };
+        }
+        
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < settings.particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        // Clear all gravity wells
+        function clearGravityWells() {
+            gravityWells = [];
+        }
+        
+        // Reset entire system
+        function resetSystem() {
+            clearGravityWells();
+            initParticles();
+            settings.paused = false;
+        }
+        function setWellType(type) {
+            settings.currentWellType = type;
+        }
+
+        function setParticleMode(mode) {
+            settings.particleMode = mode;
+            initParticles();
+        }
+
+        
+        // Main update function
+        function update() {
+            particles.forEach(particle => particle.update());
+            gravityWells.forEach(well => well.update());
+            
+            // Update preview well
+            if (mouse.shiftHeld && mouse.preview) {
+                mouse.preview.x = mouse.x;
+                mouse.preview.y = mouse.y;
+            }
+            
+            frameCount++;
+        }
+          // Enhanced render function
+        function render() {
+            // Clear canvas with dynamic fade effect
+            const fadeAlpha = settings.paused ? 0.03 : 0.08;
+            ctx.fillStyle = `rgba(3, 3, 18, ${fadeAlpha})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw force field visualization
+            drawForceField();
+            
+            // Draw preview well
+            if (mouse.shiftHeld && mouse.preview) {
+                mouse.preview.drawPreview();
+            }
+            
+            // Draw gravity wells
+            gravityWells.forEach(well => well.draw());
+            
+            // Draw particles
+            particles.forEach(particle => particle.draw());
+            
+            // Draw connection lines between nearby wells (gravitational interactions)
+            if (gravityWells.length > 1) {
+                ctx.strokeStyle = 'rgba(100, 200, 255, 0.1)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < gravityWells.length; i++) {
+                    for (let j = i + 1; j < gravityWells.length; j++) {
+                        const well1 = gravityWells[i];
+                        const well2 = gravityWells[j];
+                        const distance = Math.sqrt((well1.x - well2.x) ** 2 + (well1.y - well2.y) ** 2);
+                        
+                        if (distance < 400) {
+                            const alpha = 0.1 * (1 - distance / 400);
+                            ctx.strokeStyle = `rgba(100, 200, 255, ${alpha})`;
+                            ctx.beginPath();
+                            ctx.moveTo(well1.x, well1.y);
+                            ctx.lineTo(well2.x, well2.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            
+            // Draw orbital trajectories for stable orbiting particles
+            if (settings.showTrajectories) {
+                particles.forEach(particle => {
+                    if (particle.isOrbiting && particle.orbitCenter) {
+                        ctx.strokeStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, 0.3)`;
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([2, 4]);
+                        ctx.beginPath();
+                        ctx.arc(particle.orbitCenter.x, particle.orbitCenter.y, particle.orbitRadius, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                });
+            }
+        }
+        
+        // Animation loop
+        function animate() {
+            update();
+            render();
+            requestAnimationFrame(animate);
+        }
+        
+        // Event listeners
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0) { // Left click
+                mouse.down = true;
+                if (!mouse.shiftHeld) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    gravityWells.push(new GravityWell(x, y, settings.currentWellType));
+                }
+            } else if (e.button === 2) { // Right click
+                mouse.rightDown = true;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const nearest = findNearestWell(x, y);
+                if (nearest.well && nearest.distance < 50) {
+                    const index = gravityWells.indexOf(nearest.well);
+                    gravityWells.splice(index, 1);
+                }
+            }
+        });
+        
+        canvas.addEventListener('mouseup', (e) => {
+            if (e.button === 0) mouse.down = false;
+            if (e.button === 2) mouse.rightDown = false;
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+        
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const nearest = findNearestWell(x, y);
+            if (nearest.well && nearest.distance < 50) {
+                const delta = e.deltaY > 0 ? -0.2 : 0.2;
+                nearest.well.adjustMass(delta);
+            }
+        });
+        
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+          // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    settings.paused = !settings.paused;
+                    break;
+                case 'KeyR':
+                    resetSystem();
+                    break;
+                case 'KeyF':
+                    settings.showForceField = !settings.showForceField;
+                    break;
+                case 'KeyT':
+                    settings.showTrajectories = !settings.showTrajectories;
+                    break;
+                case 'ShiftLeft':
+                case 'ShiftRight':
+                    mouse.shiftHeld = true;
+                    if (!mouse.preview) {
+                        mouse.preview = new GravityWell(mouse.x, mouse.y, settings.currentWellType);
+                    }
+                    break;
+                case 'Digit1':
+                    setWellType('attractor');
+                    break;
+                case 'Digit2':
+                    setWellType('repulsor');
+                    break;
+                case 'Digit3':
+                    setWellType('neutron');
+                    break;
+                case 'Digit4':
+                    setWellType('blackhole');
+                    break;
+                case 'Digit5':
+                    setWellType('pulsar');
+                    break;
+                case 'Digit6':
+                    setWellType('wormhole');
+                    break;
+                case 'KeyQ':
+                    setParticleMode('flow');
+                    break;
+                case 'KeyW':
+                    setParticleMode('orbit');
+                    break;
+                case 'KeyE':
+                    setParticleMode('chaos');
+                    break;
+                case 'Equal':
+                    settings.timeScale *= 1.1;
+                    break;
+                case 'Minus':
+                    settings.timeScale /= 1.1;
+                    break;
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                mouse.shiftHeld = false;
+                mouse.preview = null;
+            }
+        });
+        
+        // Initialize and start simulation
+        initParticles();
+        animate();
+    </script>
+</body>
+</html>

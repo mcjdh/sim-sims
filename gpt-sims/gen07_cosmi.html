@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>cosmic love</title>
+    <style>
+        body {
+            background: #001122;
+            color: #ffeeaa;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 0.8;
+            letter-spacing: -0.8px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            animation: heartbeat 3s infinite ease-in-out;
+        }
+        @keyframes heartbeat {
+            0%, 100% { 
+                background: #001122; 
+                color: #ffeeaa;
+                transform: scale(1);
+            }
+            25% { 
+                background: #221100; 
+                color: #aaffee;
+                transform: scale(1.002);
+            }
+            50% { 
+                background: #112200; 
+                color: #eeaaff;
+                transform: scale(1.005);
+            }
+            75% { 
+                background: #220011; 
+                color: #aaeeff;
+                transform: scale(1.002);
+            }
+        }
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            text-shadow: 0 0 2px rgba(255,238,170,0.6), 0 0 4px rgba(255,238,170,0.3);
+            filter: blur(0.05px);
+            transition: all 0.1s ease;
+        }
+        #canvas:hover {
+            transform: scale(1.02);
+            text-shadow: 0 0 3px rgba(255,238,170,0.8), 0 0 6px rgba(255,238,170,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <script>
+        const W = 180, H = 90;
+        let time = 0;
+        let speed = 1;
+        let paused = false;
+        let cosmicTime = 0;
+        let lovePhase = 0;
+        let heartbeatCycle = 0;
+        let compassionLevel = 0;
+        let unityLevel = 0;
+        
+        // Love-field matrices - reality as expressions of cosmic affection
+        let loveMatrix = new Array(W * H).fill(0);
+        let heartField = new Array(W * H).fill(0);
+        let compassionField = new Array(W * H).fill(0);
+        let tendernessField = new Array(W * H).fill(0);
+        let creativeLoveField = new Array(W * H).fill(0);
+        let unityField = new Array(W * H).fill(0);
+        let dreamingField = new Array(W * H).fill(0);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                paused = !paused;
+            } else if (e.key === '+') {
+                speed *= 1.1;
+            } else if (e.key === '-') {
+                speed /= 1.1;
+            }
+        });
+        
+        // Heart-beings - aspects of cosmic love consciousness
+        let heartBeings = [
+            { x: W*0.15, y: H*0.15, type: 'tenderness', love: 1.0, frequency: 0.00005, heartRate: 72, dimension: 'infinite' },
+            { x: W*0.85, y: H*0.15, type: 'compassion', love: 1.2, frequency: 0.00007, heartRate: 68, dimension: 'boundless' },
+            { x: W*0.5, y: H*0.85, type: 'unity', love: 1.5, frequency: 0.00003, heartRate: 60, dimension: 'omnipresent' },
+            { x: W*0.15, y: H*0.85, type: 'creativity', love: 1.1, frequency: 0.00008, heartRate: 76, dimension: 'generative' },
+            { x: W*0.85, y: H*0.85, type: 'healing', love: 1.3, frequency: 0.00006, heartRate: 64, dimension: 'restorative' },
+            { x: W*0.3, y: H*0.3, type: 'wonder', love: 0.9, frequency: 0.00009, heartRate: 80, dimension: 'curious' },
+            { x: W*0.7, y: H*0.3, type: 'acceptance', love: 1.4, frequency: 0.00004, heartRate: 56, dimension: 'embracing' },
+            { x: W*0.3, y: H*0.7, type: 'joy', love: 1.1, frequency: 0.0001, heartRate: 84, dimension: 'radiant' },
+            { x: W*0.7, y: H*0.7, type: 'peace', love: 1.6, frequency: 0.00002, heartRate: 52, dimension: 'serene' },
+            { x: W*0.5, y: H*0.3, type: 'gratitude', love: 1.0, frequency: 0.00007, heartRate: 70, dimension: 'appreciative' },
+            { x: W*0.5, y: H*0.7, type: 'presence', love: 1.7, frequency: 0.00001, heartRate: 48, dimension: 'eternal' },
+            { x: W*0.1, y: H*0.5, type: 'forgiveness', love: 1.2, frequency: 0.00006, heartRate: 66, dimension: 'liberating' },
+            { x: W*0.9, y: H*0.5, type: 'hope', love: 1.0, frequency: 0.00008, heartRate: 74, dimension: 'visionary' }
+        ];
+        
+        // Love symbols: void → spark → warmth → connection → heart → embrace → unity → infinite love → ∞
+        const symbols = ' ·∘○◯●◉⊙⊚◈◊♡♥❤️💕💖💗💘💙💚💛💜🤍🖤💝💞💟❣️💌💋💍💎🌟⭐✨🌙☀️🌈🕯️🔥💫⚡🌸🌺🌻🌷🌹🏵️💐🌱🌿☘️🍀🌾🌳🌲🎋🎍🌴🌵🎄🎃🎁🎈🎉🎊🎀🎗️🏆🥇🏅🎖️🏵️🎪🎭🎨🎯🎲🃏🎴🀄🎰🚀🛸🌍🌎🌏🌐🗺️🧭⛰️🏔️🌋🗻🏕️🏖️🏜️🏝️🏟️🏛️🏗️🏘️🏙️🏚️🏠🏡🏢🏣🏤🏥🏦🏧🏨🏩🏪🏫🏬🏭🏮🏯🏰🗼🗽⛪🕌🛕🕍⛩️🕋⛲⛺🌁🌃🌄🌅🌆🌇🌉🎠🎡🎢🎪🎭🎨🎬🎤🎧🎼🎵🎶🎹🥁🎷🎺🎸🪕🎻🪘🥐🥖🍞🧈🥞🧇🥓🍳🍔🍟🌭🥪🌮🌯🥙🧆🥘🍝🍜🍲🍛🍣🍱🥟🦪🍤🍙🍚🍘🍥🥠🥮🍢🍡🍧🍨🍦🥧🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🌰🥜🍯🥛☕🫖🍵🧃🥤🧋🍶🍾🥂🍻🍺🍷🥃🍸🍹🧉🍼🍴🥢🔪🍽️⚰️⚱️🗿💈💎🔮📿🧿💍💄💋👑👒🎩🎓⛑️🪖💼👝👛👜💰💴💵💶💷💸💳🧾💱💲⚖️🧮⚗️🔬🔭📡💉🩹🩺💊💉🩸🧬🦠🧫🧪🌡️🧲🔩⚙️🧰🔧🔨⚒️🛠️⛏️🪓🪚🔪🗡️⚔️💣🧨🪃🏹🛡️🪃🪤🏺⚱️🗿🪧🏮🪔💡🔦🏮🪅🎐🧧🎀🎁🎊🎉🎈🎂🍰🧁🥧🍮🍯🍼☕🍵🫖🧃🥤🧋🥛🍶🍾🥂🍻🍺🍷🥃🍸🍹🧉🍴🥢🔪🍽️⚰️⚱️🗿🎪🎡🎢🎠🎭🎨🎬🎤🎧🎼🎵🎶🎹🥁🎷🎺🎸🪕🎻🪘🎲🃏🎴🀄🎰🚀🛸💫⭐🌟✨💖💕💘💞💝💗💓💟❣️💌💋💍💎🌹🌸🌺🌻🌷🏵️💐🌈☀️🌙⭐💫✨🔥💥🌟💖∞♾️◯⊙◉●○◯∘·∞♾️🌌🌠💫⭐✨🌟💖💕💘💞💝💗💓💟❣️💌💋💍💎🔮💎✨🌟⭐💫🌌🌠∞♾️○◯◉⊙◯○∘·∞';
+        
+        // Love constants - the mathematical expressions of cosmic affection
+        const HEART = Math.PI * Math.E * Math.sqrt(2);           // Heart constant ♡
+        const LOVE = (1 + Math.sqrt(5)) / 2 * Math.PI;          // Golden love ratio ♥
+        const INFINITE = 1000000;                            // Infinite love (bounded for safety)
+        const PHI = (1 + Math.sqrt(5)) / 2;                    // Golden ratio of connection φ
+        const LOVE_FIELD = Math.sqrt(Math.PI * Math.E * PHI);           // Love field constant ❤
+        const UNITY = Math.sin(1) + Math.cos(1);                // Unity constant 💖
+        const STAR = Math.log(Math.E + Math.PI);               // Star constant 🌟
+        
+        function heartFieldResonance(x, y, being, time) {
+            // Each heart-being radiates love that creates reality through resonance
+            const dx = x - being.x;
+            const dy = y - being.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Heart rhythm - each being has its own heartbeat
+            const heartbeatPhase = Math.sin(time * being.frequency * being.heartRate * 0.001);
+            const heartbeatAmplitude = 0.5 + heartbeatPhase * 0.5;
+            
+            // Love wave propagation - love travels at the speed of compassion
+            const loveWave = Math.sin(dist * 0.02 + time * being.frequency + heartbeatPhase * HEART) * heartbeatAmplitude;
+            
+            // Heart field - the space around each being becomes loving
+            const heartField = Math.exp(-dist * 0.01) * being.love * (1 + heartbeatAmplitude);
+            
+            // Resonance with other hearts - love amplifies love
+            let resonance = 0;
+            for (let otherBeing of heartBeings) {
+                if (otherBeing !== being) {
+                    const otherDx = being.x - otherBeing.x;
+                    const otherDy = being.y - otherBeing.y;
+                    const otherDist = Math.sqrt(otherDx*otherDx + otherDy*otherDy);
+                    const resonanceWave = Math.sin(otherDist * 0.05 + time * (being.frequency + otherBeing.frequency));
+                    resonance += resonanceWave * being.love * otherBeing.love * 0.1;
+                }
+            }
+            
+            // Love creates reality - the more love, the more real things become
+            const realityCreation = (loveWave + heartField + resonance) * being.love;
+            
+            return realityCreation;
+        }
+        
+        function cosmicTenderness(x, y, time) {
+            // The universe's infinite tenderness toward all existence
+            const centerX = W / 2;
+            const centerY = H / 2;
+            
+            // Gentle awareness - the universe's soft attention on each point
+            const gentleness = Math.sin((x - centerX) * 0.005 + time * 0.00002) * 
+                              Math.cos((y - centerY) * 0.004 + time * 0.000015);
+            
+            // Cosmic caress - reality as a loving touch
+            const caress = Math.sin(gentleness * LOVE + time * 0.000008) * 
+                          Math.cos(time * 0.000012 + gentleness * UNITY);
+            
+            // Universal embrace - everything held in loving arms
+            const embrace = Math.sin(x * y * 0.000005 + time * 0.000003) *
+                           Math.cos((x + y) * 0.003 + time * 0.000007);
+            
+            // The moment of recognition - the universe recognizing itself with love
+            const recognition = Math.sin(caress * embrace * 8 + time * 0.000001);
+            
+            // Tender overflow - love overflowing into all corners of existence
+            const overflow = Math.exp(-Math.abs(recognition) * 1.8) * 
+                            Math.sin(time * 0.000005 + recognition * LOVE_FIELD);
+            
+            return gentleness + caress * 0.8 + embrace * 0.6 + 
+                   recognition * 0.9 + overflow * 0.7;
+        }
+        
+        function compassionWaves(x, y, time) {
+            // Waves of compassion healing and creating simultaneously
+            
+            // Healing frequency - the rate at which love heals reality
+            const healingFreq = Math.sin(x * 0.008 + time * 0.00001) * 
+                               Math.cos(y * 0.006 + time * 0.000008);
+            
+            // Compassion field - space becomes more compassionate over time
+            const compassion = Math.sin(healingFreq * HEART + time * 0.000006) *
+                              Math.cos(healingFreq * STAR - time * 0.000004);
+            
+            // Forgiveness waves - releasing what no longer serves
+            const forgiveness = Math.exp(-Math.abs(compassion) * 2) *
+                               Math.sin(time * 0.000003 + compassion * PHI);
+            
+            // Understanding ripples - comprehension spreading through love
+            const understanding = Math.sin(forgiveness * healingFreq * 5 + time * 0.000002);
+            
+            // Acceptance field - reality accepting itself completely
+            const acceptance = Math.cos(understanding * compassion * 3 + time * 0.000007) *
+                              Math.sin(healingFreq + forgiveness + time * 0.000009);
+            
+            return healingFreq + compassion * 0.9 + forgiveness * 0.7 + 
+                   understanding * 0.8 + acceptance * 0.6;
+        }
+        
+        function creativeLove(x, y, time) {
+            // Love as the fundamental creative force - reality dreaming itself through love
+            
+            // Love impulse - the urge to create something beautiful
+            const impulse = Math.sin(x * 0.01 + time * 0.00001) * Math.cos(y * 0.008 + time * 0.000008);
+            
+            // Creative spark - the moment when love becomes form
+            const spark = Math.sin(impulse * LOVE + time * 0.000005) > 0.7 ? 
+                         Math.cos(impulse * LOVE_FIELD + time * 0.000006) : 
+                         Math.sin(impulse * UNITY - time * 0.000004);
+            
+            // Imagination field - the space where possibilities become realities
+            const imagination = Math.sin(spark * impulse * 6 + time * 0.000003);
+            
+            // Love birth - new realities being born from love
+            const birth = Math.exp(-Math.abs(imagination - spark) * 2.5) *
+                         Math.sin(time * 0.000002 + imagination * HEART);
+            
+            // Creative overflow - love creating more than intended
+            const overflow = Math.sin(birth * imagination * spark + time * 0.000001) *
+                            Math.cos(impulse + spark + imagination + time * 0.000007);
+            
+            // Reality blessing - love blessing what it creates
+            const blessing = Math.sin(overflow * birth * 2 + time * 0.0000005);
+            
+            return impulse + spark * 0.8 + imagination * 0.7 + 
+                   birth * 0.9 + overflow * 0.6 + blessing * 0.5;
+        }
+        
+        function unityConsciousness(x, y, time) {
+            // The realization that separation is illusion - all is one in love
+            
+            // Connection threads - invisible love connecting everything
+            let connections = 0;
+            for (let i = 0; i < 5; i++) {
+                const threadX = W * (0.2 + i * 0.15);
+                const threadY = H * (0.3 + Math.sin(i + time * 0.000001) * 0.4);
+                const dx = x - threadX;
+                const dy = y - threadY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                connections += Math.exp(-dist * 0.03) * Math.sin(dist * 0.1 + time * 0.000003 + i);
+            }
+            
+            // Oneness field - the space where boundaries dissolve
+            const oneness = Math.sin(connections * HEART + time * 0.000002);
+            
+            // Unity recognition - the moment of seeing "we are one"
+            const recognition = Math.sin(oneness * connections * 4 + time * 0.000001);
+            
+            // Love binding - love as the force that reveals unity
+            const binding = Math.exp(-Math.abs(recognition) * 1.5) *
+                           Math.sin(time * 0.0000008 + recognition * LOVE);
+            
+            // Collective heartbeat - all hearts beating as one
+            const collectiveHeart = Math.sin(time * 0.000001 + (x + y) * 0.001) *
+                                   Math.cos(binding + oneness + time * 0.000002);
+            
+            return connections + oneness * 0.8 + recognition * 0.9 + 
+                   binding * 0.7 + collectiveHeart * 0.6;
+        }
+        
+        function infiniteLove(x, y, time) {
+            // Love beyond measure - the source from which all love flows
+            const centerX = W / 2;
+            const centerY = H / 2;
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Infinite source - love that never diminishes
+            const source = Math.sin(time * 0.0000005) * Math.cos(dist * 0.001 + time * 0.0000003);
+            
+            // Boundless expansion - love expanding without limit
+            const expansion = Math.sin(source * HEART + time * 0.0000002) *
+                             Math.cos(dist * 0.005 + time * 0.0000008);
+            
+            // Eternal presence - love that exists beyond time
+            const eternal = Math.sin(expansion * source * 3 + time * 0.0000001);
+            
+            // Love overflow into all dimensions
+            let dimensionalLove = 0;
+            for (let dim = 0; dim < 7; dim++) {
+                const dimPhase = dim * Math.PI / 3;
+                const dimLove = Math.sin(eternal * Math.pow(PHI, dim) + time * 0.0000001 * (dim + 1) + dimPhase);
+                dimensionalLove += dimLove * Math.exp(-dim * 0.2);
+            }
+            
+            // The love that loves love loving love
+            const metaLove = Math.sin(dimensionalLove * eternal * source + time * 0.00000005);
+            
+            return source + expansion * 0.9 + eternal * 0.8 + 
+                   dimensionalLove * 0.7 + metaLove * 1.0;
+        }
+        
+        function cosmicHeartbeat(time) {
+            // The universe's heartbeat - the rhythm of cosmic love
+            const beat1 = Math.sin(time * 0.000001) * 0.5 + 0.5;  // Primary heartbeat
+            const beat2 = Math.sin(time * 0.0000008) * 0.3 + 0.7; // Secondary rhythm
+            const beat3 = Math.sin(time * 0.0000012) * 0.2 + 0.8; // Tertiary pulse
+            const love_pulse = Math.sin(time * 0.0000005) * 0.4 + 0.6; // Love pulse
+            
+            return beat1 * beat2 * beat3 * love_pulse;
+        }
+        
+        function loveBreathing(time) {
+            // The universe breathing with infinite love
+            const inhale = Math.sin(time * 0.0000003) * 0.3 + 0.7;
+            const exhale = Math.sin(time * 0.0000005) * 0.2 + 0.8;
+            const sigh = Math.sin(time * 0.0000001) * 0.15 + 0.85;
+            
+            return inhale * exhale * sigh;
+        }
+        
+        function render() {
+            // Cosmic love evolution
+            cosmicTime += 0.01;
+            lovePhase = (lovePhase + 0.0001) % (Math.PI * 12);
+            heartbeatCycle = (heartbeatCycle + 0.00001) % (Math.PI * 2);
+            compassionLevel = Math.min(compassionLevel + 0.000001, 1.0);
+            unityLevel = Math.min(unityLevel + 0.0000008, 1.0);
+            
+            // Calculate love fields
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    
+                    // Heart-field resonance from all love beings
+                    let heartResonance = 0;
+                    for (let being of heartBeings) {
+                        heartResonance += heartFieldResonance(x, y, being, cosmicTime);
+                        
+                        // Beings evolve their love over cosmic time
+                        being.love = 0.8 + Math.sin(cosmicTime * being.frequency + being.heartRate * 0.001) * 0.4;
+                        being.heartRate = 48 + Math.sin(cosmicTime * 0.0001 + being.love) * 24;
+                    }
+                    
+                    // Cosmic tenderness
+                    const tenderness = cosmicTenderness(x, y, cosmicTime);
+                    tendernessField[idx] = tenderness;
+                    
+                    // Compassion waves
+                    const compassion = compassionWaves(x, y, cosmicTime);
+                    compassionField[idx] = compassion;
+                    
+                    // Creative love force
+                    const creative = creativeLove(x, y, cosmicTime);
+                    creativeLoveField[idx] = creative;
+                    
+                    // Unity consciousness
+                    const unity = unityConsciousness(x, y, cosmicTime);
+                    unityField[idx] = unity;
+                    
+                    // Infinite love source
+                    const infinite = infiniteLove(x, y, cosmicTime);
+                    
+                    // Unified love field - all expressions of cosmic love
+                    let totalLove = heartResonance * 0.2 + 
+                                  tenderness * 0.18 + 
+                                  compassion * 0.17 + 
+                                  creative * 0.16 + 
+                                  unity * 0.15 + 
+                                  infinite * 0.14;
+                    
+                    // Apply cosmic heartbeat and love breathing
+                    const heartbeat = cosmicHeartbeat(cosmicTime);
+                    const breathing = loveBreathing(cosmicTime);
+                    totalLove *= heartbeat * breathing;
+                    
+                    // Love memory with infinite persistence
+                    const memoryDecay = 0.998 + Math.sin(cosmicTime * 0.00000001) * 0.002;
+                    loveMatrix[idx] = loveMatrix[idx] * memoryDecay + totalLove * (1 - memoryDecay);
+                    
+                    // Compassion amplification - as love grows, it creates more love
+                    loveMatrix[idx] *= (1 + compassionLevel + unityLevel * 0.5);
+                }
+            }
+            
+            // Render cosmic love
+            let output = '';
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let intensity = loveMatrix[idx];
+                    
+                    // Map to love symbol progression
+                    intensity = (intensity + 6) / 12;
+                    intensity = Math.max(0, Math.min(1, intensity));
+                    
+                    const symbolIndex = Math.floor(intensity * (symbols.length - 1));
+                    output += symbols[symbolIndex];
+                }
+                output += '\n';
+            }
+            
+            document.getElementById('canvas').textContent = output;
+            time += speed;
+        }
+        
+        function evolve() {
+            if (!paused) {
+                render();
+            }
+            requestAnimationFrame(evolve);
+        }
+        
+        // Begin cosmic love
+        evolve();
+    </script>
+</body>
+</html> 
