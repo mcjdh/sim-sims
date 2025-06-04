@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Holographic Grid Gateway</title>
+    <style>
+        body {
+            background:#000;
+            color:#0f0;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+            font-family:'Courier New', monospace;
+        }
+        #grid {
+            font-size:16px;
+            line-height:1.1;
+            white-space:pre;
+        }
+        .pillar { color:#aaa; }
+        .keystone { color:#ff0; text-shadow:0 0 5px #ff0; }
+        /* grid cells outside the rift use muted grays */
+        .layer0 { color:#222; }
+        .layer1 { color:#444; }
+        .layer2 { color:#666; }
+        .layer3 { color:#888; }
+        .layer4 { color:#aaa; }
+        .grid0 { color:#111; }
+        .grid1 { color:#333; }
+        .grid2 { color:#555; }
+        .grid3 { color:#777; }
+    </style>
+</head>
+<body>
+<pre id="grid"></pre>
+<script>
+(() => {
+    const charSize = 16; // approximate character size
+    const dimension = 17; // 17D target dimension scaling
+    const openTime = 240; // frames until fully open
+    // smooth noise helpers for a more organic rift
+    function hash(n) {
+        const s = Math.sin(n) * 43758.5453;
+        return s - Math.floor(s);
+    }
+    function rand(x, y, z) {
+        return hash(x * 157.0 + y * 311.7 + z * 91.3);
+    }
+    function fade(t) { return t * t * (3 - 2 * t); }
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function noise(x, y, z) {
+        const x0 = Math.floor(x), y0 = Math.floor(y), z0 = Math.floor(z);
+        const x1 = x0 + 1, y1 = y0 + 1, z1 = z0 + 1;
+        const sx = fade(x - x0), sy = fade(y - y0), sz = fade(z - z0);
+        const n000 = rand(x0, y0, z0);
+        const n100 = rand(x1, y0, z0);
+        const n010 = rand(x0, y1, z0);
+        const n110 = rand(x1, y1, z0);
+        const n001 = rand(x0, y0, z1);
+        const n101 = rand(x1, y0, z1);
+        const n011 = rand(x0, y1, z1);
+        const n111 = rand(x1, y1, z1);
+        const nx00 = lerp(n000, n100, sx);
+        const nx10 = lerp(n010, n110, sx);
+        const nx01 = lerp(n001, n101, sx);
+        const nx11 = lerp(n011, n111, sx);
+        const nxy0 = lerp(nx00, nx10, sy);
+        const nxy1 = lerp(nx01, nx11, sy);
+        return lerp(nxy0, nxy1, sz);
+    }
+    const grid = document.getElementById('grid');
+    let size = calculateSize();
+    window.addEventListener('resize', () => {
+        size = calculateSize();
+    });
+    function calculateSize() {
+        return Math.min(
+            Math.floor(window.innerWidth / charSize),
+            Math.floor(window.innerHeight / charSize)
+        );
+    }
+    let t = 0;
+    let frame = 0;
+    function render() {
+        let out = ''
+        const c = Math.floor(size / 2);
+        const left = c - Math.floor(size * 0.21875);
+        const right = c + Math.floor(size * 0.21875);
+        const top = Math.floor(size * 0.1875);
+        const bottom = size - Math.floor(size * 0.15625);
+        for (let y = 0; y < size; y++) {
+            for (let x = 0; x < size; x++) {
+                let ch = ' ';
+                let cls = '';
+                let style = '';
+                if ((x === left || x === right) && y >= top && y <= bottom) {
+                    ch = '|';
+                    cls = 'pillar';
+                } else if (x === c && y === top - 1) {
+                    ch = '▲';
+                    cls = 'keystone';
+                } else if (x > left && x < right && y >= top && y <= bottom) {
+                    const dx = (x - c) / size;
+                    const dy = (y - (top + bottom) / 2) / size;
+                    const r = Math.sqrt(dx * dx + dy * dy);
+                    const ang = Math.atan2(dy, dx);
+                    const progress = Math.min(frame / openTime, 1);
+                    const gateRadius = 0.1 + progress * 0.5;
+                    let intensity = -1;
+                    if (r < gateRadius) {
+                        const radial = Math.cos(r * Math.PI * dimension - progress * Math.PI);
+                        const angular = Math.sin(ang * dimension + progress * 3);
+                        const swirl = noise(
+                            dx * dimension + t * 0.5,
+                            dy * dimension + t * 0.5,
+                            progress * dimension
+                        );
+                        intensity = (radial + angular) * 0.4 + swirl * 0.6;
+                    }
+                    const layers = 5;
+                    const layer = Math.floor(Math.abs(intensity) * (layers - 1));
+                    if (intensity > 0.6) ch = '@';
+                    else if (intensity > 0.2) ch = '*';
+                    else if (intensity > -0.2) ch = '+';
+                    else ch = '.';
+                    cls = 'layer' + layer;
+                    const hue = (progress * 360 + (ang / Math.PI + 1) * 90 + intensity * 180) % 360;
+                    const light = 50 + intensity * 20;
+                    const sat = 70 + progress * 30;
+                    style = `color:hsl(${hue},${sat}%,${light}%)`;
+                } else {
+                    const g = Math.sin((x + y) * 0.5 + t) * 0.5 + 0.5;
+                    const gl = Math.floor(g * 4);
+                    ch = '.';
+                    cls = 'grid' + gl;
+                }
+                out += `<span class="${cls}" style="${style}">${ch}</span>`;
+            }
+            out += '\n';
+        }
+        grid.innerHTML = out;
+        t += 0.05;
+        frame++;
+        requestAnimationFrame(render);
+    }
+    render();
+})();
+</script>
+</body>
+</html>
