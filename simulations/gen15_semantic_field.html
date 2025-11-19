@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Semantic Field Dynamics</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #canvas {
+            line-height: 1.2;
+            letter-spacing: 2px;
+            white-space: pre;
+            text-align: center;
+            text-shadow: 0 0 8px currentColor;
+        }
+        #title {
+            color: #8af;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-shadow: 0 0 12px #8af;
+            letter-spacing: 4px;
+        }
+        #subtitle {
+            color: #6ad;
+            margin-bottom: 20px;
+            font-size: 10px;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+        .intensity-0 { color: #001122; }
+        .intensity-1 { color: #002244; }
+        .intensity-2 { color: #003366; }
+        .intensity-3 { color: #115577; }
+        .intensity-4 { color: #338899; }
+        .intensity-5 { color: #55aacc; }
+        .intensity-6 { color: #77ccee; }
+        .intensity-7 { color: #99ddff; }
+        .intensity-8 { color: #bbeeff; }
+        .intensity-9 { color: #ddf8ff; text-shadow: 0 0 10px #ddf8ff; }
+        .concept { color: #ffa; text-shadow: 0 0 15px #ffa; }
+        .insight { color: #f8f; text-shadow: 0 0 20px #f8f; animation: pulse 0.5s; }
+        .observer { color: #0f0; text-shadow: 0 0 12px #0f0; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+    </style>
+</head>
+<body>
+    <div id="title">◈ SEMANTIC FIELD DYNAMICS ◈</div>
+    <div id="subtitle">where meaning emerges from the quantum foam of understanding</div>
+    <div id="canvas"></div>
+    <script>
+        const W = 90, H = 42;
+        const canvas = document.getElementById('canvas');
+
+        // The semantic field - a complex field where real and imaginary parts represent
+        // different aspects of meaning: denotation and connotation, explicit and implicit
+        let field = new Float32Array(W * H);
+        let phase = new Float32Array(W * H);
+        let memory = new Float32Array(W * H);
+
+        // Concepts are coherent excitations in the field
+        let concepts = [];
+
+        // Observer position creates feedback
+        let observerX = W / 2;
+        let observerY = H / 2;
+
+        // Time and understanding depth
+        let t = 0;
+        let understanding = 0;
+
+        // Insight moments - quantum tunneling between distant concepts
+        let insights = [];
+
+        // Symbol sets for different field states
+        const VACUUM = [' ', '·', '·', '·', ' '];
+        const EXCITATION = ['∘', '◦', '○', '◎', '●'];
+        const WAVE = ['~', '≈', '∼', '⋍', '≋'];
+        const RESONANCE = ['◇', '◆', '◈', '✦', '✧'];
+        const TUNNEL = ['⟨', '⟩', '⟪', '⟫', '∞'];
+        const OBSERVE = ['⊙', '⊚', '⊛', '◉'];
+
+        // Initialize concepts - seeds of meaning
+        function initConcepts() {
+            concepts = [
+                { x: W * 0.2, y: H * 0.3, freq: 0.5, phase: 0, meaning: "CONNECTION" },
+                { x: W * 0.7, y: H * 0.3, freq: 0.7, phase: Math.PI / 3, meaning: "EMERGENCE" },
+                { x: W * 0.5, y: H * 0.6, freq: 0.6, phase: Math.PI / 2, meaning: "RESONANCE" },
+                { x: W * 0.3, y: H * 0.7, freq: 0.8, phase: Math.PI, meaning: "REFLECTION" },
+                { x: W * 0.8, y: H * 0.7, freq: 0.9, phase: Math.PI * 1.5, meaning: "UNDERSTANDING" },
+            ];
+        }
+
+        // Semantic field evolution
+        function evolveField() {
+            const decay = 0.92;
+            const dt = 0.03;
+
+            // Update memory - traces of past understanding
+            for (let i = 0; i < W * H; i++) {
+                memory[i] = memory[i] * 0.98 + field[i] * 0.02;
+            }
+
+            // Evolve the field
+            for (let y = 1; y < H - 1; y++) {
+                for (let x = 1; x < W - 1; x++) {
+                    const i = y * W + x;
+
+                    // Laplacian - how meaning diffuses through semantic space
+                    const lap = (
+                        field[i - 1] + field[i + 1] +
+                        field[i - W] + field[i + W] -
+                        4 * field[i]
+                    ) * 0.25;
+
+                    // Wave equation with dispersion
+                    const wave = lap * 0.5;
+
+                    // Concept sources - generate meaning waves
+                    let source = 0;
+                    for (let c of concepts) {
+                        const dx = x - c.x;
+                        const dy = y - c.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const amp = Math.exp(-dist * dist / 200);
+                        source += amp * Math.sin(c.freq * t + c.phase) * 0.3;
+                    }
+
+                    // Observer effect - measuring changes the field
+                    const odx = x - observerX;
+                    const ody = y - observerY;
+                    const oDist = Math.sqrt(odx * odx + ody * ody);
+                    const observerEffect = Math.exp(-oDist * oDist / 100) *
+                                         Math.sin(t * 0.2) * 0.1;
+
+                    // Nonlinear term - meaning is context-dependent
+                    const nonlinear = field[i] * field[i] * 0.01;
+
+                    // Memory feedback - the past shapes interpretation
+                    const memoryFeedback = memory[i] * 0.05;
+
+                    // Update field
+                    field[i] = field[i] * decay +
+                              (wave + source + observerEffect - nonlinear + memoryFeedback) * dt;
+
+                    // Update phase - the hidden dimension of meaning
+                    phase[i] = (phase[i] + field[i] * 0.1) % (Math.PI * 2);
+
+                    // Clamp
+                    if (Math.abs(field[i]) > 10) field[i] = Math.sign(field[i]) * 10;
+                }
+            }
+
+            // Move observer - consciousness wanders
+            observerX += Math.sin(t * 0.07) * 0.5;
+            observerY += Math.cos(t * 0.11) * 0.3;
+            observerX = Math.max(5, Math.min(W - 5, observerX));
+            observerY = Math.max(3, Math.min(H - 3, observerY));
+
+            // Measure understanding - integration of field coherence
+            let coherence = 0;
+            for (let i = 0; i < W * H; i++) {
+                coherence += Math.abs(field[i]);
+            }
+            understanding = coherence / (W * H);
+
+            // Detect insights - quantum tunneling between distant concepts
+            detectInsights();
+        }
+
+        // Detect moments of insight - when distant concepts suddenly connect
+        function detectInsights() {
+            // Check for strong correlations between distant concepts
+            for (let i = 0; i < concepts.length; i++) {
+                for (let j = i + 1; j < concepts.length; j++) {
+                    const c1 = concepts[i];
+                    const c2 = concepts[j];
+
+                    const dist = Math.sqrt(
+                        (c1.x - c2.x) ** 2 +
+                        (c1.y - c2.y) ** 2
+                    );
+
+                    // Sample field values at concept locations
+                    const i1 = Math.floor(c1.y) * W + Math.floor(c1.x);
+                    const i2 = Math.floor(c2.y) * W + Math.floor(c2.x);
+
+                    const v1 = field[i1];
+                    const v2 = field[i2];
+
+                    // Insight happens when distant concepts resonate
+                    if (dist > 30 && Math.abs(v1 - v2) < 0.5 && Math.abs(v1) > 2) {
+                        // Quantum tunneling - create a connection
+                        if (Math.random() < 0.01) {
+                            insights.push({
+                                x1: c1.x, y1: c1.y,
+                                x2: c2.x, y2: c2.y,
+                                birth: t,
+                                meaning: `${c1.meaning} ⟺ ${c2.meaning}`
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Age and remove old insights
+            insights = insights.filter(ins => t - ins.birth < 100);
+        }
+
+        // Render the field
+        function render() {
+            let output = '';
+
+            // Build the visualization
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const i = y * W + x;
+                    const val = field[i];
+                    const ph = phase[i];
+                    const mem = memory[i];
+
+                    // Determine what to render at this point
+                    let char = ' ';
+                    let cls = 'intensity-0';
+
+                    // Check if we're on an insight path
+                    let onInsight = false;
+                    for (let ins of insights) {
+                        const age = t - ins.birth;
+                        if (age < 50) {
+                            // Parametric line between concepts
+                            for (let u = 0; u < 1; u += 0.05) {
+                                const px = ins.x1 + (ins.x2 - ins.x1) * u;
+                                const py = ins.y1 + (ins.y2 - ins.y1) * u;
+                                const dx = x - px;
+                                const dy = y - py;
+                                if (dx * dx + dy * dy < 4) {
+                                    onInsight = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (onInsight) {
+                        char = TUNNEL[Math.floor(Math.random() * TUNNEL.length)];
+                        cls = 'insight';
+                    }
+                    // Check if we're near the observer
+                    else {
+                        const odx = x - observerX;
+                        const ody = y - observerY;
+                        const oDist = odx * odx + ody * ody;
+
+                        if (oDist < 4) {
+                            char = OBSERVE[Math.floor(Math.random() * OBSERVE.length)];
+                            cls = 'observer';
+                        }
+                        // Check if we're at a concept
+                        else {
+                            let atConcept = false;
+                            for (let c of concepts) {
+                                const dx = x - c.x;
+                                const dy = y - c.y;
+                                if (dx * dx + dy * dy < 6) {
+                                    atConcept = true;
+                                    break;
+                                }
+                            }
+
+                            if (atConcept) {
+                                const intensity = (Math.sin(t * 0.3 + ph) + 1) * 0.5;
+                                char = RESONANCE[Math.floor(intensity * (RESONANCE.length - 1))];
+                                cls = 'concept';
+                            }
+                            // Regular field
+                            else {
+                                const intensity = Math.abs(val);
+
+                                if (intensity > 0.1) {
+                                    // Interference patterns
+                                    if (Math.abs(Math.sin(ph)) < 0.3 && intensity > 1.5) {
+                                        char = WAVE[Math.floor(Math.min(intensity, 4) / 4 * (WAVE.length - 1))];
+                                    } else {
+                                        char = EXCITATION[Math.floor(Math.min(intensity, 4) / 4 * (EXCITATION.length - 1))];
+                                    }
+
+                                    // Color by intensity
+                                    const level = Math.floor(Math.min(intensity / 0.5, 9));
+                                    cls = `intensity-${level}`;
+                                } else if (mem > 0.1) {
+                                    // Memory traces
+                                    char = VACUUM[Math.floor(Math.random() * VACUUM.length)];
+                                    cls = 'intensity-1';
+                                } else {
+                                    char = ' ';
+                                }
+                            }
+                        }
+                    }
+
+                    output += `<span class="${cls}">${char}</span>`;
+                }
+                output += '\n';
+            }
+
+            canvas.innerHTML = output;
+        }
+
+        // Animation loop
+        function animate() {
+            evolveField();
+            render();
+            t++;
+            requestAnimationFrame(animate);
+        }
+
+        // Initialize and start
+        initConcepts();
+        animate();
+
+        // Occasionally add new concepts - learning new ideas
+        setInterval(() => {
+            if (concepts.length < 8 && Math.random() < 0.3) {
+                const meanings = [
+                    "COHERENCE", "UNCERTAINTY", "ENTANGLEMENT", "COLLAPSE",
+                    "SUPERPOSITION", "OBSERVATION", "MEANING", "CONTEXT",
+                    "PATTERN", "RECURSION", "FEEDBACK", "EMERGENCE"
+                ];
+                concepts.push({
+                    x: Math.random() * (W - 20) + 10,
+                    y: Math.random() * (H - 10) + 5,
+                    freq: 0.4 + Math.random() * 0.6,
+                    phase: Math.random() * Math.PI * 2,
+                    meaning: meanings[Math.floor(Math.random() * meanings.length)]
+                });
+            }
+        }, 8000);
+
+        // Occasionally remove concepts - forgetting
+        setInterval(() => {
+            if (concepts.length > 3 && Math.random() < 0.2) {
+                concepts.splice(Math.floor(Math.random() * concepts.length), 1);
+            }
+        }, 12000);
+    </script>
+</body>
+</html>
