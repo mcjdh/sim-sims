@@ -60,18 +60,42 @@
         const W = 140, H = 70;
         let time = 0;
 
+        // Simulation parameters
+        const GROWTH_PROBABILITY = 0.1;
+        const NUTRIENT_SPAWN_PROBABILITY = 0.02;
+        const ENTANGLEMENT_PROBABILITY = 0.005;
+        
+        // Field weight constants for rendering
+        const ENERGY_WEIGHT = 0.35;
+        const GROWTH_WEIGHT = 0.25;
+        const NUTRIENT_WEIGHT = 0.2;
+        const ENTANGLEMENT_WEIGHT = 0.15;
+        const MEMORY_WEIGHT = 0.05;
+        
+        // Field decay rates
+        const NUTRIENT_DECAY_RATE = 0.995;
+        const ENERGY_DECAY_RATE = 0.98;
+        const GROWTH_DECAY_RATE = 0.9;
+        const ENTANGLEMENT_DECAY_RATE = 0.95;
+        const MEMORY_DECAY_RATE = 0.99;
+
         // Field arrays for the mycelial network
         let nutrientField = new Float32Array(W * H);
         let energyField = new Float32Array(W * H);
         let growthField = new Float32Array(W * H);
         let entanglementField = new Float32Array(W * H);
         let memoryField = new Float32Array(W * H);
+        let pulseField = new Float32Array(W * H);
 
         // Mycelial nodes (spores/fruit bodies)
         let nodes = [];
 
         // Hyphae (the filaments connecting nodes)
         let hyphae = [];
+
+        // Spatial hash grid for performance optimization
+        const GRID_CELL_SIZE = 15;
+        let spatialGrid = new Map();
 
         class Node {
             constructor(x, y, generation = 0) {
@@ -109,8 +133,9 @@
                 // Share nutrients with connected nodes
                 this.connections.forEach(conn => {
                     const other = conn.node;
-                    if (other.alive) {
-                        const flow = (this.nutrients - other.nutrients) * 0.05 * conn.strength;
+                    const hypha = conn.hypha;
+                    if (other.alive && hypha.alive) {
+                        const flow = (this.nutrients - other.nutrients) * 0.05 * hypha.strength;
                         this.nutrients -= flow;
                         other.nutrients += flow;
                     }
@@ -176,12 +201,55 @@
             }
         }
 
+        // Spatial hash grid helpers
+        function getGridKey(x, y) {
+            const gridX = Math.floor(x / GRID_CELL_SIZE);
+            const gridY = Math.floor(y / GRID_CELL_SIZE);
+            return `${gridX},${gridY}`;
+        }
+
+        function addToGrid(node) {
+            const key = getGridKey(node.x, node.y);
+            if (!spatialGrid.has(key)) {
+                spatialGrid.set(key, []);
+            }
+            spatialGrid.get(key).push(node);
+        }
+
+        function getNearbyNodes(x, y, radius) {
+            const nearby = [];
+            const cellRadius = Math.ceil(radius / GRID_CELL_SIZE);
+            const centerGridX = Math.floor(x / GRID_CELL_SIZE);
+            const centerGridY = Math.floor(y / GRID_CELL_SIZE);
+
+            for (let dy = -cellRadius; dy <= cellRadius; dy++) {
+                for (let dx = -cellRadius; dx <= cellRadius; dx++) {
+                    const key = `${centerGridX + dx},${centerGridY + dy}`;
+                    if (spatialGrid.has(key)) {
+                        nearby.push(...spatialGrid.get(key));
+                    }
+                }
+            }
+            return nearby;
+        }
+
+        function rebuildSpatialGrid() {
+            spatialGrid.clear();
+            nodes.forEach(node => {
+                if (node.alive) {
+                    addToGrid(node);
+                }
+            });
+        }
+
         // Initialize with seed spores
         function initialize() {
             for (let i = 0; i < 8; i++) {
                 const x = W * 0.2 + Math.random() * W * 0.6;
                 const y = H * 0.2 + Math.random() * H * 0.6;
-                nodes.push(new Node(x, y, 0));
+                const node = new Node(x, y, 0);
+                nodes.push(node);
+                addToGrid(node);
             }
         }
 
@@ -189,7 +257,7 @@
         function grow() {
             const growthCandidates = nodes.filter(n => n.canGrow());
 
-            if (growthCandidates.length > 0 && Math.random() < 0.1) {
+            if (growthCandidates.length > 0 && Math.random() < GROWTH_PROBABILITY) {
                 const parent = growthCandidates[Math.floor(Math.random() * growthCandidates.length)];
 
                 // Find direction with most nutrients
@@ -213,22 +281,24 @@
                 }
 
                 // Create new node
-                if (bestDir.x !== 0 || bestDir.y !== 0) {
+                if (bestNutrient >= 0) {
                     const newNode = new Node(bestDir.x, bestDir.y, parent.generation + 1);
                     newNode.type = Math.random() < 0.2 ? 'spore' : 'mycelial';
                     newNode.nutrients = parent.nutrients * 0.5;
                     parent.nutrients *= 0.5;
 
                     nodes.push(newNode);
+                    addToGrid(newNode);
 
                     // Create hypha connection
                     const hypha = new Hypha(parent, newNode);
                     hyphae.push(hypha);
-                    parent.connections.push({ node: newNode, strength: 1.0 });
-                    newNode.connections.push({ node: parent, strength: 1.0 });
+                    parent.connections.push({ node: newNode, hypha: hypha });
+                    newNode.connections.push({ node: parent, hypha: hypha });
 
-                    // Chance to connect to nearby nodes
-                    nodes.forEach(other => {
+                    // Chance to connect to nearby nodes using spatial grid
+                    const nearbyNodes = getNearbyNodes(newNode.x, newNode.y, 15);
+                    nearbyNodes.forEach(other => {
                         if (other !== newNode && other !== parent && other.alive) {
                             const dx = other.x - newNode.x;
                             const dy = other.y - newNode.y;
@@ -237,8 +307,8 @@
                             if (dist < 15 && Math.random() < 0.3) {
                                 const h = new Hypha(newNode, other, 0.5);
                                 hyphae.push(h);
-                                newNode.connections.push({ node: other, strength: 0.5 });
-                                other.connections.push({ node: newNode, strength: 0.5 });
+                                newNode.connections.push({ node: other, hypha: h });
+                                other.connections.push({ node: newNode, hypha: h });
                             }
                         }
                     });
@@ -248,7 +318,7 @@
 
         // Quantum entanglement between distant nodes
         function updateEntanglement() {
-            if (Math.random() < 0.005) {
+            if (Math.random() < ENTANGLEMENT_PROBABILITY) {
                 const unentangled = nodes.filter(n => n.alive && !n.entangled);
                 if (unentangled.length >= 2) {
                     const n1 = unentangled[Math.floor(Math.random() * unentangled.length)];
@@ -272,15 +342,16 @@
         function updateFields() {
             // Decay fields
             for (let i = 0; i < W * H; i++) {
-                nutrientField[i] *= 0.995;
-                energyField[i] *= 0.98;
-                growthField[i] *= 0.9;
-                entanglementField[i] *= 0.95;
-                memoryField[i] *= 0.99;
+                nutrientField[i] *= NUTRIENT_DECAY_RATE;
+                energyField[i] *= ENERGY_DECAY_RATE;
+                growthField[i] *= GROWTH_DECAY_RATE;
+                entanglementField[i] *= ENTANGLEMENT_DECAY_RATE;
+                memoryField[i] *= MEMORY_DECAY_RATE;
+                pulseField[i] = 0;
             }
 
             // Add nutrients in patches (resource islands)
-            if (Math.random() < 0.02) {
+            if (Math.random() < NUTRIENT_SPAWN_PROBABILITY) {
                 const cx = Math.floor(Math.random() * W);
                 const cy = Math.floor(Math.random() * H);
                 const radius = 3 + Math.random() * 5;
@@ -307,27 +378,36 @@
                 const ny = Math.floor(node.y);
 
                 // Spread influence in area around node
-                for (let dy = -3; dy <= 3; dy++) {
-                    for (let dx = -3; dx <= 3; dx++) {
+                for (let dy = -8; dy <= 8; dy++) {
+                    for (let dx = -8; dx <= 8; dx++) {
                         const x = nx + dx;
                         const y = ny + dy;
 
                         if (x >= 0 && x < W && y >= 0 && y < H) {
                             const idx = y * W + x;
                             const dist = Math.sqrt(dx * dx + dy * dy);
-                            const falloff = Math.exp(-dist * 0.3);
-
-                            energyField[idx] += node.energy * falloff * 0.3;
-                            growthField[idx] += node.growth * falloff * 0.2;
-
-                            if (node.type === 'spore') {
-                                // Spores consume nearby nutrients
-                                const consumption = nutrientField[idx] * 0.1 * falloff;
-                                nutrientField[idx] -= consumption;
-                                node.nutrients += consumption;
+                            
+                            if (dist < 8) {
+                                // Compute pulse modulation once per node
+                                const pulseMod = Math.sin(node.phase) * Math.exp(-dist * 0.2) * 0.1;
+                                pulseField[idx] += pulseMod;
                             }
 
-                            memoryField[idx] = Math.max(memoryField[idx], node.age / node.maxAge * falloff);
+                            if (dist <= 3) {
+                                const falloff = Math.exp(-dist * 0.3);
+
+                                energyField[idx] += node.energy * falloff * 0.3;
+                                growthField[idx] += node.growth * falloff * 0.2;
+
+                                if (node.type === 'spore') {
+                                    // Spores consume nearby nutrients
+                                    const consumption = nutrientField[idx] * 0.1 * falloff;
+                                    nutrientField[idx] -= consumption;
+                                    node.nutrients += consumption;
+                                }
+
+                                memoryField[idx] = Math.max(memoryField[idx], node.age / node.maxAge * falloff);
+                            }
                         }
                     }
                 }
@@ -414,6 +494,7 @@
             if (time % 50 === 0) {
                 nodes = nodes.filter(n => n.alive);
                 hyphae = hyphae.filter(h => h.alive);
+                rebuildSpatialGrid();
             }
 
             grow();
@@ -428,30 +509,19 @@
                     const idx = y * W + x;
 
                     // Combine fields with different weights
-                    let intensity = energyField[idx] * 0.35 +
-                                   growthField[idx] * 0.25 +
-                                   nutrientField[idx] * 0.2 +
-                                   entanglementField[idx] * 0.15 +
-                                   memoryField[idx] * 0.05;
+                    let intensity = energyField[idx] * ENERGY_WEIGHT +
+                                   growthField[idx] * GROWTH_WEIGHT +
+                                   nutrientField[idx] * NUTRIENT_WEIGHT +
+                                   entanglementField[idx] * ENTANGLEMENT_WEIGHT +
+                                   memoryField[idx] * MEMORY_WEIGHT;
 
                     // Add wave interference patterns
                     const wave1 = Math.sin(x * 0.1 + time * 0.003) * 0.5 + 0.5;
                     const wave2 = Math.cos(y * 0.1 + time * 0.004) * 0.5 + 0.5;
                     intensity += (wave1 * wave2) * energyField[idx] * 0.1;
 
-                    // Pulsing based on nearby node phases
-                    let pulseMod = 0;
-                    nodes.forEach(node => {
-                        if (node.alive) {
-                            const dx = x - node.x;
-                            const dy = y - node.y;
-                            const dist = Math.sqrt(dx * dx + dy * dy);
-                            if (dist < 8) {
-                                pulseMod += Math.sin(node.phase) * Math.exp(-dist * 0.2) * 0.1;
-                            }
-                        }
-                    });
-                    intensity += pulseMod;
+                    // Add pre-computed pulse modulation from nodes
+                    intensity += pulseField[idx];
 
                     // Normalize
                     intensity = Math.sqrt(Math.max(0, intensity));
