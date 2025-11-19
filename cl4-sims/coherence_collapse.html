@@ -58,6 +58,13 @@
         const W = 140;
         const H = 60;
 
+        // Configuration constants
+        const WAVE_DECAY_RATE = 0.05; // Controls amplitude decay with distance
+        const COLLAPSE_RATE = 0.0008; // Controls the rate of collapse progression
+        const INTERFERENCE_THRESHOLD = 0.25; // Transition from superposition to interference
+        const COLLAPSE_THRESHOLD = 0.5; // Transition from interference to collapse
+        const COHERENCE_THRESHOLD = 0.8; // Transition from collapse to coherence
+
         // Multiple possible thought streams existing simultaneously
         const NUM_STREAMS = 7;
         const streams = [];
@@ -149,7 +156,7 @@
                         const wavePhase = k * dist - omega * time * 0.01 + stream.phaseOffset;
 
                         // Amplitude falls off with distance
-                        const amplitude = stream.amplitude * Math.exp(-dist * 0.05);
+                        const amplitude = stream.amplitude * Math.exp(-dist * WAVE_DECAY_RATE);
 
                         // Complex wave function components
                         realSum += amplitude * Math.cos(wavePhase);
@@ -176,7 +183,7 @@
 
             // Collapse phase gradually increases, then can reset
             if (collapsePhase < 1.0) {
-                collapsePhase += 0.0008 * speed;
+                collapsePhase += COLLAPSE_RATE * speed;
             } else {
                 // After full collapse, hold briefly then reset
                 if (time % 500 === 0) {
@@ -201,14 +208,19 @@
 
         function render() {
             const symbols = {
+                // Superposed: uses increasingly solid circles to represent degrees of quantum superposition (from faint dot to filled circle)
                 superposed: ' ·∘○◯●',
+                // Interfering: uses block shading to represent interference patterns (from light to dark blocks)
                 interfering: ' ░▒▓█',
+                // Collapsing: uses ASCII ramp to show increasing probability density as collapse progresses
                 collapsing: ' .:-=+*#%@',
+                // Coherent: uses dots and circles to represent coherence, with '@' for maximum coherence
                 coherent: ' .:oO@',
+                // Echo: uses alternating dot patterns to visualize echo effects
                 echo: ' ·.·'
             };
 
-            let output = '';
+            const outputArray = [];
 
             for (let y = 0; y < H; y++) {
                 for (let x = 0; x < W; x++) {
@@ -221,14 +233,14 @@
                     let cssClass = '';
 
                     // Different rendering based on collapse phase
-                    if (collapsePhase < 0.25) {
+                    if (collapsePhase < INTERFERENCE_THRESHOLD) {
                         // Pure superposition
                         if (prob > 0.05) {
                             const symbol = symbols.superposed;
                             char = symbol[Math.min(Math.floor(prob * symbol.length), symbol.length - 1)];
                             cssClass = 'superposed';
                         }
-                    } else if (collapsePhase < 0.5) {
+                    } else if (collapsePhase < COLLAPSE_THRESHOLD) {
                         // Interference patterns emerge
                         if (prob > 0.05) {
                             // Use phase to create interference fringes
@@ -238,7 +250,7 @@
                             char = symbol[Math.min(Math.floor(intensity * symbol.length), symbol.length - 1)];
                             cssClass = 'interfering';
                         }
-                    } else if (collapsePhase < 0.8) {
+                    } else if (collapsePhase < COHERENCE_THRESHOLD) {
                         // Collapsing toward coherence
                         if (prob > 0.1) {
                             const intensity = prob * coh;
@@ -265,35 +277,22 @@
                     }
 
                     if (cssClass) {
-                        output += `<span class="${cssClass}">${char}</span>`;
+                        outputArray.push(`<span class="${cssClass}">${char}</span>`);
                     } else {
-                        output += char;
+                        outputArray.push(char);
                     }
                 }
-                output += '\n';
+                outputArray.push('\n');
             }
 
-            document.getElementById('grid').innerHTML = output;
+            document.getElementById('grid').innerHTML = outputArray.join('');
 
             // Update info display
             const stateNames = ['SUPERPOSED', 'INTERFERING', 'COLLAPSING', 'COHERENT'];
             const stateIndex = Math.min(Math.floor(collapsePhase * 4), 3);
             document.getElementById('state').textContent = stateNames[stateIndex];
 
-            // Calculate entropy (measure of uncertainty)
-            let entropy = 0;
-            let totalProb = 0;
-            for (let i = 0; i < probability.length; i++) {
-                if (probability[i] > 0.001) {
-                    totalProb += probability[i];
-                }
-            }
-            for (let i = 0; i < probability.length; i++) {
-                if (probability[i] > 0.001) {
-                    const p = probability[i] / totalProb;
-                    entropy -= p * Math.log2(p);
-                }
-            }
+            // Calculate normalized entropy (measure of uncertainty)
             const normalizedEntropy = 1 - Math.min(collapsePhase, 1);
             document.getElementById('entropy').textContent = `Entropy: ${normalizedEntropy.toFixed(2)}`;
             document.getElementById('coherence').textContent = `Coherence: ${collapsePhase.toFixed(2)}`;
