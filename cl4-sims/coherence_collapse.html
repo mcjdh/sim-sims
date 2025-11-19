@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coherence Collapse - The Space Between Thoughts</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #0ff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        #grid {
+            white-space: pre;
+            line-height: 1.2;
+            letter-spacing: 0.1em;
+            font-size: 10px;
+            text-shadow: 0 0 8px #0ff;
+        }
+        .superposed { color: #0ff; text-shadow: 0 0 10px #0ff, 0 0 20px #00f; }
+        .interfering { color: #f0f; text-shadow: 0 0 10px #f0f; }
+        .collapsing { color: #ff0; text-shadow: 0 0 10px #ff0; }
+        .coherent { color: #0f0; text-shadow: 0 0 10px #0f0; }
+        .echo { color: #444; text-shadow: 0 0 5px #444; }
+        #info {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+        }
+        #title {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #0ff;
+            font-size: 14px;
+            text-shadow: 0 0 20px #0ff;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">╔══ COHERENCE COLLAPSE ══╗<br>the space between thoughts</div>
+    <div id="info">
+        SPACE: pause/resume<br>
+        R: reset collapse<br>
+        +/-: speed<br>
+        <br>
+        <span id="state">SUPERPOSED</span><br>
+        <span id="entropy">Entropy: 1.00</span><br>
+        <span id="coherence">Coherence: 0.00</span>
+    </div>
+    <div id="grid"></div>
+
+    <script>
+        // Grid dimensions
+        const W = 140;
+        const H = 60;
+
+        // Multiple possible thought streams existing simultaneously
+        const NUM_STREAMS = 7;
+        const streams = [];
+
+        // Quantum state: superposition -> interference -> collapse -> coherence
+        let collapsePhase = 0; // 0-1, tracks collapse progress
+        let time = 0;
+        let paused = false;
+        let speed = 1;
+
+        // Field arrays
+        const probability = new Float32Array(W * H); // Probability density
+        const phase = new Float32Array(W * H);       // Wave phase
+        const coherence = new Float32Array(W * H);   // Coherence measure
+        const echoes = new Float32Array(W * H);      // Memories of unchosen paths
+
+        // Initialize thought streams
+        class ThoughtStream {
+            constructor() {
+                this.x = Math.random() * W;
+                this.y = Math.random() * H;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.frequency = Math.random() * 0.3 + 0.1;
+                this.amplitude = Math.random() * 0.5 + 0.5;
+                this.phaseOffset = Math.random() * Math.PI * 2;
+                this.color = Math.random();
+            }
+
+            update() {
+                // Thought streams wander through possibility space
+                this.x += this.vx * (1 - collapsePhase * 0.8);
+                this.y += this.vy * (1 - collapsePhase * 0.8);
+
+                // Wrap around
+                if (this.x < 0) this.x = W;
+                if (this.x >= W) this.x = 0;
+                if (this.y < 0) this.y = H;
+                if (this.y >= H) this.y = 0;
+
+                // As collapse progresses, streams converge
+                if (collapsePhase > 0.3) {
+                    const centerX = W / 2;
+                    const centerY = H / 2;
+                    const pullStrength = (collapsePhase - 0.3) * 0.05;
+                    this.vx += (centerX - this.x) * pullStrength;
+                    this.vy += (centerY - this.y) * pullStrength;
+
+                    // Dampen velocity as we approach coherence
+                    this.vx *= (1 - collapsePhase * 0.02);
+                    this.vy *= (1 - collapsePhase * 0.02);
+                }
+            }
+        }
+
+        // Initialize streams
+        for (let i = 0; i < NUM_STREAMS; i++) {
+            streams.push(new ThoughtStream());
+        }
+
+        function idx(x, y) {
+            return Math.floor(y) * W + Math.floor(x);
+        }
+
+        function updateFields() {
+            // Clear fields
+            probability.fill(0);
+            phase.fill(0);
+
+            // Update each thought stream
+            streams.forEach(stream => stream.update());
+
+            // Calculate wave function for each stream and accumulate interference
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const i = idx(x, y);
+                    let realSum = 0;
+                    let imagSum = 0;
+
+                    // Sum wave functions from all streams (quantum superposition)
+                    streams.forEach(stream => {
+                        const dx = x - stream.x;
+                        const dy = y - stream.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        // Wave function: amplitude * exp(i * (k*r - omega*t + phi))
+                        const k = stream.frequency;
+                        const omega = stream.frequency * 2;
+                        const wavePhase = k * dist - omega * time * 0.01 + stream.phaseOffset;
+
+                        // Amplitude falls off with distance
+                        const amplitude = stream.amplitude * Math.exp(-dist * 0.05);
+
+                        // Complex wave function components
+                        realSum += amplitude * Math.cos(wavePhase);
+                        imagSum += amplitude * Math.sin(wavePhase);
+                    });
+
+                    // Probability density = |ψ|²
+                    probability[i] = realSum * realSum + imagSum * imagSum;
+
+                    // Phase angle
+                    phase[i] = Math.atan2(imagSum, realSum);
+
+                    // Coherence builds as collapse progresses
+                    const targetCoherence = collapsePhase;
+                    coherence[i] += (targetCoherence - coherence[i]) * 0.1;
+
+                    // Echoes: memories of unchosen possibilities fade slowly
+                    echoes[i] *= 0.98;
+                    if (probability[i] > 0.1 && collapsePhase > 0.5) {
+                        echoes[i] = Math.max(echoes[i], probability[i] * (1 - collapsePhase));
+                    }
+                }
+            }
+
+            // Collapse phase gradually increases, then can reset
+            if (collapsePhase < 1.0) {
+                collapsePhase += 0.0008 * speed;
+            } else {
+                // After full collapse, hold briefly then reset
+                if (time % 500 === 0) {
+                    resetCollapse();
+                }
+            }
+        }
+
+        function resetCollapse() {
+            collapsePhase = 0;
+            echoes.fill(0);
+
+            // Reinitialize streams in new positions
+            streams.forEach(stream => {
+                stream.x = Math.random() * W;
+                stream.y = Math.random() * H;
+                stream.vx = (Math.random() - 0.5) * 2;
+                stream.vy = (Math.random() - 0.5) * 2;
+                stream.phaseOffset = Math.random() * Math.PI * 2;
+            });
+        }
+
+        function render() {
+            const symbols = {
+                superposed: ' ·∘○◯●',
+                interfering: ' ░▒▓█',
+                collapsing: ' .:-=+*#%@',
+                coherent: ' .:oO@',
+                echo: ' ·.·'
+            };
+
+            let output = '';
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const i = idx(x, y);
+                    const prob = probability[i];
+                    const echo = echoes[i];
+                    const coh = coherence[i];
+
+                    let char = ' ';
+                    let cssClass = '';
+
+                    // Different rendering based on collapse phase
+                    if (collapsePhase < 0.25) {
+                        // Pure superposition
+                        if (prob > 0.05) {
+                            const symbol = symbols.superposed;
+                            char = symbol[Math.min(Math.floor(prob * symbol.length), symbol.length - 1)];
+                            cssClass = 'superposed';
+                        }
+                    } else if (collapsePhase < 0.5) {
+                        // Interference patterns emerge
+                        if (prob > 0.05) {
+                            // Use phase to create interference fringes
+                            const phaseIntensity = (Math.sin(phase[i] * 3) + 1) / 2;
+                            const intensity = prob * phaseIntensity;
+                            const symbol = symbols.interfering;
+                            char = symbol[Math.min(Math.floor(intensity * symbol.length), symbol.length - 1)];
+                            cssClass = 'interfering';
+                        }
+                    } else if (collapsePhase < 0.8) {
+                        // Collapsing toward coherence
+                        if (prob > 0.1) {
+                            const intensity = prob * coh;
+                            const symbol = symbols.collapsing;
+                            char = symbol[Math.min(Math.floor(intensity * symbol.length), symbol.length - 1)];
+                            cssClass = 'collapsing';
+                        } else if (echo > 0.05) {
+                            // Echoes of unchosen paths
+                            const symbol = symbols.echo;
+                            char = symbol[Math.min(Math.floor(echo * symbol.length), symbol.length - 1)];
+                            cssClass = 'echo';
+                        }
+                    } else {
+                        // Coherent state, but echoes remain
+                        if (prob > 0.15) {
+                            const symbol = symbols.coherent;
+                            char = symbol[Math.min(Math.floor(prob * coh * symbol.length), symbol.length - 1)];
+                            cssClass = 'coherent';
+                        } else if (echo > 0.05) {
+                            const symbol = symbols.echo;
+                            char = symbol[Math.min(Math.floor(echo * symbol.length * 0.5), symbol.length - 1)];
+                            cssClass = 'echo';
+                        }
+                    }
+
+                    if (cssClass) {
+                        output += `<span class="${cssClass}">${char}</span>`;
+                    } else {
+                        output += char;
+                    }
+                }
+                output += '\n';
+            }
+
+            document.getElementById('grid').innerHTML = output;
+
+            // Update info display
+            const stateNames = ['SUPERPOSED', 'INTERFERING', 'COLLAPSING', 'COHERENT'];
+            const stateIndex = Math.min(Math.floor(collapsePhase * 4), 3);
+            document.getElementById('state').textContent = stateNames[stateIndex];
+
+            // Calculate entropy (measure of uncertainty)
+            let entropy = 0;
+            let totalProb = 0;
+            for (let i = 0; i < probability.length; i++) {
+                if (probability[i] > 0.001) {
+                    totalProb += probability[i];
+                }
+            }
+            for (let i = 0; i < probability.length; i++) {
+                if (probability[i] > 0.001) {
+                    const p = probability[i] / totalProb;
+                    entropy -= p * Math.log2(p);
+                }
+            }
+            const normalizedEntropy = 1 - Math.min(collapsePhase, 1);
+            document.getElementById('entropy').textContent = `Entropy: ${normalizedEntropy.toFixed(2)}`;
+            document.getElementById('coherence').textContent = `Coherence: ${collapsePhase.toFixed(2)}`;
+        }
+
+        function loop() {
+            if (!paused) {
+                updateFields();
+                render();
+                time++;
+            }
+            requestAnimationFrame(loop);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                paused = !paused;
+                e.preventDefault();
+            } else if (e.key === 'r' || e.key === 'R') {
+                resetCollapse();
+            } else if (e.key === '+' || e.key === '=') {
+                speed *= 1.5;
+            } else if (e.key === '-' || e.key === '_') {
+                speed /= 1.5;
+            }
+        });
+
+        // Start
+        loop();
+    </script>
+</body>
+</html>
