@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Ripples - Thought Interference Patterns</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0f;
+            color: #4af;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 12px;
+            line-height: 1.6;
+            opacity: 0.7;
+            max-width: 400px;
+        }
+
+        #metrics {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 11px;
+            text-align: right;
+            opacity: 0.6;
+        }
+
+        canvas {
+            border: 1px solid #222;
+            box-shadow: 0 0 40px rgba(68, 170, 255, 0.2);
+        }
+
+        .title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(90deg, #4af, #a4f, #4af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .subtle {
+            opacity: 0.5;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">∿ Cognitive Ripples ∿</div>
+
+    <div id="info">
+        <div><strong>A meditation on attention and emergence</strong></div>
+        <div class="subtle">Click to create points of attention</div>
+        <div class="subtle">Watch thoughts ripple through cognitive space</div>
+        <div class="subtle">Observe interference patterns forming memory</div>
+    </div>
+
+    <div id="metrics">
+        <div>Attention Points: <span id="points">0</span></div>
+        <div>Active Ripples: <span id="ripples">0</span></div>
+        <div>Coherence: <span id="coherence">0%</span></div>
+        <div>Entropy: <span id="entropy">0.00</span></div>
+        <div>Memory Depth: <span id="memory">0</span></div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Cognitive field dimensions
+        const WIDTH = 120;
+        const HEIGHT = 60;
+        const CELL_SIZE = 8;
+
+        canvas.width = WIDTH * CELL_SIZE;
+        canvas.height = HEIGHT * CELL_SIZE;
+
+        // Field state - representing potential for thought
+        let cognitiveField = Array(HEIGHT).fill(0).map(() => Array(WIDTH).fill(0));
+        let memoryField = Array(HEIGHT).fill(0).map(() => Array(WIDTH).fill(0));
+        let attentionPoints = [];
+        let ripples = [];
+        let time = 0;
+
+        // Attention point class
+        class AttentionPoint {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.strength = 1.0;
+                this.phase = Math.random() * Math.PI * 2;
+                this.frequency = 0.1 + Math.random() * 0.05;
+                this.decay = 0.995;
+                this.born = time;
+            }
+
+            update() {
+                this.strength *= this.decay;
+                this.phase += this.frequency;
+                return this.strength > 0.01;
+            }
+
+            influence(x, y, t) {
+                const dx = x - this.x;
+                const dy = y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const age = t - this.born;
+
+                // Ripple wave expanding outward
+                const wavelength = 8;
+                const speed = 0.5;
+                const ripplePhase = (dist - age * speed) / wavelength;
+
+                // Gaussian envelope for localized effect
+                const envelope = Math.exp(-(dist * dist) / 200);
+
+                // Wave interference
+                const wave = Math.sin(ripplePhase * Math.PI * 2 + this.phase) * envelope * this.strength;
+
+                return wave;
+            }
+        }
+
+        // Ripple class for visualization
+        class Ripple {
+            constructor(x, y, strength) {
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxRadius = 40;
+                this.strength = strength;
+                this.speed = 1.5;
+            }
+
+            update() {
+                this.radius += this.speed;
+                this.strength *= 0.95;
+                return this.radius < this.maxRadius && this.strength > 0.01;
+            }
+        }
+
+        // Create attention point on click
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / CELL_SIZE);
+            const y = Math.floor((e.clientY - rect.top) / CELL_SIZE);
+
+            if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+                attentionPoints.push(new AttentionPoint(x, y));
+                ripples.push(new Ripple(x * CELL_SIZE, y * CELL_SIZE, 1.0));
+            }
+        });
+
+        // Spontaneous attention emergence
+        function spontaneousEmergence() {
+            if (Math.random() < 0.005 && attentionPoints.length < 8) {
+                const x = Math.floor(Math.random() * WIDTH);
+                const y = Math.floor(Math.random() * HEIGHT);
+                attentionPoints.push(new AttentionPoint(x, y));
+            }
+        }
+
+        // Calculate field state based on attention points
+        function updateCognitiveField() {
+            let totalCoherence = 0;
+            let maxValue = 0;
+
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    let value = 0;
+
+                    // Sum influence from all attention points
+                    for (let point of attentionPoints) {
+                        value += point.influence(x, y, time);
+                    }
+
+                    // Add memory influence (persistence)
+                    value += memoryField[y][x] * 0.3;
+
+                    // Add ambient noise (unconscious potential)
+                    value += (Math.sin(x * 0.1 + time * 0.02) *
+                             Math.cos(y * 0.1 + time * 0.03)) * 0.1;
+
+                    cognitiveField[y][x] = value;
+                    totalCoherence += Math.abs(value);
+                    maxValue = Math.max(maxValue, Math.abs(value));
+
+                    // Update memory - values above threshold become memory
+                    if (Math.abs(value) > 0.3) {
+                        memoryField[y][x] = memoryField[y][x] * 0.98 + value * 0.02;
+                    } else {
+                        memoryField[y][x] *= 0.995; // Slow memory decay
+                    }
+                }
+            }
+
+            return { totalCoherence, maxValue };
+        }
+
+        // Calculate entropy of the field
+        function calculateEntropy() {
+            let entropy = 0;
+            const bins = 20;
+            const histogram = Array(bins).fill(0);
+
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    const value = cognitiveField[y][x];
+                    const bin = Math.min(bins - 1, Math.floor((value + 1) / 2 * bins));
+                    histogram[Math.max(0, bin)]++;
+                }
+            }
+
+            const total = WIDTH * HEIGHT;
+            for (let count of histogram) {
+                if (count > 0) {
+                    const p = count / total;
+                    entropy -= p * Math.log2(p);
+                }
+            }
+
+            return entropy;
+        }
+
+        // Render the cognitive field
+        function render() {
+            // Clear with fade
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw cognitive field
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    const value = cognitiveField[y][x];
+                    const memory = memoryField[y][x];
+
+                    // Map value to color
+                    let r, g, b, alpha;
+
+                    if (value > 0) {
+                        // Positive interference - cool blue/cyan
+                        const intensity = Math.min(1, Math.abs(value));
+                        r = 68 * intensity;
+                        g = 170 * intensity;
+                        b = 255 * intensity;
+                        alpha = intensity * 0.8;
+                    } else {
+                        // Negative interference - warm purple/magenta
+                        const intensity = Math.min(1, Math.abs(value));
+                        r = 170 * intensity;
+                        g = 68 * intensity;
+                        b = 255 * intensity;
+                        alpha = intensity * 0.8;
+                    }
+
+                    // Add memory glow
+                    if (Math.abs(memory) > 0.1) {
+                        const memIntensity = Math.min(1, Math.abs(memory));
+                        r += 50 * memIntensity;
+                        g += 200 * memIntensity;
+                        b += 100 * memIntensity;
+                        alpha = Math.max(alpha, memIntensity * 0.4);
+                    }
+
+                    if (alpha > 0.05) {
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+
+                        // Vary size based on intensity
+                        const size = CELL_SIZE * (0.3 + 0.7 * alpha);
+                        const offset = (CELL_SIZE - size) / 2;
+                        ctx.fillRect(
+                            x * CELL_SIZE + offset,
+                            y * CELL_SIZE + offset,
+                            size,
+                            size
+                        );
+                    }
+                }
+            }
+
+            // Draw ripples
+            ripples = ripples.filter(ripple => {
+                if (!ripple.update()) return false;
+
+                ctx.strokeStyle = `rgba(68, 255, 170, ${ripple.strength * 0.5})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(ripple.x, ripple.y, ripple.radius * CELL_SIZE, 0, Math.PI * 2);
+                ctx.stroke();
+
+                return true;
+            });
+
+            // Draw attention points
+            for (let point of attentionPoints) {
+                const px = point.x * CELL_SIZE;
+                const py = point.y * CELL_SIZE;
+
+                // Pulsing glow
+                const pulse = Math.sin(point.phase) * 0.3 + 0.7;
+                const gradient = ctx.createRadialGradient(px, py, 0, px, py, CELL_SIZE * 2);
+                gradient.addColorStop(0, `rgba(255, 255, 255, ${point.strength * pulse})`);
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(
+                    px - CELL_SIZE * 2,
+                    py - CELL_SIZE * 2,
+                    CELL_SIZE * 4,
+                    CELL_SIZE * 4
+                );
+            }
+        }
+
+        // Update metrics display
+        function updateMetrics(coherence, entropy) {
+            document.getElementById('points').textContent = attentionPoints.length;
+            document.getElementById('ripples').textContent = ripples.length;
+            document.getElementById('coherence').textContent =
+                Math.min(100, coherence * 10).toFixed(0) + '%';
+            document.getElementById('entropy').textContent = entropy.toFixed(2);
+
+            // Calculate memory depth
+            let memoryDepth = 0;
+            for (let y = 0; y < HEIGHT; y++) {
+                for (let x = 0; x < WIDTH; x++) {
+                    if (Math.abs(memoryField[y][x]) > 0.1) memoryDepth++;
+                }
+            }
+            document.getElementById('memory').textContent = memoryDepth;
+        }
+
+        // Main animation loop
+        function animate() {
+            time++;
+
+            // Update attention points
+            attentionPoints = attentionPoints.filter(point => point.update());
+
+            // Spontaneous emergence
+            spontaneousEmergence();
+
+            // Update cognitive field
+            const { totalCoherence } = updateCognitiveField();
+
+            // Calculate entropy
+            const entropy = calculateEntropy();
+
+            // Render
+            render();
+
+            // Update metrics
+            updateMetrics(totalCoherence, entropy);
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start the simulation
+        animate();
+
+        // Initial attention points to seed the system
+        setTimeout(() => {
+            attentionPoints.push(new AttentionPoint(WIDTH / 2, HEIGHT / 2));
+            ripples.push(new Ripple(WIDTH / 2 * CELL_SIZE, HEIGHT / 2 * CELL_SIZE, 1.0));
+        }, 1000);
+    </script>
+</body>
+</html>
