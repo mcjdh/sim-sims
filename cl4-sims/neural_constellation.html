@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neural Constellation</title>
+    <style>
+        body {
+            background: radial-gradient(ellipse at center, #000428 0%, #000000 100%);
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 0.9;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #canvas {
+            white-space: pre;
+            font-feature-settings: 'kern' 0;
+            text-align: center;
+            filter: contrast(1.2) brightness(1.1);
+            transition: all 0.05s ease;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 11px;
+            color: #88ccff;
+            text-shadow: 0 0 8px currentColor;
+            line-height: 1.6;
+        }
+
+        .stat {
+            color: #ffaa88;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas"></div>
+    <div id="info">
+        <div>Neural Constellation</div>
+        <div>Active Neurons: <span class="stat" id="active">0</span></div>
+        <div>Signal Pulses: <span class="stat" id="signals">0</span></div>
+        <div>Coherence: <span class="stat" id="coherence">0.00</span></div>
+    </div>
+    <script>
+        const W = 140, H = 70;
+        let time = 0;
+
+        // Cosmic symbols for different intensity levels
+        const voidSymbols = [' ', '·', '˙', '∙'];
+        const starSymbols = ['✦', '✧', '✶', '✷', '✸', '✹', '✺', '★', '☆', '✴', '✵'];
+        const signalSymbols = ['·', ':', '∴', '∵', '※', '⁂', '⁕', '⁜'];
+        const constellationSymbols = ['─', '│', '╱', '╲', '┼', '╳'];
+
+        // Neural star nodes
+        let neurons = [];
+        const neuronCount = 25;
+
+        // Signal pulses traveling between neurons
+        let signals = [];
+
+        // Cosmic background field
+        let cosmicField = new Float32Array(W * H);
+        let thoughtField = new Float32Array(W * H);
+
+        // Initialize neurons
+        for (let i = 0; i < neuronCount; i++) {
+            neurons.push({
+                x: 10 + Math.random() * (W - 20),
+                y: 10 + Math.random() * (H - 20),
+                brightness: 0.5 + Math.random() * 0.5,
+                phase: Math.random() * Math.PI * 2,
+                frequency: 0.002 + Math.random() * 0.005,
+                activationThreshold: 0.3 + Math.random() * 0.4,
+                activation: Math.random(),
+                connections: [],
+                type: Math.floor(Math.random() * 3), // Different neuron personalities
+                pulseRadius: 0,
+                lastFired: -1000
+            });
+        }
+
+        // Create constellation connections based on proximity and resonance
+        function updateConnections() {
+            neurons.forEach(n => n.connections = []);
+
+            for (let i = 0; i < neurons.length; i++) {
+                for (let j = i + 1; j < neurons.length; j++) {
+                    const n1 = neurons[i];
+                    const n2 = neurons[j];
+                    const dx = n1.x - n2.x;
+                    const dy = n1.y - n2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    // Form connections based on distance and frequency harmony
+                    const freqRatio = n1.frequency / n2.frequency;
+                    const isHarmonic = Math.abs(freqRatio - Math.round(freqRatio)) < 0.15;
+
+                    if ((dist < 25 && isHarmonic) || dist < 12) {
+                        const strength = 1 / (1 + dist * 0.05);
+                        n1.connections.push({ neuron: n2, strength, distance: dist });
+                        n2.connections.push({ neuron: n1, strength, distance: dist });
+                    }
+                }
+            }
+        }
+
+        // Update neuron activations
+        function updateNeurons() {
+            neurons.forEach(n => {
+                // Natural oscillation
+                const baseActivation = Math.sin(time * n.frequency + n.phase) * 0.5 + 0.5;
+
+                // Receive signals from connected neurons
+                let receivedSignal = 0;
+                n.connections.forEach(conn => {
+                    const otherActivation = conn.neuron.activation;
+                    receivedSignal += otherActivation * conn.strength * 0.3;
+                });
+
+                // Update activation with decay
+                n.activation = n.activation * 0.95 + (baseActivation * 0.3 + receivedSignal * 0.7) * 0.05;
+
+                // Fire if threshold crossed
+                if (n.activation > n.activationThreshold && time - n.lastFired > 50) {
+                    n.lastFired = time;
+                    n.pulseRadius = 0;
+
+                    // Send signals to connected neurons
+                    n.connections.forEach(conn => {
+                        if (Math.random() < conn.strength * 0.5) {
+                            signals.push({
+                                x: n.x,
+                                y: n.y,
+                                targetX: conn.neuron.x,
+                                targetY: conn.neuron.y,
+                                progress: 0,
+                                speed: 0.05 + Math.random() * 0.05,
+                                intensity: n.activation * conn.strength
+                            });
+                        }
+                    });
+                }
+
+                // Expand pulse
+                if (time - n.lastFired < 30) {
+                    n.pulseRadius = (time - n.lastFired) * 0.8;
+                }
+            });
+        }
+
+        // Update traveling signals
+        function updateSignals() {
+            signals = signals.filter(s => {
+                s.progress += s.speed;
+
+                // Signal reached destination
+                if (s.progress >= 1.0) {
+                    // Boost target neuron activation
+                    const dx = s.targetX - s.x;
+                    const dy = s.targetY - s.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    neurons.forEach(n => {
+                        const ndist = Math.sqrt((n.x - s.targetX) ** 2 + (n.y - s.targetY) ** 2);
+                        if (ndist < 2) {
+                            n.activation = Math.min(1, n.activation + s.intensity * 0.4);
+                        }
+                    });
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // Calculate cosmic background field
+        function updateCosmicField() {
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+
+                    // Nebula-like background
+                    const nebula1 = Math.sin(x * 0.03 + time * 0.001) * Math.cos(y * 0.05 + time * 0.0015);
+                    const nebula2 = Math.cos(x * 0.04 - time * 0.0008) * Math.sin(y * 0.03 - time * 0.001);
+                    cosmicField[idx] = (nebula1 + nebula2) * 0.3 + 0.3;
+
+                    // Thought field from active neurons
+                    let neuronInfluence = 0;
+                    neurons.forEach(n => {
+                        const dx = x - n.x;
+                        const dy = y - n.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) + 0.1;
+
+                        // Radial influence with pulse
+                        const radialInfluence = Math.exp(-dist * 0.1) * n.activation;
+
+                        // Pulse wave
+                        if (n.pulseRadius > 0) {
+                            const pulseStrength = Math.exp(-Math.abs(dist - n.pulseRadius) * 0.5) *
+                                                 (1 - n.pulseRadius / 24) * n.activation;
+                            neuronInfluence += pulseStrength;
+                        }
+
+                        neuronInfluence += radialInfluence;
+                    });
+
+                    thoughtField[idx] = neuronInfluence;
+                }
+            }
+        }
+
+        // Calculate statistics
+        function calculateStats() {
+            const activeCount = neurons.filter(n => n.activation > n.activationThreshold).length;
+            const avgActivation = neurons.reduce((sum, n) => sum + n.activation, 0) / neurons.length;
+
+            document.getElementById('active').textContent = activeCount;
+            document.getElementById('signals').textContent = signals.length;
+            document.getElementById('coherence').textContent = avgActivation.toFixed(2);
+        }
+
+        // Render the constellation
+        function render() {
+            updateConnections();
+            updateNeurons();
+            updateSignals();
+            updateCosmicField();
+            calculateStats();
+
+            let output = '';
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+                    let char = ' ';
+                    let drawn = false;
+
+                    // Draw constellation lines
+                    neurons.forEach(n => {
+                        n.connections.forEach(conn => {
+                            const other = conn.neuron;
+                            // Simple line drawing
+                            const dx = other.x - n.x;
+                            const dy = other.y - n.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+
+                            for (let t = 0.1; t < 1; t += 0.05) {
+                                const lx = Math.round(n.x + dx * t);
+                                const ly = Math.round(n.y + dy * t);
+
+                                if (lx === x && ly === y) {
+                                    // Connection strength affects visibility
+                                    if (conn.strength > 0.5 && (n.activation > 0.6 || other.activation > 0.6)) {
+                                        const angle = Math.atan2(dy, dx);
+                                        if (Math.abs(angle) < Math.PI / 4 || Math.abs(angle) > 3 * Math.PI / 4) {
+                                            char = '─';
+                                        } else {
+                                            char = '│';
+                                        }
+                                        drawn = true;
+                                    } else if (conn.strength > 0.3 && Math.random() < 0.3) {
+                                        char = '·';
+                                        drawn = true;
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                    // Draw traveling signals
+                    if (!drawn) {
+                        signals.forEach(s => {
+                            const sx = s.x + (s.targetX - s.x) * s.progress;
+                            const sy = s.y + (s.targetY - s.y) * s.progress;
+                            const sdist = Math.sqrt((x - sx) ** 2 + (y - sy) ** 2);
+
+                            if (sdist < 1.5) {
+                                const intensity = s.intensity * (1 - s.progress * 0.3);
+                                const symbolIdx = Math.min(signalSymbols.length - 1,
+                                    Math.floor(intensity * signalSymbols.length));
+                                char = signalSymbols[symbolIdx];
+                                drawn = true;
+                            }
+                        });
+                    }
+
+                    // Draw neurons as stars
+                    if (!drawn) {
+                        neurons.forEach(n => {
+                            const dist = Math.sqrt((x - n.x) ** 2 + (y - n.y) ** 2);
+
+                            // Core star
+                            if (dist < 0.8) {
+                                const brightness = n.activation * n.brightness;
+                                const symbolIdx = Math.min(starSymbols.length - 1,
+                                    Math.floor(brightness * starSymbols.length));
+                                char = starSymbols[symbolIdx];
+                                drawn = true;
+                            }
+                            // Pulse ring
+                            else if (n.pulseRadius > 0 && Math.abs(dist - n.pulseRadius) < 1.5) {
+                                char = n.pulseRadius < 8 ? '◦' : '∘';
+                                drawn = true;
+                            }
+                        });
+                    }
+
+                    // Draw cosmic background
+                    if (!drawn) {
+                        const cosmic = cosmicField[idx];
+                        const thought = thoughtField[idx];
+                        const combined = cosmic + thought * 2;
+
+                        if (combined > 0.8) {
+                            char = voidSymbols[3];
+                        } else if (combined > 0.5) {
+                            char = voidSymbols[2];
+                        } else if (combined > 0.3) {
+                            char = voidSymbols[1];
+                        } else {
+                            char = voidSymbols[0];
+                        }
+                    }
+
+                    output += char;
+                }
+                output += '\n';
+            }
+
+            document.getElementById('canvas').textContent = output;
+            time++;
+        }
+
+        function animate() {
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        // Start the cosmic dance
+        updateConnections();
+        animate();
+    </script>
+</body>
+</html>
