@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mycelial Network - The Wood Wide Web</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #88ff88;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #ffaa44;
+            text-shadow: 0 0 10px #ff884480;
+        }
+
+        .info {
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #aaddaa;
+            max-width: 800px;
+        }
+
+        #canvas {
+            background: #050508;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 40px #44ff4420, inset 0 0 60px #00000080;
+            white-space: pre;
+            line-height: 1.2;
+            letter-spacing: 2px;
+            font-size: 11px;
+            border: 2px solid #44ff4440;
+        }
+
+        .stats {
+            margin-top: 15px;
+            font-size: 0.9em;
+            text-align: center;
+            color: #88ddff;
+            background: #0a0a1a;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #44888840;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        #canvas {
+            animation: pulse 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍄 Mycelial Network Simulation 🍄</h1>
+    <div class="info">
+        The Wood Wide Web - Underground fungal networks connecting organisms through quantum-entangled hyphal threads.<br>
+        Watch as the mycelium explores, connects, and shares information across the ecosystem.
+    </div>
+
+    <div id="canvas"></div>
+
+    <div class="stats">
+        <span id="stats">Network Status: Initializing...</span>
+    </div>
+
+    <script>
+        // Grid dimensions
+        const W = 120;
+        const H = 50;
+
+        // Symbols for different densities and states
+        const MYCELIUM_SYMBOLS = ' .·∘○◯⊙⊚◉●';
+        const NODE_SYMBOLS = ['♦', '◆', '❖', '✦', '★', '✧', '✹'];
+        const NUTRIENT_SYMBOLS = ['░', '▒', '▓'];
+
+        // Grid state
+        let grid = new Array(W * H).fill(0);
+        let nutrients = new Array(W * H).fill(0);
+        let connections = new Array(W * H).fill(null).map(() => []);
+        let entanglement = new Array(W * H).fill(0);
+
+        // Network nodes (trees, mushrooms)
+        let nodes = [];
+
+        // Hyphal tips (growing points)
+        let hyphae = [];
+
+        // Simulation parameters
+        const GROWTH_RATE = 0.3;
+        const DIFFUSION_RATE = 0.15;
+        const DECAY_RATE = 0.005;
+        const NUTRIENT_TRANSFER_RATE = 0.08;
+        const ENTANGLEMENT_STRENGTH = 0.12;
+        const MAX_HYPHAE = 80;
+
+        let time = 0;
+        let paused = false;
+        let totalNutrients = 0;
+        let networkComplexity = 0;
+        let quantumCoherence = 0;
+
+        // Initialize the simulation
+        function init() {
+            // Create initial nodes (trees)
+            const numNodes = 8;
+            for (let i = 0; i < numNodes; i++) {
+                const x = Math.floor(Math.random() * (W - 20) + 10);
+                const y = Math.floor(Math.random() * (H - 10) + 5);
+                nodes.push({
+                    x: x,
+                    y: y,
+                    type: Math.random() > 0.7 ? 'mushroom' : 'tree',
+                    energy: Math.random() * 50 + 50,
+                    connections: [],
+                    age: 0
+                });
+
+                // Add initial nutrients around nodes
+                for (let dy = -3; dy <= 3; dy++) {
+                    for (let dx = -3; dx <= 3; dx++) {
+                        const nx = x + dx;
+                        const ny = y + dy;
+                        if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            nutrients[ny * W + nx] = Math.max(nutrients[ny * W + nx],
+                                Math.exp(-dist / 2) * (Math.random() * 0.5 + 0.5));
+                        }
+                    }
+                }
+
+                // Spawn initial hyphae from this node
+                for (let j = 0; j < 3; j++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    hyphae.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * 0.8,
+                        vy: Math.sin(angle) * 0.4,
+                        energy: 50,
+                        sourceNode: i,
+                        age: 0
+                    });
+                }
+            }
+
+            // Add some random nutrient patches
+            for (let i = 0; i < 15; i++) {
+                const cx = Math.floor(Math.random() * W);
+                const cy = Math.floor(Math.random() * H);
+                const radius = Math.random() * 5 + 2;
+
+                for (let dy = -radius; dy <= radius; dy++) {
+                    for (let dx = -radius; dx <= radius; dx++) {
+                        const nx = cx + dx;
+                        const ny = cy + dy;
+                        if (nx >= 0 && nx < W && ny >= 0 && ny < H) {
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            if (dist <= radius) {
+                                nutrients[ny * W + nx] = Math.max(nutrients[ny * W + nx],
+                                    (1 - dist / radius) * (Math.random() * 0.3 + 0.4));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update simulation state
+        function update() {
+            if (paused) return;
+
+            time++;
+
+            // Decay mycelium
+            for (let i = 0; i < grid.length; i++) {
+                grid[i] *= (1 - DECAY_RATE);
+                entanglement[i] *= 0.98;
+            }
+
+            // Update hyphae (growing tips)
+            const newHyphae = [];
+            for (const hypha of hyphae) {
+                hypha.age++;
+
+                // Check for nutrients
+                const ix = Math.floor(hypha.x);
+                const iy = Math.floor(hypha.y);
+                if (ix >= 0 && ix < W && iy >= 0 && iy < H) {
+                    const idx = iy * W + ix;
+
+                    // Absorb nutrients
+                    const absorbed = nutrients[idx] * NUTRIENT_TRANSFER_RATE;
+                    hypha.energy += absorbed * 10;
+                    nutrients[idx] -= absorbed;
+
+                    // Deposit mycelium
+                    grid[idx] = Math.min(1, grid[idx] + GROWTH_RATE * 0.1);
+                }
+
+                // Chemotaxis - sense nutrient gradient
+                let bestAngle = Math.atan2(hypha.vy, hypha.vx);
+                let bestNutrient = 0;
+                const senseDistance = 3;
+                const senseAngle = Math.PI / 4;
+
+                for (let a = -1; a <= 1; a++) {
+                    const angle = bestAngle + a * senseAngle;
+                    const sx = Math.floor(hypha.x + Math.cos(angle) * senseDistance);
+                    const sy = Math.floor(hypha.y + Math.sin(angle) * senseDistance);
+
+                    if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
+                        const nutrientLevel = nutrients[sy * W + sx];
+                        if (nutrientLevel > bestNutrient) {
+                            bestNutrient = nutrientLevel;
+                            bestAngle = angle;
+                        }
+                    }
+                }
+
+                // Check for nearby nodes to connect
+                for (let i = 0; i < nodes.length; i++) {
+                    if (i === hypha.sourceNode) continue;
+                    const node = nodes[i];
+                    const dx = node.x - hypha.x;
+                    const dy = node.y - hypha.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < 2.5) {
+                        // Connection established!
+                        const source = nodes[hypha.sourceNode];
+                        if (!source.connections.includes(i)) {
+                            source.connections.push(i);
+                            node.connections.push(hypha.sourceNode);
+
+                            // Quantum entanglement between connected nodes
+                            for (let t = 0; t <= 1; t += 0.1) {
+                                const ex = Math.floor(source.x + (node.x - source.x) * t);
+                                const ey = Math.floor(source.y + (node.y - source.y) * t);
+                                if (ex >= 0 && ex < W && ey >= 0 && ey < H) {
+                                    entanglement[ey * W + ex] += ENTANGLEMENT_STRENGTH;
+                                }
+                            }
+                        }
+                        continue; // Don't grow this hypha further
+                    }
+                }
+
+                // Update velocity toward nutrient gradient
+                const turnRate = 0.15;
+                hypha.vx = hypha.vx * (1 - turnRate) + Math.cos(bestAngle) * turnRate;
+                hypha.vy = hypha.vy * (1 - turnRate) + Math.sin(bestAngle) * turnRate;
+
+                // Add some random wandering
+                hypha.vx += (Math.random() - 0.5) * 0.1;
+                hypha.vy += (Math.random() - 0.5) * 0.05;
+
+                // Normalize velocity
+                const speed = Math.sqrt(hypha.vx * hypha.vx + hypha.vy * hypha.vy);
+                if (speed > 0) {
+                    hypha.vx = (hypha.vx / speed) * 0.8;
+                    hypha.vy = (hypha.vy / speed) * 0.4;
+                }
+
+                // Move hypha
+                hypha.x += hypha.vx;
+                hypha.y += hypha.vy;
+
+                // Consume energy
+                hypha.energy -= 0.3;
+
+                // Boundary conditions
+                if (hypha.x < 0 || hypha.x >= W || hypha.y < 0 || hypha.y >= H) {
+                    continue; // Die at boundary
+                }
+
+                // Branch occasionally
+                if (hypha.energy > 40 && Math.random() < 0.02 && hyphae.length < MAX_HYPHAE) {
+                    const branchAngle = Math.atan2(hypha.vy, hypha.vx) + (Math.random() - 0.5) * Math.PI / 2;
+                    newHyphae.push({
+                        x: hypha.x,
+                        y: hypha.y,
+                        vx: Math.cos(branchAngle) * 0.8,
+                        vy: Math.sin(branchAngle) * 0.4,
+                        energy: hypha.energy * 0.5,
+                        sourceNode: hypha.sourceNode,
+                        age: 0
+                    });
+                    hypha.energy *= 0.5;
+                }
+
+                // Keep alive if has energy
+                if (hypha.energy > 0 && hypha.age < 300) {
+                    newHyphae.push(hypha);
+                }
+            }
+            hyphae = newHyphae;
+
+            // Spawn new hyphae from nodes occasionally
+            if (hyphae.length < MAX_HYPHAE && Math.random() < 0.1) {
+                const nodeIdx = Math.floor(Math.random() * nodes.length);
+                const node = nodes[nodeIdx];
+                const angle = Math.random() * Math.PI * 2;
+                hyphae.push({
+                    x: node.x,
+                    y: node.y,
+                    vx: Math.cos(angle) * 0.8,
+                    vy: Math.sin(angle) * 0.4,
+                    energy: 50,
+                    sourceNode: nodeIdx,
+                    age: 0
+                });
+            }
+
+            // Diffuse nutrients
+            const newNutrients = [...nutrients];
+            for (let y = 1; y < H - 1; y++) {
+                for (let x = 1; x < W - 1; x++) {
+                    const idx = y * W + x;
+                    const avg = (
+                        nutrients[idx] +
+                        nutrients[(y-1) * W + x] +
+                        nutrients[(y+1) * W + x] +
+                        nutrients[y * W + (x-1)] +
+                        nutrients[y * W + (x+1)]
+                    ) / 5;
+                    newNutrients[idx] = nutrients[idx] * (1 - DIFFUSION_RATE) + avg * DIFFUSION_RATE;
+                }
+            }
+            nutrients = newNutrients;
+
+            // Resource sharing through network
+            for (const node of nodes) {
+                node.age++;
+                for (const connectedIdx of node.connections) {
+                    const connected = nodes[connectedIdx];
+                    // Transfer energy from high to low
+                    const diff = node.energy - connected.energy;
+                    const transfer = diff * 0.05;
+                    node.energy -= transfer;
+                    connected.energy += transfer;
+                }
+            }
+
+            // Occasionally add new nutrients
+            if (Math.random() < 0.02) {
+                const x = Math.floor(Math.random() * W);
+                const y = Math.floor(Math.random() * H);
+                nutrients[y * W + x] = Math.min(1, nutrients[y * W + x] + Math.random() * 0.5);
+            }
+
+            // Calculate statistics
+            totalNutrients = nutrients.reduce((sum, n) => sum + n, 0);
+            networkComplexity = nodes.reduce((sum, n) => sum + n.connections.length, 0);
+            quantumCoherence = entanglement.reduce((sum, e) => sum + e, 0) / entanglement.length;
+        }
+
+        // Render the simulation
+        function render() {
+            let output = '';
+
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = y * W + x;
+
+                    // Check if this is a node
+                    let isNode = false;
+                    let nodeSymbol = '';
+                    for (const node of nodes) {
+                        if (Math.floor(node.x) === x && Math.floor(node.y) === y) {
+                            isNode = true;
+                            const energyLevel = Math.min(6, Math.floor(node.energy / 15));
+                            nodeSymbol = NODE_SYMBOLS[energyLevel];
+                            break;
+                        }
+                    }
+
+                    if (isNode) {
+                        output += nodeSymbol;
+                    } else {
+                        // Combine mycelium, nutrients, and entanglement
+                        const myceliumDensity = grid[idx];
+                        const nutrientLevel = nutrients[idx];
+                        const entanglementLevel = entanglement[idx];
+
+                        const combined = myceliumDensity + nutrientLevel * 0.3 + entanglementLevel * 0.5;
+
+                        if (nutrientLevel > 0.5 && myceliumDensity < 0.2) {
+                            // Show nutrients
+                            const symbolIdx = Math.min(2, Math.floor(nutrientLevel * 3));
+                            output += NUTRIENT_SYMBOLS[symbolIdx];
+                        } else if (combined > 0.05) {
+                            // Show mycelium with entanglement glow
+                            const symbolIdx = Math.min(MYCELIUM_SYMBOLS.length - 1,
+                                Math.floor(combined * MYCELIUM_SYMBOLS.length));
+                            output += MYCELIUM_SYMBOLS[symbolIdx];
+                        } else {
+                            output += ' ';
+                        }
+                    }
+                }
+                output += '\n';
+            }
+
+            document.getElementById('canvas').textContent = output;
+
+            // Update stats
+            const stats = `Time: ${time} | Hyphae: ${hyphae.length} | Network Connections: ${networkComplexity} | ` +
+                         `Nutrients: ${totalNutrients.toFixed(1)} | Quantum Coherence: ${(quantumCoherence * 100).toFixed(2)}%`;
+            document.getElementById('stats').textContent = stats;
+        }
+
+        // Animation loop
+        function animate() {
+            update();
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                paused = !paused;
+            }
+        });
+
+        // Start simulation
+        init();
+        animate();
+    </script>
+</body>
+</html>
