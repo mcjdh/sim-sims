@@ -141,6 +141,7 @@
                                 y: n.y,
                                 targetX: conn.neuron.x,
                                 targetY: conn.neuron.y,
+                                targetNeuron: conn.neuron,
                                 progress: 0,
                                 speed: 0.05 + Math.random() * 0.05,
                                 intensity: n.activation * conn.strength
@@ -163,16 +164,8 @@
 
                 // Signal reached destination
                 if (s.progress >= 1.0) {
-                    // Boost target neuron activation
-                    const dx = s.targetX - s.x;
-                    const dy = s.targetY - s.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    neurons.forEach(n => {
-                        const ndist = Math.sqrt((n.x - s.targetX) ** 2 + (n.y - s.targetY) ** 2);
-                        if (ndist < 2) {
-                            n.activation = Math.min(1, n.activation + s.intensity * 0.4);
-                        }
-                    });
+                    // Boost target neuron activation using stored reference
+                    s.targetNeuron.activation = Math.min(1, s.targetNeuron.activation + s.intensity * 0.4);
                     return false;
                 }
                 return true;
@@ -227,7 +220,6 @@
 
         // Render the constellation
         function render() {
-            updateConnections();
             updateNeurons();
             updateSignals();
             updateCosmicField();
