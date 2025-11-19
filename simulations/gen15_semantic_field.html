@@ -83,6 +83,7 @@
 
         // Insight moments - quantum tunneling between distant concepts
         let insights = [];
+        let insightPixels = new Set(); // Pre-computed pixels for O(1) lookup during rendering
 
         // Symbol sets for different field states
         const VACUUM = [' ', '·', '·', '·', ' '];
@@ -103,14 +104,21 @@
             ];
         }
 
+        // Simulation constants
+        const FIELD_DECAY = 0.92;              // Field energy decay rate per frame
+        const TIME_STEP = 0.03;                // Time step for numerical integration
+        const MEMORY_DECAY = 0.98;             // Memory retention rate (exponential decay)
+        const MEMORY_CONTRIBUTION = 0.02;      // Update rate from current field to memory
+        const CONCEPT_INFLUENCE_RADIUS = 200;  // Spatial spread of concept influence
+        const OBSERVER_RADIUS = 100;           // Observer effect spatial range
+        const OBSERVER_FREQUENCY = 0.2;        // Observer oscillation frequency
+        const OBSERVER_STRENGTH = 0.1;         // Observer effect amplitude
+
         // Semantic field evolution
         function evolveField() {
-            const decay = 0.92;
-            const dt = 0.03;
-
-            // Update memory - traces of past understanding
+            // Update memory - traces of past understanding (exponential moving average)
             for (let i = 0; i < W * H; i++) {
-                memory[i] = memory[i] * 0.98 + field[i] * 0.02;
+                memory[i] = memory[i] * MEMORY_DECAY + field[i] * MEMORY_CONTRIBUTION;
             }
 
             // Evolve the field
@@ -134,7 +142,7 @@
                         const dx = x - c.x;
                         const dy = y - c.y;
                         const dist = Math.sqrt(dx * dx + dy * dy);
-                        const amp = Math.exp(-dist * dist / 200);
+                        const amp = Math.exp(-dist * dist / CONCEPT_INFLUENCE_RADIUS);
                         source += amp * Math.sin(c.freq * t + c.phase) * 0.3;
                     }
 
@@ -142,8 +150,8 @@
                     const odx = x - observerX;
                     const ody = y - observerY;
                     const oDist = Math.sqrt(odx * odx + ody * ody);
-                    const observerEffect = Math.exp(-oDist * oDist / 100) *
-                                         Math.sin(t * 0.2) * 0.1;
+                    const observerEffect = Math.exp(-oDist * oDist / OBSERVER_RADIUS) *
+                                         Math.sin(t * OBSERVER_FREQUENCY) * OBSERVER_STRENGTH;
 
                     // Nonlinear term - meaning is context-dependent
                     const nonlinear = field[i] * field[i] * 0.01;
@@ -152,8 +160,8 @@
                     const memoryFeedback = memory[i] * 0.05;
 
                     // Update field
-                    field[i] = field[i] * decay +
-                              (wave + source + observerEffect - nonlinear + memoryFeedback) * dt;
+                    field[i] = field[i] * FIELD_DECAY +
+                              (wave + source + observerEffect - nonlinear + memoryFeedback) * TIME_STEP;
 
                     // Update phase - the hidden dimension of meaning
                     phase[i] = (phase[i] + field[i] * 0.1) % (Math.PI * 2);
@@ -180,6 +188,31 @@
             detectInsights();
         }
 
+        // Pre-compute pixels for an insight path
+        function computeInsightPixels(ins) {
+            const pixels = new Set();
+            // Parametric line between concepts with radius 2
+            for (let u = 0; u < 1; u += 0.05) {
+                const px = ins.x1 + (ins.x2 - ins.x1) * u;
+                const py = ins.y1 + (ins.y2 - ins.y1) * u;
+                // Add pixels within radius 2
+                const ix = Math.floor(px);
+                const iy = Math.floor(py);
+                for (let dy = -2; dy <= 2; dy++) {
+                    for (let dx = -2; dx <= 2; dx++) {
+                        if (dx * dx + dy * dy < 4) {
+                            const x = ix + dx;
+                            const y = iy + dy;
+                            if (x >= 0 && x < W && y >= 0 && y < H) {
+                                pixels.add(y * W + x);
+                            }
+                        }
+                    }
+                }
+            }
+            return pixels;
+        }
+
         // Detect moments of insight - when distant concepts suddenly connect
         function detectInsights() {
             // Check for strong correlations between distant concepts
@@ -204,19 +237,32 @@
                     if (dist > 30 && Math.abs(v1 - v2) < 0.5 && Math.abs(v1) > 2) {
                         // Quantum tunneling - create a connection
                         if (Math.random() < 0.01) {
-                            insights.push({
+                            const newInsight = {
                                 x1: c1.x, y1: c1.y,
                                 x2: c2.x, y2: c2.y,
                                 birth: t,
                                 meaning: `${c1.meaning} ⟺ ${c2.meaning}`
-                            });
+                            };
+                            insights.push(newInsight);
                         }
                     }
                 }
             }
 
-            // Age and remove old insights
+            // Age and remove old insights, rebuild pixel set
             insights = insights.filter(ins => t - ins.birth < 100);
+            
+            // Rebuild insight pixel set for fast O(1) lookup during rendering
+            insightPixels.clear();
+            for (let ins of insights) {
+                const age = t - ins.birth;
+                if (age < 50) {
+                    const pixels = computeInsightPixels(ins);
+                    for (let pixel of pixels) {
+                        insightPixels.add(pixel);
+                    }
+                }
+            }
         }
 
         // Render the field
@@ -235,24 +281,8 @@
                     let char = ' ';
                     let cls = 'intensity-0';
 
-                    // Check if we're on an insight path
-                    let onInsight = false;
-                    for (let ins of insights) {
-                        const age = t - ins.birth;
-                        if (age < 50) {
-                            // Parametric line between concepts
-                            for (let u = 0; u < 1; u += 0.05) {
-                                const px = ins.x1 + (ins.x2 - ins.x1) * u;
-                                const py = ins.y1 + (ins.y2 - ins.y1) * u;
-                                const dx = x - px;
-                                const dy = y - py;
-                                if (dx * dx + dy * dy < 4) {
-                                    onInsight = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    // Check if we're on an insight path using O(1) lookup
+                    const onInsight = insightPixels.has(i);
 
                     if (onInsight) {
                         char = TUNNEL[Math.floor(Math.random() * TUNNEL.length)];
