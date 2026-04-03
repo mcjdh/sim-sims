@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>sim</title>
+<style>
+*{margin:0;padding:0}
+body{background:#0a0a0f;overflow:hidden;
+  display:flex;justify-content:center;align-items:center;height:100vh}
+#c{white-space:pre;color:#e0d8f0;font:8px/0.9 Menlo,monospace;
+  text-shadow:0 0 2px rgba(200,180,255,0.4),0 0 6px rgba(200,180,255,0.15);
+  filter:brightness(1.1);font-feature-settings:'kern' 0;user-select:none;
+  pointer-events:none;transform-origin:center center}
+#nav{position:fixed;top:0;left:0;right:0;display:flex;gap:1px;
+  padding:4px 12px;z-index:1;font:11px/1 -apple-system,'Helvetica Neue',sans-serif;
+  background:rgba(38,38,40,0.85);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+#nav a{color:rgba(255,255,255,0.5);text-decoration:none;padding:3px 10px;
+  cursor:pointer;border-radius:4px;transition:all 0.15s;font-weight:400}
+#nav a:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.08)}
+#nav a.on{color:#fff;background:rgba(255,255,255,0.13)}
+#info{position:fixed;bottom:8px;right:10px;font-size:9px;
+  color:rgba(200,180,255,0.3);font-family:Menlo,monospace}
+#m{position:absolute;visibility:hidden;white-space:pre;
+  font:8px/0.9 Menlo,monospace;font-feature-settings:'kern' 0}
+</style></head><body>
+<div id="nav"></div>
+<div id="c"></div><div id="info"></div><span id="m">X</span>
+<script type="module">
+// --- CONFIG ---
+const W = 240, H = 120;
+const SYMS = ' .·°∘○◉●▪█';
+const SIMS = ['default', 'waves', 'cellu'];
+
+// measure actual char dimensions from the DOM
+const mEl = document.getElementById('m');
+const CW = mEl.getBoundingClientRect().width;
+const CH = mEl.getBoundingClientRect().height;
+const AR = CW / CH;
+mEl.remove();
+
+const el = document.getElementById('c');
+const info = document.getElementById('info');
+const nav = document.getElementById('nav');
+const SL = SYMS.length - 1;
+let t = 0, mx = 0, my = 0, state = {}, simFn = null;
+
+// --- load sims ---
+const mods = {};
+for (const s of SIMS) mods[s] = await import('./sims/' + s + '.js');
+
+function load(name) {
+  const mod = mods[name];
+  simFn = mod.sim;
+  state = mod.init ? mod.init() : {};
+  t = 0;
+  nav.querySelectorAll('a').forEach(a =>
+    a.classList.toggle('on', a.dataset.sim === name));
+  document.title = name + ' — sim';
+}
+
+// build nav
+for (const name of SIMS) {
+  const a = document.createElement('a');
+  a.textContent = name;
+  a.dataset.sim = name;
+  a.onclick = () => load(name);
+  nav.appendChild(a);
+}
+load(SIMS[0]);
+
+// --- engine ---
+document.addEventListener('mousemove', e => {
+  mx = (e.clientX / window.innerWidth) * 2 - 1;
+  my = (e.clientY / window.innerHeight) * 2 - 1;
+});
+
+function fit() {
+  const natW = W * CW, natH = H * CH;
+  const s = Math.max(window.innerWidth / natW, window.innerHeight / natH);
+  el.style.transform = 'scale(' + s + ')';
+}
+
+function render() {
+  let out = '';
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      let v = simFn(x, y, t, W, H, mx, my, state, AR);
+      v = ((v % 1) + 1) % 1;
+      out += SYMS[(v * SL + 0.5) | 0];
+    }
+    out += '\n';
+  }
+  el.textContent = out;
+  t += 0.02;
+}
+
+function loop() { render(); requestAnimationFrame(loop); }
+fit();
+window.addEventListener('resize', fit);
+loop();
+</script></body></html>
