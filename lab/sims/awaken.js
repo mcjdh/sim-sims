@@ -183,8 +183,8 @@ export function sim(x, y, t, W, H, mx, my, state, AR) {
     step(state, mx, my, AR);
     state.lastT = t;
   }
-  // mostly memory (depth) with a whisper of live dynamics (shimmer)
+  // memory reaches ~0.84 naturally at steady state — no multiplier needed
+  const memory = state.mem[y][x];
   const live = Math.sin(state.fields[0][y][x]) * 0.5 + 0.5;
-  const memory = state.mem[y][x] * 12;
-  return memory * 0.85 + live * 0.15;
+  return memory * 0.8 + live * 0.2;
 }
